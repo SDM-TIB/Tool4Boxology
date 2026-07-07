@@ -18,6 +18,13 @@ interface GoDiagramProps {
   customGroups: Record<string, any[]>;
 }
 
+const getRoundedRectParameter = (nodeName: string) => {
+  const shapeDef = shapes.find((s) => s.name.toLowerCase() === nodeName.toLowerCase());
+  if (!shapeDef?.borderRadius) return 15;
+  const parsed = parseFloat(shapeDef.borderRadius);
+  return Number.isFinite(parsed) ? parsed : 15;
+};
+
 // Helper: Recursively build menu
 function buildTypeMenu(
   diagram: go.Diagram,
@@ -224,8 +231,8 @@ const GoDiagram: React.FC<GoDiagramProps> = ({
         go.Panel,
         'Grid',
         { gridCellSize: new go.Size(20, 20) },
-        $(go.Shape, 'LineH', { stroke: '#f5f5f5' }),
-        $(go.Shape, 'LineV', { stroke: '#f5f5f5' })
+        $(go.Shape, 'LineH', { stroke: '#eee' }),
+        $(go.Shape, 'LineV', { stroke: '#eee' })
       ),
     });
 
@@ -241,62 +248,21 @@ const GoDiagram: React.FC<GoDiagramProps> = ({
     };
 
     // 🔧 ADD: Configure tools with custom cursors
-    diagram.toolManager.draggingTool.isGridSnapEnabled = true;
-    // diagram.toolManager.draggingTool.dragsLink = true;
+    diagram.toolManager.draggingTool.isGridSnapEnabled = false;
     diagram.toolManager.draggingTool.delay = 0;
-    diagram.toolManager.resizingTool.isGridSnapEnabled = true;
     
     // 🔧 ADD: Custom cursor for linking tool
     diagram.toolManager.linkingTool.isEnabled = true;
-    diagram.toolManager.linkingTool.portGravity = 20;
     // Removed invalid property: portTargetingTool.cursorHot
+    
     diagram.toolManager.relinkingTool.isEnabled = true;
-    diagram.toolManager.relinkingTool.portGravity = 20;
-    diagram.toolManager.relinkingTool.fromHandleArchetype = new go.Shape('Diamond', {
-      segmentIndex: 0,
-      cursor: 'pointer',
-      desiredSize: new go.Size(8, 8),
-      fill: 'tomato',
-      stroke: 'darkred'
-    });
-    diagram.toolManager.relinkingTool.toHandleArchetype = new go.Shape('Diamond', {
-      segmentIndex: -1,
-      cursor: 'pointer',
-      desiredSize: new go.Size(8, 8),
-      fill: 'darkred',
-      stroke: 'tomato'
-    });
-
- function makePort(name: string, spot: go.Spot, output: boolean, input: boolean) {
-  return new go.Shape('Circle', {
-    fill: null,
-    stroke: null,
-    desiredSize: new go.Size(7, 7),
-    alignment: spot,
-    alignmentFocus: spot,
-    portId: name,
-    fromSpot: spot,
-    toSpot: spot,
-    fromLinkable: output,
-    toLinkable: input,
-    cursor: 'pointer'
-  });
-}
-
-function showSmallPorts(node: any, show: any) {
-  node.ports.each((port: go.Shape) => {
-    if (port.portId !== '') {
-      port.fill = show ? 'rgba(0,0,0,.3)' : null;
-    }
-  });
-}
 
     // UPDATED: Node template - shape as port with cursor differentiation
     diagram.nodeTemplate = $(
       go.Node,
       'Spot',
       {
-        locationSpot: go.Spot.TopLeft,
+        locationSpot: go.Spot.Center,
         selectable: true,
         movable: true,
         resizable: true,
@@ -312,12 +278,8 @@ function showSmallPorts(node: any, show: any) {
         },
         // 🔧 ADD: Dynamic cursor based on mouse position
         mouseEnter: (e, obj) => {
-          // const node = obj as go.Node;
-          // node.cursor = 'move';  // Default to move
-          showSmallPorts(obj, true);
-        },
-        mouseLeave: (e, obj) => {
-          showSmallPorts(obj, false);
+          const node = obj as go.Node;
+          node.cursor = 'move';  // Default to move
         },
         mouseDragEnter: (e, obj) => {
           const node = obj as go.Node;
@@ -330,87 +292,95 @@ function showSmallPorts(node: any, show: any) {
         }
       },
       new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-      
-      // 🔧 UPDATED: Main shape IS the port - no separate port areas needed
       $(
-        go.Shape,
+        go.Panel,
+        'Auto',
         {
-          name: 'SHAPE',
-          strokeWidth: 1,
-          stroke: '#999',
-          portId: '',  // Empty string = default port
-          fromLinkable: true,
-          toLinkable: true,
-          fromSpot: go.Spot.AllSides,  // Links connect at actual shape boundary
-          toSpot: go.Spot.AllSides,
-          cursor: 'move',  // Default cursor
-          width: 100,
-          height: 60,
-          minSize: new go.Size(30, 30),
-          maxSize: new go.Size(300, 300),
-          // 🔧 ADD: Mouse handlers to change cursor dynamically
-          mouseEnter: (e, shape) => {
-            const sh = shape as go.Shape;
-            const diagram = sh.part?.diagram;
-            if (!diagram) return;
-            
-            // Get mouse position relative to shape
-            const shapeCenter = sh.getDocumentPoint(go.Spot.Center);
-            const mousePoint = diagram.lastInput.documentPoint;
-            const bounds = sh.actualBounds;
-            
-            // Calculate if mouse is near edge (within 15px of boundary)
-            const distFromCenterX = Math.abs(mousePoint.x - shapeCenter.x);
-            const distFromCenterY = Math.abs(mousePoint.y - shapeCenter.y);
-            const isNearHorizontalEdge = distFromCenterX > (bounds.width / 2) - 15;
-            const isNearVerticalEdge = distFromCenterY > (bounds.height / 2) - 15;
-            
-            if (isNearHorizontalEdge || isNearVerticalEdge) {
-              sh.cursor = 'pointer';  // Near edge = link cursor
-            } else {
-              sh.cursor = 'move';     // Center = move cursor
+          name: 'BODY'
+        },
+        // 🔧 UPDATED: Main shape IS the port - no separate port areas needed
+        $(
+          go.Shape,
+          {
+            name: 'SHAPE',
+            strokeWidth: 1,
+            stroke: '#999',
+            portId: '',  // Empty string = default port
+            fromLinkable: true,
+            toLinkable: true,
+            fromSpot: go.Spot.AllSides,
+            toSpot: go.Spot.AllSides,
+            cursor: 'move',  // Default cursor
+            minSize: new go.Size(100, 60),
+            maxSize: new go.Size(300, 300),
+            // 🔧 ADD: Mouse handlers to change cursor dynamically
+            mouseEnter: (e, shape) => {
+              const sh = shape as go.Shape;
+              const diagram = sh.part?.diagram;
+              if (!diagram) return;
+              
+              // Get mouse position relative to shape
+              const shapeCenter = sh.getDocumentPoint(go.Spot.Center);
+              const mousePoint = diagram.lastInput.documentPoint;
+              const bounds = sh.actualBounds;
+              
+              // Calculate if mouse is near edge (within 15px of boundary)
+              const distFromCenterX = Math.abs(mousePoint.x - shapeCenter.x);
+              const distFromCenterY = Math.abs(mousePoint.y - shapeCenter.y);
+              const isNearHorizontalEdge = distFromCenterX > (bounds.width / 2) - 15;
+              const isNearVerticalEdge = distFromCenterY > (bounds.height / 2) - 15;
+              
+              if (isNearHorizontalEdge || isNearVerticalEdge) {
+                sh.cursor = 'pointer';  // Near edge = link cursor
+              } else {
+                sh.cursor = 'move';     // Center = move cursor
+              }
+            },
+            mouseLeave: (e, shape) => {
+              (shape as go.Shape).cursor = 'move';
             }
           },
-          mouseLeave: (e, shape) => {
-            (shape as go.Shape).cursor = 'move';
-          }
-        },
-        new go.Binding('fill', 'color'),
-        new go.Binding('stroke', 'stroke'),
-        new go.Binding('strokeDashArray', 'isShared', (isShared) =>
-          isShared ? [4, 3] : null
+          new go.Binding('fill', 'color'),
+          new go.Binding('stroke', 'stroke'),
+          new go.Binding('strokeDashArray', 'isShared', (isShared) =>
+            isShared ? [4, 3] : null
+          ),
+          new go.Binding('figure', 'shape', (shapeType) => {
+            const figure = mapShapeToGoJSFigure(shapeType);
+            return figure;
+          }),
+          new go.Binding('fromSpot', 'shape', (shapeType) =>
+            shapeType === 'Triangle' || shapeType === 'TriangleDown' ? go.Spot.None : go.Spot.AllSides
+          ),
+          new go.Binding('toSpot', 'shape', (shapeType) =>
+            shapeType === 'Triangle' || shapeType === 'TriangleDown' ? go.Spot.None : go.Spot.AllSides
+          ),
+          new go.Binding('width', 'width', (w) => typeof w === 'number' ? w : NaN).makeTwoWay(),
+          new go.Binding('height', 'height', (h) => typeof h === 'number' ? h : NaN).makeTwoWay(),
+          new go.Binding('strokeWidth', 'strokeWidth'),
+          new go.Binding('parameter1', 'parameter1')
         ),
-        new go.Binding('figure', 'shape', (shapeType) => {
-          const figure = mapShapeToGoJSFigure(shapeType);
-          return figure;
-        }),
-        new go.Binding('width', 'width').makeTwoWay(),
-        new go.Binding('height', 'height').makeTwoWay(),
-        new go.Binding('strokeWidth', 'strokeWidth'),
-        new go.Binding('parameter1', 'parameter1')
+      
+        // Label (centered) - UPDATED: Make editable
+        $(
+          go.TextBlock,
+          {
+            alignment: go.Spot.Center,
+            margin: 8,
+            font: 'bold 12px sans-serif',
+            stroke: '#333',
+            editable: true,
+            textAlign: 'center',
+            wrap: go.TextBlock.WrapFit,
+            overflow: go.TextBlock.OverflowClip,
+            maxSize: new go.Size(240, NaN),
+            textEditor: null
+          },
+          new go.Binding('text', 'label').makeTwoWay()
+        )
       ),
       
       // 🔧 REMOVED: All separate port lines (TOP_PORT, BOTTOM_PORT, LEFT_PORT, RIGHT_PORT)
-      makePort('T', go.Spot.Top, true, true),
-      makePort('L', go.Spot.Left, true, true),
-      makePort('R', go.Spot.Right, true, true),
-      makePort('B', go.Spot.Bottom, true, true),
-
-      // Label (centered) - UPDATED: Make editable
-      $(
-        go.TextBlock,
-        {
-          alignment: go.Spot.Center,
-          margin: 8,
-          font: 'bold 12px sans-serif',
-          stroke: '#333',
-          maxLines: 2,
-          overflow: go.TextBlock.OverflowEllipsis,
-          editable: true,
-          textEditor: null
-        },
-        new go.Binding('text', 'label').makeTwoWay()
-      ),
       
       // Type selector - Always visible
       $(go.Panel, 'Auto',
@@ -478,6 +448,7 @@ function showSmallPorts(node: any, show: any) {
     );
 
     diagram.linkTemplate = $(
+      
       go.Link,
       // 🔧 CHANGED: Use Orthogonal instead of AvoidsNodes (much faster)
       {routing: go.Routing.AvoidsNodes,
@@ -485,11 +456,8 @@ function showSmallPorts(node: any, show: any) {
           corner: 5,
           toShortLength: 4,
           reshapable: true,
-          resegmentable: true,
-          relinkableFrom: true,
-          relinkableTo: true,
-      },
-      // { routing: go.Link.Orthogonal, corner: 5, selectable: true }, // commented to retain AvoidNodes
+          resegmentable: true},
+      { routing: go.Link.Orthogonal, corner: 5, selectable: true },
       $(go.Shape, { strokeWidth: 2, stroke: "#555" }),
       $(go.Shape, { toArrow: "Triangle", fill: "#555", stroke: null })
     );
@@ -650,7 +618,23 @@ function showSmallPorts(node: any, show: any) {
         const pattern = JSON.parse(patternData);
         diagram.startTransaction('drop pattern');
         
+        const clusterKeyMap = new Map<string, string>();
         const nodeKeyMap = new Map<string, string>();
+
+        // Create cluster group nodes first, then map pattern cluster ids to concrete GoJS keys.
+        (pattern.clusters || []).forEach((cluster: any) => {
+          const groupKey = `group_${Date.now()}_${cluster.id}`;
+          clusterKeyMap.set(cluster.id, groupKey);
+
+          const groupData: any = {
+            key: groupKey,
+            isGroup: true,
+            category: cluster.category || 'ClusterGroup',
+            label: cluster.label
+          };
+
+          (diagram.model as go.GraphLinksModel).addNodeData(groupData);
+        });
         
         pattern.nodes.forEach((node: any) => {
           const newKey = `node_${Date.now()}${node.id}`;
@@ -667,8 +651,26 @@ function showSmallPorts(node: any, show: any) {
             type: node.type || node.name  // 🔧 FIX: Use pattern's type or default to name
           };
 
-          if (node.shape === 'RoundedRectangle') {
-            nodeData.parameter1 = 45;
+          if (node.group && clusterKeyMap.has(node.group)) {
+            nodeData.group = clusterKeyMap.get(node.group);
+          }
+
+          if (Array.isArray(node.sharedGroups) && node.sharedGroups.length > 0) {
+            const mappedSharedGroups = node.sharedGroups
+              .map((groupId: string) => clusterKeyMap.get(groupId))
+              .filter((groupKey: string | undefined): groupKey is string => Boolean(groupKey));
+
+            if (mappedSharedGroups.length > 0) {
+              nodeData.isShared = true;
+              nodeData.sharedGroups = mappedSharedGroups;
+              nodeData.group = undefined;
+            }
+          }
+
+          if (typeof node.parameter1 === 'number') {
+            nodeData.parameter1 = node.parameter1;
+          } else if (node.shape === 'RoundedRectangle') {
+            nodeData.parameter1 = getRoundedRectParameter(node.name);
           }
 
           (diagram.model as go.GraphLinksModel).addNodeData(nodeData);
@@ -710,8 +712,9 @@ function showSmallPorts(node: any, show: any) {
         };
 
         if (shape.shape === 'RoundedRectangle') {
-          const radius = shape.borderRadius ? parseFloat(shape.borderRadius) : 15;
-          nodeData.parameter1 = radius;
+          nodeData.parameter1 = getRoundedRectParameter(shape.name);
+          shape.height = shape.height || 60;
+
         }
         
         if (shape.shape === 'Hexagon') {

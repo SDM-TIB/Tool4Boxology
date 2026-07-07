@@ -1,15 +1,14 @@
 import React, { useRef, useState, useEffect } from 'react';
 import './App.css';
-import Toolbar from './components/Toolbar';
-import LeftSidebar from './components/LeftSidebar';
+import Toolbar from './components/toolbar/Toolbar';
+import LeftSidebar from './components/sidebar/LeftSidebar';
 import GoDiagram from './GoDiagram';
 import { saveWithPicker } from './utils/fs-save';
 import * as go from 'gojs';
-import RightSidebar from './components/RightSidebar';
-import ContextMenu from './ContextMenu';
-import { validateGoJSDiagram } from './plugin/GoJSBoxologyValidation';
+import RightSidebar from './components/sidebar/RightSidebar';
+import ContextMenu from './components/ContextMenu';
+import { validateElementaryOnlyDiagram, validateGoJSDiagram } from './plugin/GoJSBoxologyValidation';
 import { v4 as uuidv4 } from 'uuid';
-import type { ValidationResult } from './utils/validation';
 import { elementaryPatterns } from './data/patterns';
 import { modelToDOT } from './utils/dot';
 import { parseDOTToModel } from './utils/dotImport';
@@ -17,16 +16,25 @@ import { buildPagesFromModel } from './utils/pageBuilder';
 import { openInGraphviz } from './utils/openInGraphviz';
 import { generateMultiPageRMLExport, generateStableIdFromData, normalizeModelData } from './utils/exportHelpers';
 import { API_BASE } from './config';
-import InstructionDialog from './components/InstructionDialog';
-import LoadingBox from './components/LoadingBox';
+import InstructionDialog from './components/dialogs/InstructionDialog';
+import LoadingBox from './components/dialogs/LoadingBox';
+import { saveSession, loadSession, clearSession, isEmptySession } from './utils/autosave';
+import { useToast } from './components/Toast/ToastProvider';
+import { useDialogs } from './hooks/useDialogs';
+import AboutDialog from './components/dialogs/AboutDialog';
+import { colors } from './styles/theme';
 
 function App() {
+  const { showToast } = useToast();
+  const { confirmAsync, promptAsync, alertAsync } = useDialogs();
   const diagramRef = useRef<go.Diagram | null>(null);
   const [containers, setContainers] = useState<string[]>(['General', 'Annotation']);
   const [customContainerShapes, setCustomContainerShapes] = useState<{ [key: string]: any[] }>({});
   const [selectedData, setSelectedData] = useState<any>(null);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
   const [customGroups, setCustomGroups] = useState<{ [key: string]: any[] }>({});
+  const [kgJson, setKgJson] = useState<any>(null); // <-- Add this line
+
 
   // Page management for GoJS diagrams
     type PageData = {
@@ -55,10 +63,10 @@ function App() {
     name.replace(/[<>:"/\\|?*\x00-\x1F]/g, '_').trim().replace(/\s+/g, '_').slice(0, 120);
 
   // allow renaming a page (double-click tab)
-  const handleRenamePage = (pageId: string) => {
+  const handleRenamePage = async (pageId: string) => {
     const p = pages.find(pp => pp.id === pageId);
     if (!p) return;
-    const newName = prompt('Enter new page name:', p.name);
+    const newName = await promptAsync('Enter new page name:', p.name);
     if (!newName) return;
     setPages(prev => prev.map(pg => pg.id === pageId ? { ...pg, name: newName.trim() } : pg));
   };
@@ -105,12 +113,43 @@ function App() {
     setCurrentPageId(pageId);
   };
 
-  // Close page
-  const handleClosePage = (pageId: string) => {
-    if (pages.length === 1) return; // Can't close last page
-    
+  // Close page - prompts to save/discard if it has content, since closing a tab
+  // throws away that diagram's data with no way to get it back.
+  const handleClosePage = async (pageId: string) => {
+    if (pages.length === 1) {
+      showToast("Can't close the only page.", 'warning');
+      return;
+    }
+
+    const pageToClose = pages.find(p => p.id === pageId);
+    if (!pageToClose) return;
+
+    // If it's the active tab, its truest data is the live diagram (may not be
+    // synced into `pages` yet); otherwise use what's already stored for it.
+    const isActive = pageId === currentPageId;
+    const liveModel = isActive ? (diagramRef.current?.model as go.GraphLinksModel | undefined) : undefined;
+    const nodeDataArray = liveModel ? liveModel.nodeDataArray : (pageToClose.nodeDataArray || []);
+    const linkDataArray = liveModel ? (liveModel.linkDataArray || []) : (pageToClose.linkDataArray || []);
+    const hasContent = nodeDataArray.length > 0 || linkDataArray.length > 0;
+
+    if (hasContent) {
+      const wantsSave = await confirmAsync(
+        `Save changes to "${pageToClose.name}" before closing it?\n\n` +
+        `OK = Save this diagram first\nCancel = Continue without saving`
+      );
+      if (wantsSave) {
+        const saved = await savePageDataToDisk({ ...pageToClose, nodeDataArray, linkDataArray });
+        if (!saved) return; // save was cancelled - keep the page open
+      } else {
+        const confirmDiscard = await confirmAsync(
+          `Discard changes and close "${pageToClose.name}"? This cannot be undone.`
+        );
+        if (!confirmDiscard) return; // user backed out - keep the page open
+      }
+    }
+
     setPages(prev => prev.filter(page => page.id !== pageId));
-    
+
     // If closing current page, switch to first remaining page
     if (currentPageId === pageId) {
       const remainingPages = pages.filter(page => page.id !== pageId);
@@ -121,14 +160,95 @@ function App() {
   // Get current page
   const currentPage = pages.find((p) => p.id === currentPageId);
 
-  // Load diagram data when page changes
+  // --- Autosave / crash recovery (IndexedDB, client-side only) ---
+  const pagesRef = useRef(pages);
+  const currentPageIdRef = useRef(currentPageId);
+  const autosaveTimerRef = useRef<number | null>(null);
+  const scheduleAutosave = () => {
+    if (autosaveTimerRef.current) window.clearTimeout(autosaveTimerRef.current);
+    autosaveTimerRef.current = window.setTimeout(() => {
+      const diagram = diagramRef.current;
+      if (!diagram) return;
+      const model = diagram.model as go.GraphLinksModel;
+      const liveNodeData = model.nodeDataArray;
+      const liveLinkData = model.linkDataArray || [];
+      const snapshotPages = pagesRef.current.map(p =>
+        p.id === currentPageIdRef.current
+          ? { ...p, nodeDataArray: liveNodeData, linkDataArray: liveLinkData }
+          : p
+      );
+      saveSession({ pages: snapshotPages, currentPageId: currentPageIdRef.current, savedAt: Date.now() });
+    }, 1000);
+  };
+
+  // Keep refs in sync, and also autosave on page-list-level changes (add/rename/
+  // close/switch page) so those aren't lost even without a subsequent diagram edit.
+  useEffect(() => {
+    pagesRef.current = pages;
+    scheduleAutosave();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pages]);
+
+  useEffect(() => { currentPageIdRef.current = currentPageId; }, [currentPageId]);
+
+  // Warn before closing/refreshing the tab if any page has a diagram in it.
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      const liveModel = diagramRef.current?.model as go.GraphLinksModel | undefined;
+      const liveHasContent = (liveModel?.nodeDataArray?.length ?? 0) > 0 || (liveModel?.linkDataArray?.length ?? 0) > 0;
+      const anyPageHasContent = pagesRef.current.some(
+        p => (p.nodeDataArray?.length ?? 0) > 0 || (p.linkDataArray?.length ?? 0) > 0
+      );
+
+      if (liveHasContent || anyPageHasContent) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
+
+  // On mount, offer to restore an autosaved session left over from a crash/refresh.
+  // Guarded against React StrictMode's dev-only double-invoke of effects.
+  const restoreCheckedRef = useRef(false);
+  useEffect(() => {
+    if (restoreCheckedRef.current) return;
+    restoreCheckedRef.current = true;
+    (async () => {
+      const saved = await loadSession();
+      if (!saved || !saved.pages?.length || isEmptySession(saved)) return;
+
+      const when = new Date(saved.savedAt).toLocaleString();
+      const restore = await confirmAsync(
+        `An unsaved diagram from ${when} was found (lost on a previous refresh/close).\n\n` +
+        `Click OK to restore it, or Cancel to discard it and start fresh.`
+      );
+
+      if (restore) {
+        setPages(saved.pages);
+        const restoredId = saved.pages.some(p => p.id === saved.currentPageId)
+          ? saved.currentPageId
+          : saved.pages[0].id;
+        setCurrentPageId(restoredId);
+      } else {
+        await clearSession();
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Load diagram data when page changes, and (re)attach the autosave listener
   useEffect(() => {
     if (diagramRef.current && currentPage) {
       const diagram = diagramRef.current;
-      diagram.model = new go.GraphLinksModel(
+      const model = new go.GraphLinksModel(
         currentPage.nodeDataArray,
         currentPage.linkDataArray
       );
+      model.addChangedListener(() => scheduleAutosave());
+      diagram.model = model;
     }
   }, [currentPageId, currentPage]);
 
@@ -152,19 +272,19 @@ function App() {
   const handleAddContainer = (containerName: string) => {
     if (containerName && !containers.includes(containerName)) {
       setContainers(prev => [...prev, containerName]);
-      alert(`Container "${containerName}" added!`);
+      showToast(`Container "${containerName}" added!`, 'success');
     } else if (containerName) {
-      alert('Container already exists!');
+      showToast('Container already exists!', 'warning');
     }
   };
 
   // Consolidated custom group management
-  const handleCustomGroupAction = (action: 'create' | 'save', groupName?: string) => {
+  const handleCustomGroupAction = async (action: 'create' | 'save', groupName?: string) => {
     if (action === 'create') {
-      const name = prompt('Enter a name for your new group:');
+      const name = await promptAsync('Enter a name for your new group:');
       if (!name) return;
       if (customGroups[name]) {
-        alert('A group with this name already exists.');
+        showToast('A group with this name already exists.', 'warning');
         return;
       }
       setCustomGroups(prev => ({ ...prev, [name]: [] }));
@@ -175,9 +295,9 @@ function App() {
   };
 
   // Consolidated save to custom group function
-  const handleSaveToCustomGroup = (groupName: string) => {
+  const handleSaveToCustomGroup = async (groupName: string) => {
     if (!diagramRef.current) {
-      alert('No diagram available');
+      showToast('No diagram available', 'error');
       return;
     }
 
@@ -185,7 +305,7 @@ function App() {
     const selectedNodes = diagram.selection.toArray();
     let dataToSave;
 
-    let shapeName = prompt('Enter a name for this shape:', `Custom Shape ${Date.now()}`);
+    let shapeName = await promptAsync('Enter a name for this shape:', `Custom Shape ${Date.now()}`);
     if (!shapeName) shapeName = `Custom Shape ${Date.now()}`;
 
     if (selectedNodes.length > 0) {
@@ -241,7 +361,7 @@ function App() {
       [groupName]: [...(prev[groupName] || []), dataToSave]
     }));
 
-    alert(`${selectedNodes.length > 0 ? 'Selection' : 'Diagram'} saved as custom shape in "${groupName}" group!`);
+    showToast(`${selectedNodes.length > 0 ? 'Selection' : 'Diagram'} saved as custom shape in "${groupName}" group!`, 'success');
   };
 
   // Unified export/save helper: try picker, else download
@@ -265,11 +385,82 @@ function App() {
     }
   };
 
+  // Save an arbitrary page's diagram to disk (.boxology), whether or not it's the
+  // currently active tab. Returns false if the user cancelled the save picker.
+  const savePageDataToDisk = async (page: PageData): Promise<boolean> => {
+    const { nodeDataArray, linkDataArray } = normalizeModelData(
+      page.nodeDataArray || [],
+      page.linkDataArray || []
+    );
+
+    const id = page.boxologyId ?? page.id ?? generateStableIdFromData(nodeDataArray, linkDataArray);
+    const label = page.boxologyLabel ?? page.name ?? 'Diagram';
+
+    const modelBoxology = JSON.stringify({
+      class: 'GraphLinksModel',
+      nodeDataArray,
+      linkDataArray,
+      modelData: { boxologyId: id, boxologyLabel: label },
+    });
+
+    const safe = sanitizeFilename(page.name) || 'diagram';
+    const date = new Date().toISOString().slice(0, 10);
+    const filename = `${safe}_${date}.boxology`;
+
+    const blob = new Blob([modelBoxology], { type: 'application/boxology' });
+    return await saveOrDownload(blob, filename, 'application/boxology');
+  };
+
+  // Pass currentPageOnly=true to scope the generated KG/export to just the page
+  // that's currently open, instead of bundling every open tab together.
+  const buildKgExportData = (currentPageOnly = true) => {
+    if (!diagramRef.current) {
+      throw new Error('No diagram available');
+    }
+
+    const model = diagramRef.current.model as go.GraphLinksModel;
+    const currentPageNodes = model.nodeDataArray.map((n: any) => ({ ...n, type: n.type ?? n.name }));
+    const currentPageLinks = (model.linkDataArray || []).map((l: any) => ({ ...l }));
+
+    const updatedPages = pages.map(p =>
+      p.id === currentPageId
+        ? { ...p, nodeDataArray: currentPageNodes, linkDataArray: currentPageLinks }
+        : p
+    );
+
+    const pagesForExport = currentPageOnly
+      ? updatedPages.filter(p => p.id === currentPageId)
+      : updatedPages;
+
+    const rmlData = generateMultiPageRMLExport(pagesForExport);
+    const userId = window.localStorage.getItem('userId') || (() => {
+      const id = `user_${Math.random().toString(36).slice(2, 10)}`;
+      window.localStorage.setItem('userId', id);
+      return id;
+    })();
+    const exportUUID = uuidv4().replace(/-/g, '').slice(0, 8);
+
+    return {
+      exportData: {
+        metadata: {
+          exportId: exportUUID,
+          userId,
+          exportDate: new Date().toISOString(),
+        },
+        ...rmlData,
+      },
+      updatedPages,
+      userId,
+      exportUUID,
+    };
+  };
+
+
   // Consolidated file operations
   const handleFileOperation = async (operation: 'save' | 'open') => {
     if (operation === 'save') {
       if (!diagramRef.current) {
-        alert('No diagram available');
+        showToast('No diagram available', 'error');
         return;
       }
       const model = diagramRef.current.model as go.GraphLinksModel;
@@ -323,7 +514,7 @@ function App() {
 
       const blob = new Blob([modelBoxology], { type: 'application/boxology' });
       const saved = await saveOrDownload(blob, filename, 'application/boxology');
-      if (saved) alert('Diagram saved!');
+      if (saved) showToast('Diagram saved!', 'success');
       return;
     }
 
@@ -344,12 +535,12 @@ function App() {
           model = JSON.parse(text);
 
         } else {
-          alert('Unsupported format. Use .boxology.');
+          showToast('Unsupported format. Use .boxology.', 'error');
           return;
         }
       } catch (e) {
         console.error('Import parse error:', e);
-        alert('Failed to parse file.');
+        showToast('Failed to parse file.', 'error');
         return;
       }
 
@@ -383,10 +574,22 @@ if (model && model.nodeDataArray) {
           return { ...pg, boxologyId: id, boxologyLabel: label };
         });
 
-        setPages(ensuredPages);
+        // Add the opened diagram as new page(s) alongside existing ones, syncing
+        // the outgoing current page's live (unsynced) edits first so they aren't lost.
+        setPages(prev => {
+          const diagram = diagramRef.current;
+          const withSyncedCurrent = diagram
+            ? prev.map(p => {
+                if (p.id !== currentPageId) return p;
+                const liveModel = diagram.model as go.GraphLinksModel;
+                return { ...p, nodeDataArray: liveModel.nodeDataArray, linkDataArray: liveModel.linkDataArray || [] };
+              })
+            : prev;
+          return [...withSyncedCurrent, ...ensuredPages];
+        });
         setCurrentPageId(ensuredPages[0].id);
 
-        // Load the first page into the diagram
+        // Load the first newly-opened page into the diagram
         const pg = ensuredPages[0];
         if (diagramRef.current) {
           diagramRef.current.model = new go.GraphLinksModel(pg.nodeDataArray, pg.linkDataArray);
@@ -406,7 +609,7 @@ if (model && model.nodeDataArray) {
         }
       } catch (e) {
         console.error('Page build error:', e);
-        alert('Import succeeded but page reconstruction failed.');
+        showToast('Import succeeded but page reconstruction failed.', 'error');
       }
     };
     input.click();
@@ -469,7 +672,7 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
     // Validate clustering before export
     const validation = validateNodeClustering();
     if (!validation.valid) {
-      alert(
+      await alertAsync(
         'Cannot export: All nodes must belong to exactly one cluster.\n\n' +
         'Issues found:\n' +
         validation.errors.join('\n')
@@ -478,7 +681,7 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
     }
 
     if (!diagramRef.current) {
-      alert('No diagram to export');
+      showToast('No diagram to export', 'error');
       return;
     }
 
@@ -496,42 +699,18 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
 
 
       case 'json': {
-        if (!diagramRef.current) { alert('No diagram available'); return; }
+        // Elementary-pattern validation before exporting JSON
+        const elemResult = validateElementaryOnlyDiagram(diagram);
+        if (!elemResult.valid) {
+          await alertAsync('Cannot export: diagram failed elementary pattern validation.\n\n' + elemResult.summary);
+          return;
+        }
 
-        const userId = window.localStorage.getItem('userId') || (() => {
-          const id = `user_${Math.random().toString(36).slice(2, 10)}`;
-          window.localStorage.setItem('userId', id);
-          return id;
-        })();
-        const exportUUID = uuidv4().replace(/-/g, '').slice(0, 8);
-
-        // Build updated pages inline (avoid async setState race)
-        const model = diagramRef.current.model as go.GraphLinksModel;
-        const currentPageNodes = model.nodeDataArray.map((n: any) => ({
-          ...n,
-          type: n.type ?? n.name // ensure type present
-        }));
-        const currentPageLinks = model.linkDataArray.map((l: any) => ({ ...l }));
-
-        const updatedPages = pages.map(p =>
-          p.id === currentPageId
-            ? { ...p, nodeDataArray: currentPageNodes, linkDataArray: currentPageLinks }
-            : p
-        );
+        const { exportData, updatedPages, userId, exportUUID } = buildKgExportData();
 
         // persist pages with any newly generated boxology ids/labels (generateMultiPageRMLExport will also set them if missing)
         setPages(updatedPages);
 
-        const rmlData = generateMultiPageRMLExport(updatedPages);
-
-        const exportData = {
-          metadata: {
-            exportId: exportUUID,
-            userId,
-            exportDate: new Date().toISOString()
-          },
-          ...rmlData
-        };
 
         const json = JSON.stringify(exportData, null, 2);
         const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
@@ -642,13 +821,13 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
   // Export full diagram (entire document bounds) at given scale and kind
   async function exportFullDiagramImage(kind: 'png' | 'jpg', scale = 2, pad = 20) {
     if (!diagramRef.current) {
-      alert('No diagram to export');
+      showToast('No diagram to export', 'error');
       return;
     }
     const diagram = diagramRef.current;
     const bounds = diagram.documentBounds;
     if (!bounds || bounds.width === 0 || bounds.height === 0) {
-      alert('Diagram is empty or has no bounds to export.');
+      showToast('Diagram is empty or has no bounds to export.', 'error');
       return;
     }
 
@@ -698,7 +877,7 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
       canvas.width = imgEl.naturalWidth + pad * 2;
       canvas.height = imgEl.naturalHeight + pad * 2;
       const ctx = canvas.getContext('2d');
-      if (!ctx) { alert('Failed to create canvas context'); return; }
+      if (!ctx) { showToast('Failed to create canvas context', 'error'); return; }
       ctx.fillStyle = 'white';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(imgEl, pad, pad);
@@ -709,19 +888,19 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
             const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
             await saveOrDownload(blob, `diagram_${ts}.${kind}`, imgType);
           } else {
-            alert('Failed to generate image blob');
+            showToast('Failed to generate image blob', 'error');
           }
           resolve();
         }, imgType);
       });
     } catch (err) {
       console.error('Full diagram export error:', err);
-      alert('Failed to export full diagram image.');
+      showToast('Failed to export full diagram image.', 'error');
     }
   }
 
   // Diagram operations
-  const handleDiagramOperation = (operation: 'undo' | 'redo' | 'validate') => {
+  const handleDiagramOperation = async (operation: 'undo' | 'redo' | 'validate') => {
     if (!diagramRef.current) return;
 
     switch (operation) {
@@ -733,7 +912,7 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
         break;
       case 'validate':
         const result = validateGoJSDiagram(diagramRef.current);
-        alert(result);
+        await alertAsync(result, { title: 'Validation Result' });
         break;
     }
   };
@@ -790,7 +969,7 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
   const copyEmailToClipboard = () => {
   const email = 'mahsa.forghani.tehrani@stud.uni-hannover.de';
   navigator.clipboard.writeText(email).then(() => {
-    alert('Email copied to clipboard!');
+    showToast('Email copied to clipboard!', 'success');
   }).catch(() => {
     // Fallback for older browsers
     const textArea = document.createElement('textarea');
@@ -799,7 +978,7 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
     textArea.select();
     document.execCommand('copy');
     document.body.removeChild(textArea);
-    alert('Email copied to clipboard!');
+    showToast('Email copied to clipboard!', 'success');
   });
 };
 
@@ -948,9 +1127,9 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
   };
 
   // Cluster currently selected nodes into a gray labeled group
-  const handleClusterSelectedNodes = () => {
+  const handleClusterSelectedNodes = async () => {
     if (!diagramRef.current) {
-      alert('No diagram available');
+      showToast('No diagram available', 'error');
       return;
     }
     const diagram = diagramRef.current;
@@ -962,18 +1141,18 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
     });
 
     if (selectedNodes.length === 0) {
-      alert('Select one or more nodes to cluster.');
+      showToast('Select one or more nodes to cluster.', 'warning');
       return;
     }
 
     // 🚨 ADD VALIDATION HERE
     if (hasMultipleProcessNodes(selectedNodes)) {
-      alert('❌ Error: A cluster cannot contain more than one process node.');
+      showToast('❌ Error: A cluster cannot contain more than one process node.', 'error');
       return;
     }
 
     const defaultLabel = 'Cluster';
-    const label = prompt('Cluster label:', defaultLabel) || defaultLabel;
+    const label = (await promptAsync('Cluster label:', defaultLabel)) || defaultLabel;
 
     diagram.startTransaction('cluster group');
     const key = `group_${Date.now()}`;
@@ -999,7 +1178,7 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
 
   const handleUnclusterGroup = () => {
     if (!diagramRef.current) {
-      alert('No diagram available');
+      showToast('No diagram available', 'error');
       return;
     }
 
@@ -1007,7 +1186,7 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
     const selectedPart = diagram.selection.first();
 
     if (!(selectedPart instanceof go.Group)) {
-      alert('Please select a cluster group to uncluster.');
+      showToast('Please select a cluster group to uncluster.', 'warning');
       return;
     }
 
@@ -1032,7 +1211,7 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
     // Auto-detect and update shared nodes
     setTimeout(() => detectAndUpdateSharedNodes(), 100);
 
-    alert(`✅ Cluster unclustered! ${members.length} node(s) released.`);
+    showToast(`✅ Cluster unclustered! ${members.length} node(s) released.`, 'success');
   };
 
   const [isCreatingKG, setIsCreatingKG] = useState(false);
@@ -1056,25 +1235,12 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
     setLoadingMessage('Creating Knowledge Graph...');
     setIsCreatingKG(true);
 
-    // Snapshot current page
-    const model = diagramRef.current.model as go.GraphLinksModel;
-    const currentPageNodes = model.nodeDataArray.map((n: any) => ({ ...n, type: n.type ?? n.name }));
-    const currentPageLinks = (model.linkDataArray || []).map((l: any) => ({ ...l }));
-    const updatedPages = pages.map(p =>
-      p.id === currentPageId ? { ...p, nodeDataArray: currentPageNodes, linkDataArray: currentPageLinks } : p
-    );
+    // Only the page currently open, not every tab, becomes the knowledge graph.
+    const { exportData, updatedPages } = buildKgExportData(true);
     setPages(updatedPages);
+    setKgJson(exportData);
 
-    // Build same structure as Export → JSON
-    const rmlData = generateMultiPageRMLExport(updatedPages);
-    const userId = window.localStorage.getItem('userId') || (() => {
-      const id = `user_${Math.random().toString(36).slice(2, 10)}`; window.localStorage.setItem('userId', id); return id;
-    })();
-    const exportUUID = uuidv4().replace(/-/g, '').slice(0, 8);
-    const exportData = {
-      metadata: { exportId: exportUUID, userId, exportDate: new Date().toISOString() },
-      ...rmlData
-    };
+
 
     try {
       const res = await fetch(`${API_BASE}/api/kg`, {
@@ -1126,6 +1292,31 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
     }
   };
 
+  const handleOpenGraphvizEditor = () => {
+    const dot = (() => {
+      if (!diagramRef.current) return '';
+      const data = JSON.parse(diagramRef.current.model.toJson());
+      return modelToDOT(data, { graphLabel: 'Boxology' });
+    })();
+    if (!dot) {
+      showToast('No DOT available.', 'warning');
+      return;
+    }
+    openInGraphviz(dot, 'dot');
+  };
+
+  const handleOpenKGViewer = () => {
+    try {
+      // Scoped to the current page only, matching Create KG's semantics.
+      const { exportData } = buildKgExportData(true);
+      const blob = new Blob([JSON.stringify(exportData)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      window.open(`/kg_viewer.html?blob=${encodeURIComponent(url)}`, '_blank');
+    } catch (error: any) {
+      showToast(error?.message || 'No Knowledge Graph is available to view. Create the KG first.', 'warning');
+    }
+  };
+
   return (
     <div className="app" style={{ height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column' }}>
       {/* Toolbar */}
@@ -1149,11 +1340,13 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
             const data = JSON.parse(diagramRef.current.model.toJson());
             return modelToDOT(data, { graphLabel: 'Boxology' });
           })();
-          if (!dot) { alert('No DOT available.'); return; }
+          if (!dot) { showToast('No DOT available.', 'warning'); return; }
           openInGraphviz(dot, 'dot');
         }}
         onCreateKG={handleCreateKG}
         onUploadKG={handleUploadKG}
+        onOpenKGViewer={handleOpenKGViewer}
+        kgJson={kgJson}
       />
 
       {/* Tab Bar */}
@@ -1172,8 +1365,8 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
             onDoubleClick={(e) => { e.stopPropagation(); handleRenamePage(page.id); }}
             title='Double Click to Rename It'
             style={{
-              backgroundColor: page.id === currentPageId ? '#E3E3E3' : '#e0e0e0',
-              color: page.id === currentPageId ? '#110969ff' : '#000',
+              backgroundColor: page.id === currentPageId ? colors.primary.lighter : '#e0e0e0',
+              color: page.id === currentPageId ? colors.primary.darker : '#000',
               border: '1px solid #b6b3b3ff',
               boxShadow: page.id === currentPageId ? '0 2px 6px rgba(0,0,0,0.2)' : 'none',
               padding: '8px 16px',
@@ -1220,8 +1413,28 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
             )}
           </button>
         ))}
-        
-        {/* Replace the Add Page button with a Home Page button */}
+
+        {/* Add a new blank page/tab */}
+        <button
+          onClick={handleAddNewPage}
+          title="Add a new blank diagram page"
+          style={{
+            backgroundColor: '#E3E3E3',
+            color: '#000',
+            border: '1px solid #b6b3b3ff',
+            padding: '8px 12px',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '16px',
+            fontWeight: '600',
+            transition: 'background-color 0.2s ease'
+          }}
+          onMouseEnter={(e) => (e.target as HTMLElement).style.backgroundColor = colors.primary.lighter}
+          onMouseLeave={(e) => (e.target as HTMLElement).style.backgroundColor = '#E3E3E3'}
+        >
+          + Page
+        </button>
+
         <button
           onClick={() => { window.location.href = '/home/index.html'; }}
           style={{
@@ -1240,7 +1453,7 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
             gap: '6px',
             transition: 'background-color 0.2s ease'
           }}
-          onMouseEnter={(e) => (e.target as HTMLElement).style.backgroundColor = '#bedaeeff'}
+          onMouseEnter={(e) => (e.target as HTMLElement).style.backgroundColor = colors.primary.lighter}
           onMouseLeave={(e) => (e.target as HTMLElement).style.backgroundColor = '#E3E3E3'}
           title="Go to Home Page"
         >
@@ -1361,9 +1574,11 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
               </div>
             </div>
           ) : (
-            <RightSidebar
+          <RightSidebar
               selectedData={selectedData}
               diagramRef={diagramRef}
+              pages={pages}
+              currentPageId={currentPageId}
               setPages={setPages}
               setCurrentPageId={setCurrentPageId}
             />
@@ -1373,268 +1588,11 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
       </div>
 
       {/* About modal */}
-      {showAbout && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            zIndex: 2000,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-          onClick={() => setShowAbout(false)}
-        >
-          <div
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '12px',
-              padding: '30px',
-              maxWidth: '700px',
-              width: '90%',
-              maxHeight: '80vh',
-              overflowY: 'auto',
-              boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
-              fontFamily: 'system-ui, -apple-system, sans-serif'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '25px',
-                paddingBottom: '15px',
-                borderBottom: '2px solid #e3f2fd'
-              }}
-            >
-              <h2 style={{ 
-                margin: 0, 
-                color: '#1976d2', 
-                fontSize: '24px',
-                fontWeight: '600'
-              }}>
-                About Tool4Boxology
-              </h2>
-              <button
-                onClick={() => setShowAbout(false)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '20px',
-                  cursor: 'pointer',
-                  color: '#666',
-                  padding: '5px',
-                  borderRadius: '50%',
-                  width: '40px',
-                  height: '40px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f0f0f0';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                }}
-              >
-                ×
-              </button>
-            </div>
-
-            {/* Content */}
-            <div style={{ lineHeight: '1.6', color: '#333' }}>
-              {/* Development Status Notice */}
-              <div style={{ marginBottom: '20px' }}>
-                <div style={{
-                  backgroundColor: '#fff3cd',
-                  padding: '15px',
-                  borderRadius: '8px',
-                  border: '1px solid #ffeaa7',
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '10px'
-                }}>
-                  <span style={{ fontSize: '20px', flexShrink: 0 }}>⚠️</span>
-                  <div>
-                    <p style={{ margin: '0 0 8px 0', fontWeight: '600', color: '#856404' }}>
-                      Active Development Notice
-                    </p>
-                    <p style={{ margin: 0, fontSize: '14px', color: '#856404' }}>
-                      This interface is under <strong>active development</strong>. New features and visual enhancements are being added frequently. 
-                      Check our GitHub repository regularly for the latest updates and improvements.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Main Description */}
-              <div style={{ marginBottom: '25px' }}>
-                <div style={{
-                  backgroundColor: '#e3f2fd',
-                  padding: '20px',
-                  borderRadius: '8px',
-                  marginBottom: '20px',
-                  border: '1px solid #bbdefb'
-                }}>
-                  <h3 style={{ 
-                    margin: '0 0 15px 0', 
-                    color: '#1976d2',
-                    fontSize: '18px'
-                  }}>
-                    🤖 Hybrid AI System Design Tool
-                  </h3>
-                  <p style={{ margin: 0, fontSize: '16px' }}>
-                    This web application assists you in creating <strong>Hybrid AI systems</strong> and 
-                    validates them against established design patterns. Design, visualize, and validate 
-                    your AI architecture with confidence.
-                  </p>
-                </div>
-              </div>
-
-              {/* GitHub Section - Updated with development notice */}
-              <div style={{ marginBottom: '25px' }}>
-                <h4 style={{ 
-                  color: '#1976d2', 
-                  margin: '0 0 10px 0',
-                  fontSize: '14px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}>
-                  📚 Documentation & Latest Updates
-                </h4>
-                <p style={{ margin: '0 0 10px 0' }}>
-                  For detailed documentation, installation guides, source code, and <strong>the latest updates</strong>:
-                </p>
-                <a
-                  href="https://github.com/SDM-TIB/Tool4Boxology.git"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: 'inline-block',
-                    backgroundColor: '#333',
-                    color: 'white',
-                    padding: '10px 20px',
-                    borderRadius: '6px',
-                    textDecoration: 'none',
-                    fontWeight: '500',
-                    transition: 'background-color 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#555';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#333';
-                  }}
-                >
-                  🔗 Visit GitHub Repository
-                </a>
-                <div style={{ 
-                  marginTop: '8px', 
-                  fontSize: '12px', 
-                  color: '#666',
-                  fontStyle: 'italic'
-                }}>
-                  💡 Tip: Star the repository to get notified about new releases!
-                </div>
-              </div>
-
-              {/* Contact Section */}
-              <div style={{ marginBottom: '20px' }}>
-                <h4 style={{ 
-                  color: '#1976d2', 
-                  margin: '0 0 15px 0',
-                  fontSize: '14px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}>
-                  💬 Need Help or Have Suggestions?
-                </h4>
-                <p style={{ margin: '0 0 15px 0' }}>
-                  If you need assistance or have recommendations for improvements, 
-                  feel free to reach out:
-                </p>
-                
-                <div style={{
-                  backgroundColor: '#f8f9fa',
-                  padding: '15px',
-                  borderRadius: '8px',
-                  border: '1px solid #dee2e6',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '15px'
-                }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ 
-                      fontSize: '14px', 
-                      color: '#666', 
-                      marginBottom: '5px' 
-                    }}>
-                      Contact Email:
-                    </div>
-                    <div style={{ 
-                      fontSize: '16px', 
-                      fontWeight: '500',
-                      color: '#333',
-                      fontFamily: 'Monaco, Consolas, monospace'
-                    }}>
-                      mahsa.forghani.tehrani@stud.uni-hannover.de
-                    </div>
-                  </div>
-                  <button
-                    onClick={copyEmailToClipboard}
-                    style={{
-                      backgroundColor: '#4caf50',
-                      color: 'white',
-                      border: 'none',
-                      padding: '8px 16px',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      fontSize: '12px',
-                      fontWeight: '500',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      transition: 'background-color 0.2s ease'
-                    }}
-                    onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-                      e.currentTarget.style.backgroundColor = '#45a049';
-                    }}
-                    onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-                      e.currentTarget.style.backgroundColor = '#4caf50';
-                    }}
-                    title="Copy email to clipboard"
-                  >
-                    📋 Copy Email
-                  </button>
-                </div>
-              </div>
-
-              {/* Footer */}
-              <div style={{
-                borderTop: '1px solid #eee',
-                paddingTop: '20px',
-                textAlign: 'center',
-                color: '#666',
-                fontSize: '12px'
-              }}>
-                <p style={{ margin: 0 }}>
-                  Developed at TIB - SDM GROUP • Powered by GoJS
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <AboutDialog
+        open={showAbout}
+        onClose={() => setShowAbout(false)}
+        onCopyEmail={copyEmailToClipboard}
+      />
 
       {/* Instruction Dialog */}
       <InstructionDialog

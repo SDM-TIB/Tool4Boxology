@@ -1,14 +1,31 @@
 import React, { useState, useMemo } from 'react';
-import { shapes } from '../data/shape';
-import { patterns, type Pattern } from '../data/patterns';
-import type { ShapeDefinition } from '../types';
-import tibLogo from '../assets/TIB_Logo_EN.webp'; // adjust path if needed
-import vuLogo from '../assets/VU-Logo.png';   // add this line
+import { shapes, shapeTypesTree, type ShapeTypeTree } from '../../data/shape';
+import { elementaryPatterns, compositePatterns, type Pattern } from '../../data/patterns';
+import type { ShapeDefinition } from '../../types';
+import tibLogo from '../../assets/TIB_Logo_EN.webp'; // adjust path if needed
+import vuLogo from '../../assets/VU-Logo.png';   // add this line
 import { LineAxis, SpaOutlined } from '@mui/icons-material';
+import { colors } from '../../styles/theme';
+import { getSectionHeaderStyle } from '../../styles/buttonStyles';
 
 interface ShapeGroupMap {
   [group: string]: ShapeDefinition[];
 }
+
+// Flatten e.g. shapeTypesTree.Data = { Number, Dataset, Tensor, Text, Image, ... }
+// into a lowercase name list, so searching a subtype (e.g. "Image") also finds
+// the shape that owns it (e.g. "Data").
+function flattenTypeNames(node: ShapeTypeTree | null | undefined): string[] {
+  if (!node) return [];
+  return Object.keys(node).flatMap(key => [key, ...flattenTypeNames(node[key])]);
+}
+
+const shapeSubtypeIndex: Record<string, string[]> = Object.fromEntries(
+  Object.entries(shapeTypesTree).map(([rootName, subtree]) => [
+    rootName.toLowerCase(),
+    flattenTypeNames(subtree).map(name => name.toLowerCase()),
+  ])
+);
 
 function groupShapesByCategory(shapes: ShapeDefinition[]): ShapeGroupMap {
   return shapes.reduce((acc, shape) => {
@@ -40,10 +57,15 @@ export default function LeftSidebar({
   customContainerShapes,
 }: LeftSidebarProps) {
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [shapesMenuCollapsed, setShapesMenuCollapsed] = useState(false);
   const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(
     new Set(categoryOrder) // All categories collapsed initially
   );
+  const [patternsMenuCollapsed, setPatternsMenuCollapsed] = useState(true);
   const [patternsCollapsedState, setPatternsCollapsed] = useState(true);
+  const [elementaryPatternsCollapsedState, setElementaryPatternsCollapsed] = useState(true);
+  const [compositePatternsCollapsedState, setCompositePatternsCollapsed] = useState(true);
+  const [kautzCollapsedState, setKautzCollapsed] = useState(true);
   const toggleCategory = (category: string) => {
     const newCollapsed = new Set(collapsedCategories);
     if (newCollapsed.has(category)) {
@@ -57,12 +79,12 @@ export default function LeftSidebar({
   // Filter shapes based on search term
   const filteredShapes = useMemo(() => {
     if (!searchTerm.trim()) return shapes;
-    
+
     const term = searchTerm.toLowerCase();
-    return shapes.filter(shape => 
+    return shapes.filter(shape =>
       shape.name.toLowerCase().includes(term) ||
       shape.label.toLowerCase().includes(term) ||
-      shape.group.toLowerCase().includes(term)
+      (shapeSubtypeIndex[shape.name.toLowerCase()] || []).some(subtype => subtype.includes(term))
     );
   }, [searchTerm]);
 
@@ -153,7 +175,7 @@ export default function LeftSidebar({
       {/* Header */}
       <div
         style={{
-          background: ' #393D7E',
+          background: colors.surface.header,
           color: '#fff',
           padding: '12px 16px',
           display: 'flex',
@@ -271,13 +293,13 @@ export default function LeftSidebar({
               <div style={{ marginBottom: '8px' }}>
                 <div style={{
                   padding: '8px 12px',
-                  background: '#5459AC',
+                  background: colors.semantic.info.main,
                   border: '1px solid #bbdefb',
                   borderRadius: '6px',
                   marginBottom: '8px',
                   fontSize: '12px',
                   fontWeight: '600',
-                  color: '#eaf2faff',
+                  color: colors.text.onPrimary,
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px'
@@ -309,163 +331,260 @@ export default function LeftSidebar({
               </div>
             )
           ) : (
-            // Show organized categories when not searching
-            sortedCategories.map((category) => (
-              <div key={category} style={{ marginBottom: '8px' }}>
-                <div
-                  onClick={() => toggleCategory(category)}
-                  style={{
-                    padding: '10px 12px',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    fontSize: '13px',
-                    fontWeight: '600',
-                    transition: 'all 0.2s ease',
-                    userSelect: 'none',
-                    background: collapsedCategories.has(category) ? '#6c72d9' : '#5459AC',
-                    color: '#eaf2faff',
-                    border: '1px solid #bbdefb',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span>{category}</span>
-                    <span style={{
-                      background: 'rgba(25, 118, 210, 0.1)',
-                      color: '#1976d2',
-                      padding: '2px 6px',
-                      borderRadius: '10px',
-                      fontSize: '10px',
-                      fontWeight: 'bold'
-                    }}>
-                    </span>
-                  </div>
-                  <span style={{
-                    transform: collapsedCategories.has(category) ? 'rotate(0deg)' : 'rotate(90deg)',
-                    transition: 'transform 0.2s ease',
-                    fontSize: '12px'
-                  }}>
-                    ▶
-                  </span>
-                </div>
-                
-                {!collapsedCategories.has(category) && (
-                  <div style={{
-                    padding: '12px',
-                    background: '#fff',
-                    border: '1px solid #e0e0e0',
-                    borderTop: 'none',
-                    borderBottomLeftRadius: '8px',
-                    borderBottomRightRadius: '8px',
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: '8px',
-                    boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
-                  }}>
-                    {grouped[category].map((shape) => renderShape(shape))}
-                  </div>
-                )}
+            // Show organized categories under the Shapes parent menu when not searching
+            <div style={{ marginBottom: '8px' }}>
+              <div
+                onClick={() => setShapesMenuCollapsed((prev) => !prev)}
+                style={getSectionHeaderStyle(shapesMenuCollapsed, 'top')}
+              >
+                <span>Shapes</span>
+                <span style={{
+                  transform: shapesMenuCollapsed ? 'rotate(0deg)' : 'rotate(90deg)',
+                  transition: 'transform 0.2s ease',
+                  fontSize: '12px'
+                }}>
+                  ▶
+                </span>
               </div>
-            ))
+
+              {!shapesMenuCollapsed && (
+                <div style={{ marginTop: '8px' }}>
+                  {sortedCategories.map((category) => (
+                    <div key={category} style={{ marginBottom: '8px' }}>
+                      <div
+                        onClick={() => toggleCategory(category)}
+                        style={getSectionHeaderStyle(collapsedCategories.has(category), 'category')}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span>{category}</span>
+                        </div>
+                        <span style={{
+                          transform: collapsedCategories.has(category) ? 'rotate(0deg)' : 'rotate(90deg)',
+                          transition: 'transform 0.2s ease',
+                          fontSize: '12px'
+                        }}>
+                          ▶
+                        </span>
+                      </div>
+
+                      {!collapsedCategories.has(category) && (
+                        <div style={{
+                          padding: '12px',
+                          background: '#fff',
+                          border: '1px solid #e0e0e0',
+                          borderTop: 'none',
+                          borderBottomLeftRadius: '8px',
+                          borderBottomRightRadius: '8px',
+                          display: 'flex',
+                          flexWrap: 'wrap',
+                          gap: '8px',
+                          boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
+                        }}>
+                          {grouped[category].map((shape) => renderShape(shape))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
         </div>
 
-        {/* Elementary Patterns Section */}
-        {patterns.length > 0 && (
-          <div style={{ marginBottom: '16px' }}>
-            <div
-              onClick={() => setPatternsCollapsed((prev) => !prev)}
-              style={{
-                padding: '8px 12px',
-                border: '1px solid #000B58',
-                borderRadius: '6px',
-                marginBottom: '8px',
-                fontSize: '12px',
-                fontWeight: '600',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                cursor: 'pointer',
-                userSelect: 'none',
-                color: '#eaf2faff',
-                background: patternsCollapsedState ? '#000B58' : '#637AB9',
-                transition: 'background 0.2s'
-              }}
-            >
-              <span>Elementary Patterns</span>
-              <span style={{
-                marginLeft: 'auto',
-                fontSize: '14px',
-                transform: patternsCollapsedState ? 'rotate(0deg)' : 'rotate(90deg)',
-                transition: 'transform 0.2s'
-              }}>
-                ▶
-              </span>
-            </div>
-            {!patternsCollapsedState && (
-              <div style={{
-                display: 'grid',
-                gap: '8px',
-                padding: '12px',
-                background: '#fff',
-                border: '1px solid #e0e0e0',
-                borderRadius: '6px',
-                boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
-              }}>
-                {patterns.map((pattern: Pattern) => (
-                  <div
-                    key={pattern.id}
-                    draggable
-                    onDragStart={(e) => {
-                      e.dataTransfer.setData('application/pattern', JSON.stringify(pattern));
-                    }}
-                    style={{
-                      display: 'relative',
-                      cursor: 'pointer',
-                      border: '1px solid #000B58',
-                      borderRadius: '6px',
-                      padding: '8px',
-                      background: '#C2E2FA',
-                      color: 'navyblue',
-                      fontWeight: '500',
-                      textAlign: 'center',
-                      width: '230px',
-                      minHeight: '30px',
-                      transition: 'all 0.2s ease'
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.background = '#AEDEFC';
-                      e.currentTarget.style.transform = 'scale(1.05)';
-                      e.currentTarget.style.boxShadow = '0 4px 8px rgba(20, 7, 74, 0.3)';
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.background = '#C2E2FA';
-                      e.currentTarget.style.transform = 'scale(1)';
-                      e.currentTarget.style.boxShadow = 'none';
-                    }}
-                    title={pattern.description || pattern.name}
-                  >
-                    <div style={{
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      textAlign: 'center',
-                      maxWidth: '100px',
-                      //overflow: 'hidden',
-                      textOverflow: 'hidden',
-                      whiteSpace: 'nowrap',
-                      color: '#000B58'
-                    }}>
-                      {pattern.name}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+        {/* Patterns Parent Menu */}
+        {(elementaryPatterns.length > 0 || compositePatterns.length > 0 ) && (
+        <div style={{ marginBottom: '16px' }}>
+          <div
+            onClick={() => setPatternsMenuCollapsed((prev) => !prev)}
+            style={{ ...getSectionHeaderStyle(patternsMenuCollapsed, 'top'), marginBottom: '8px' }}
+          >
+            <span>Patterns</span>
+            <span style={{
+              transform: patternsMenuCollapsed ? 'rotate(0deg)' : 'rotate(90deg)',
+              transition: 'transform 0.2s ease',
+              fontSize: '12px'
+            }}>
+              ▶
+            </span>
           </div>
+
+          {!patternsMenuCollapsed && (
+            <div style={{ marginTop: '8px' }}>
+              {/* Bekkum Patterns Section */}
+              {(elementaryPatterns.length > 0 || compositePatterns.length > 0) && (
+                <div style={{ marginBottom: '8px' }}>
+                  <div
+                    onClick={() => setPatternsCollapsed((prev) => !prev)}
+                    style={{ ...getSectionHeaderStyle(patternsCollapsedState, 'category'), textTransform: 'uppercase', letterSpacing: '0.5px', gap: '8px' }}
+                  >
+                    <span>Bekkum Patterns</span>
+                    <span style={{
+                      marginLeft: 'auto',
+                      fontSize: '14px',
+                      transform: patternsCollapsedState ? 'rotate(0deg)' : 'rotate(90deg)',
+                      transition: 'transform 0.2s'
+                    }}>
+                      ▶
+                    </span>
+                  </div>
+                  {!patternsCollapsedState && (
+                    <div style={{ display: 'grid', gap: '8px' }}>
+                      <div style={{ marginBottom: '8px' }}>
+                        <div
+                          onClick={() => setElementaryPatternsCollapsed((prev) => !prev)}
+                          style={{ ...getSectionHeaderStyle(elementaryPatternsCollapsedState, 'sub'), textTransform: 'uppercase', letterSpacing: '0.5px', gap: '8px' }}
+                        >
+                          <span>Elementary Patterns</span>
+                          <span style={{
+                            marginLeft: 'auto',
+                            fontSize: '14px',
+                            transform: elementaryPatternsCollapsedState ? 'rotate(0deg)' : 'rotate(90deg)',
+                            transition: 'transform 0.2s'
+                          }}>
+                            ▶
+                          </span>
+                        </div>
+                        {!elementaryPatternsCollapsedState && (
+                          <div style={{
+                            display: 'grid',
+                            gap: '8px',
+                            padding: '12px',
+                            background: '#fff',
+                            border: '1px solid #e0e0e0',
+                            borderRadius: '6px',
+                            boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
+                          }}>
+                            {elementaryPatterns.map((pattern: Pattern) => (
+                              <div
+                                key={pattern.id}
+                                draggable
+                                onDragStart={(e) => {
+                                  e.dataTransfer.setData('application/pattern', JSON.stringify(pattern));
+                                }}
+                                style={{
+                                  display: 'relative',
+                                  cursor: 'pointer',
+                                  border: '1px solid #000B58',
+                                  borderRadius: '6px',
+                                  padding: '8px',
+                                  background: '#C2E2FA',
+                                  color: 'navyblue',
+                                  fontWeight: '500',
+                                  textAlign: 'center',
+                                  width: '230px',
+                                  minHeight: '30px',
+                                  transition: 'all 0.2s ease'
+                                }}
+                                onMouseOver={(e) => {
+                                  e.currentTarget.style.background = '#AEDEFC';
+                                  e.currentTarget.style.transform = 'scale(1.05)';
+                                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(20, 7, 74, 0.3)';
+                                }}
+                                onMouseOut={(e) => {
+                                  e.currentTarget.style.background = '#C2E2FA';
+                                  e.currentTarget.style.transform = 'scale(1)';
+                                  e.currentTarget.style.boxShadow = 'none';
+                                }}
+                                title={pattern.description || pattern.name}
+                              >
+                                <div style={{
+                                  fontSize: '12px',
+                                  fontWeight: '600',
+                                  textAlign: 'center',
+                                  maxWidth: '100px',
+                                  textOverflow: 'hidden',
+                                  whiteSpace: 'nowrap',
+                                  color: '#000B58'
+                                }}>
+                                  {pattern.name}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      <div style={{ marginBottom: '8px' }}>
+                        <div
+                          onClick={() => setCompositePatternsCollapsed((prev) => !prev)}
+                          style={{ ...getSectionHeaderStyle(compositePatternsCollapsedState, 'sub'), textTransform: 'uppercase', letterSpacing: '0.5px', gap: '8px' }}
+                        >
+                          <span>Composite Patterns</span>
+                          <span style={{
+                            marginLeft: 'auto',
+                            fontSize: '14px',
+                            transform: compositePatternsCollapsedState ? 'rotate(0deg)' : 'rotate(90deg)',
+                            transition: 'transform 0.2s'
+                          }}>
+                            ▶
+                          </span>
+                        </div>
+                        {!compositePatternsCollapsedState && (
+                          <div style={{
+                            display: 'grid',
+                            gap: '8px',
+                            padding: '12px',
+                            background: '#fff',
+                            border: '1px solid #e0e0e0',
+                            borderRadius: '6px',
+                            boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
+                          }}>
+                            {compositePatterns.map((pattern: Pattern) => (
+                              <div
+                                key={pattern.id}
+                                draggable
+                                onDragStart={(e) => {
+                                  e.dataTransfer.setData('application/pattern', JSON.stringify(pattern));
+                                }}
+                                style={{
+                                  display: 'relative',
+                                  cursor: 'pointer',
+                                  border: '1px solid #0F4C75',
+                                  borderRadius: '6px',
+                                  padding: '8px',
+                                  background: '#DDEBFA',
+                                  fontWeight: '500',
+                                  textAlign: 'center',
+                                  width: '230px',
+                                  minHeight: '30px',
+                                  transition: 'all 0.2s ease'
+                                }}
+                                onMouseOver={(e) => {
+                                  e.currentTarget.style.background = '#C3E4FA';
+                                  e.currentTarget.style.transform = 'scale(1.05)';
+                                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(15, 76, 117, 0.3)';
+                                }}
+                                onMouseOut={(e) => {
+                                  e.currentTarget.style.background = '#DDEBFA';
+                                  e.currentTarget.style.transform = 'scale(1)';
+                                  e.currentTarget.style.boxShadow = 'none';
+                                }}
+                                title={pattern.description || pattern.name}
+                              >
+                                <div style={{
+                                  fontSize: '12px',
+                                  fontWeight: '600',
+                                  textAlign: 'center',
+                                  maxWidth: '100px',
+                                  textOverflow: 'hidden',
+                                  whiteSpace: 'nowrap',
+                                  color: '#000B58'
+                                }}>
+                                  {pattern.name}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+            </div>
+          )}
+        </div>
         )}
       </div>
 

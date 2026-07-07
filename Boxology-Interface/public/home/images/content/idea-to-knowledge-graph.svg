@@ -1,0 +1,94 @@
+<svg viewBox="0 0 680 640" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="t4b-flow-title t4b-flow-desc">
+  <title id="t4b-flow-title">From idea to a validated answer</title>
+  <desc id="t4b-flow-desc">A flow diagram: start with an idea, sketch it with Boxology shapes to build a knowledge graph, query it with SPARQL, and get a validated, solved answer.</desc>
+  <defs>
+    <linearGradient id="gIdea" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fb923c"/>
+      <stop offset="1" stop-color="#f97316"/>
+    </linearGradient>
+    <linearGradient id="gKG" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1d4ed8"/>
+      <stop offset="1" stop-color="#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="gQuery" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7c3aed"/>
+      <stop offset="1" stop-color="#4338ca"/>
+    </linearGradient>
+    <linearGradient id="gSolved" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#0f766e"/>
+      <stop offset="1" stop-color="#10b981"/>
+    </linearGradient>
+    <pattern id="dots" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="1.4" cy="1.4" r="1.4" fill="#1d4ed8" opacity="0.10"/>
+    </pattern>
+    <marker id="arrowHead" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect width="680" height="640" fill="#ffffff"/>
+  <rect width="680" height="640" fill="url(#dots)"/>
+
+  <!-- connecting arrows (drawn first, behind nodes) -->
+  <line x1="244" y1="140" x2="436" y2="140" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" marker-end="url(#arrowHead)"/>
+  <line x1="500" y1="204" x2="500" y2="396" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" marker-end="url(#arrowHead)"/>
+  <line x1="436" y1="460" x2="244" y2="460" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" marker-end="url(#arrowHead)"/>
+
+  <!-- Stage 1: Idea -->
+  <g>
+    <circle cx="180" cy="140" r="62" fill="url(#gIdea)"/>
+    <circle cx="180" cy="128" r="22" fill="none" stroke="#ffffff" stroke-width="5"/>
+    <rect x="170" y="150" width="20" height="9" rx="3" fill="#ffffff"/>
+    <line x1="173" y1="163" x2="187" y2="163" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+    <path d="M172,128 L176,120 L184,136 L188,128" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="180" y1="94" x2="180" y2="84" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+    <line x1="160" y1="104" x2="150" y2="94" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+    <line x1="200" y1="104" x2="210" y2="94" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="128" cy="88" r="14" fill="#ffffff" stroke="#f97316" stroke-width="2"/>
+    <text x="128" y="93" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="800" fill="#f97316">1</text>
+    <text x="180" y="236" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="800" fill="#0b1728">Idea</text>
+    <text x="180" y="260" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5c6b80">Describe the problem</text>
+  </g>
+
+  <!-- Stage 2: Knowledge graph, built from real Boxology shapes -->
+  <g>
+    <circle cx="500" cy="140" r="62" fill="url(#gKG)"/>
+    <rect x="478" y="107" width="21" height="14" rx="3" fill="#fef9c3" stroke="#ffffff" stroke-width="1.5"/>
+    <polygon points="524,107 531.8,111.5 531.8,120.5 524,125 516.2,120.5 516.2,111.5" fill="#ede9fe" stroke="#ffffff" stroke-width="1.5"/>
+    <line x1="489" y1="121" x2="500" y2="150" stroke="#ffffff" stroke-width="2.5"/>
+    <line x1="524" y1="121" x2="500" y2="150" stroke="#ffffff" stroke-width="2.5"/>
+    <line x1="500" y1="150" x2="484" y2="170" stroke="#ffffff" stroke-width="2.5"/>
+    <line x1="500" y1="150" x2="516" y2="170" stroke="#ffffff" stroke-width="2.5"/>
+    <circle cx="500" cy="150" r="8" fill="#ffffff"/>
+    <circle cx="484" cy="170" r="6" fill="#ffffff"/>
+    <circle cx="516" cy="170" r="6" fill="#ffffff"/>
+    <circle cx="448" cy="88" r="14" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"/>
+    <text x="448" y="93" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="800" fill="#1d4ed8">2</text>
+    <text x="500" y="236" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="800" fill="#0b1728">Knowledge Graph</text>
+    <text x="500" y="260" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5c6b80">Sketch it with Boxology shapes</text>
+  </g>
+
+  <!-- Stage 3: Query -->
+  <g>
+    <circle cx="500" cy="460" r="62" fill="url(#gQuery)"/>
+    <circle cx="492" cy="450" r="17" fill="none" stroke="#ffffff" stroke-width="5"/>
+    <line x1="504" y1="462" x2="522" y2="480" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+    <line x1="482" y1="444" x2="502" y2="444" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="482" y1="450" x2="502" y2="450" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="482" y1="456" x2="497" y2="456" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="448" cy="408" r="14" fill="#ffffff" stroke="#7c3aed" stroke-width="2"/>
+    <text x="448" y="413" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="800" fill="#7c3aed">3</text>
+    <text x="500" y="556" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="800" fill="#0b1728">Query</text>
+    <text x="500" y="580" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5c6b80">Ask it with SPARQL</text>
+  </g>
+
+  <!-- Stage 4: Solved -->
+  <g>
+    <circle cx="180" cy="460" r="62" fill="url(#gSolved)"/>
+    <path d="M163,460 L175,472 L200,445" stroke="#ffffff" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="128" cy="408" r="14" fill="#ffffff" stroke="#0f766e" stroke-width="2"/>
+    <text x="128" y="413" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="800" fill="#0f766e">4</text>
+    <text x="180" y="556" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="800" fill="#0b1728">Solved</text>
+    <text x="180" y="580" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#5c6b80">Get a validated answer</text>
+  </g>
+</svg>

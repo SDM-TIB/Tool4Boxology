@@ -1,3 +1,5 @@
+from urllib.error import URLError
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
@@ -52,7 +54,12 @@ async def api_create_kg(source: dict):
             "status": "ok",
             "mode": result.get("mode"),
             "triples_len": result.get("triples_len"),
+            "rdf": result.get("rdf"),
+            "rdf_format": result.get("rdf_format"),
         }
+    except (URLError, TimeoutError) as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=503, detail=f"Virtuoso connection error: {str(e)}")
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
@@ -60,3 +67,13 @@ async def api_create_kg(source: dict):
 @app.get("/")
 async def root():
     return {"status": "running", "sparql_query": SPARQL_ENDPOINT, "sparql_update": SPARQL_UPDATE_ENDPOINT}
+
+@app.get("/api/health")
+async def api_health():
+    return {
+        "status": "ok",
+        "service": "boxology-backend",
+        "sparql_query": SPARQL_ENDPOINT,
+        "sparql_update": SPARQL_UPDATE_ENDPOINT,
+
+    }

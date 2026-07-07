@@ -1,18 +1,49 @@
 // exportHelpers.ts
 import * as go from "gojs";
+import { elementaryPatterns } from '../data/patterns';
+import { shapeTypesMin } from '../data/shape';
 
 /** Normalize */
 const norm = (s?: string) => (s ?? '').trim().toLowerCase();
 
-// UPDATED: include 'embed' and common variants, detect by type/subtype/name/label
-const PROCESS_TYPES = new Set<string>([
-  'Train', 'Training', 'Engineer', 'Engineering','Deduce', 'Induce', 'Induction',
-   'Transform', 'Embed', 'Embedding'
-].map(norm));
+const ROOT_TYPE_ALIASES: Record<string, string> = {
+  training: 'train',
+  engineering: 'engineer',
+  induction: 'induce',
+  embed: 'transform',
+  semanticmodel: 'model',
+  statisticalmodel: 'model',
+  neuralmodel: 'model',
+};
+
+function canonicalRootName(value: any) {
+  const root = norm(value);
+  return ROOT_TYPE_ALIASES[root] || root;
+}
+
+function buildAliasesFromShapeTypes() {
+  const aliases: Record<string, string> = {};
+
+  Object.entries(shapeTypesMin).forEach(([root, values]) => {
+    const canonicalRoot = canonicalRootName(root);
+    aliases[norm(root)] = canonicalRoot;
+    values.forEach(value => {
+      aliases[norm(value)] = canonicalRoot;
+    });
+  });
+
+  return aliases;
+}
+
+const SHAPE_TYPE_ALIASES = buildAliasesFromShapeTypes();
+
+const PROCESS_TYPES = new Set<string>(
+  ['train', 'engineer', 'deduce', 'induce', 'transform'].map(canonicalRootName)
+);
 
 // UPDATED: check type, then subtype, then name, then label (case-insensitive)
 const isProcess = (n: any) => {
-  const t = norm(n?.type ?? n?.subtype ?? n?.name ?? n?.label);
+  const t = canonicalPatternName(n?.type ?? n?.subtype ?? n?.name ?? n?.label);
   return PROCESS_TYPES.has(t);
 };
 
@@ -28,6 +59,126 @@ function toComponent(n: any) {
 function singleOrArray(arr: any[]) {
   if (!arr || arr.length === 0) return undefined;
   return arr;
+}
+
+function normalizePatternName(value: string) {
+  return (value ?? '').toString().trim().toLowerCase();
+}
+
+function canonicalPatternName(value: any) {
+  const normalized = normalizePatternName(value);
+  if (!normalized) return '';
+
+  return SHAPE_TYPE_ALIASES[normalized] || canonicalRootName(normalized);
+}
+
+function uniqueCanonicalNames(items: any[]) {
+  return Array.from(new Set(items.map((item: any) => canonicalPatternName(item.name || item.label || '')).filter(Boolean)));
+}
+
+function camelizePatternName(value: string) {
+  return value
+    .split(/[_\s-]+/)
+    .filter(Boolean)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join('');
+}
+
+function toPatternNamePart(value: string) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function normalizePatternId(value: any) {
+  const id = String(value ?? '').trim();
+  if (!id) return id;
+
+  const clusterSuffix = id.match(/^(.*)_([^_]+)_cluster$/i);
+  if (clusterSuffix) {
+    return clusterSuffix[1];
+  }
+
+  return id;
+}
+
+function attachElementaryPatternName(pattern: any): any {
+  if (!pattern || pattern.name) return pattern;
+
+  const mappedInputNames = uniqueCanonicalNames(pattern.input || []);
+  const mappedOutputNames = uniqueCanonicalNames(pattern.output || []);
+  const mappedProcessName = pattern.process ? canonicalPatternName(pattern.process.name || pattern.process.label || '') : '';
+
+  for (const ep of elementaryPatterns) {
+    const epNodesById = new Map(ep.nodes.map((n: any) => [String(n.id), n]));
+    const epLinks = ep.links || [];
+
+    const epProcessCandidates = ep.nodes.filter((n: any) => {
+      const id = String(n.id);
+      const hasIn = epLinks.some((l: any) => String(l.to) === id);
+      const hasOut = epLinks.some((l: any) => String(l.from) === id);
+      return hasIn && hasOut;
+    });
+
+    const epProcessList = epProcessCandidates.length > 0
+      ? epProcessCandidates
+      : ep.nodes.filter((n: any) => epLinks.some((l: any) => String(l.from) === String(n.id)));
+
+    for (const cand of epProcessList) {
+      const candName = canonicalPatternName(cand.name || cand.label || '');
+      if (candName !== mappedProcessName) continue;
+
+      const epInputNames = Array.from(new Set(
+        epLinks
+          .filter((l: any) => String(l.to) === String(cand.id))
+          .map((l: any) => canonicalPatternName(epNodesById.get(String(l.from))?.name || ''))
+          .filter(Boolean)
+      ));
+      const epOutputNames = Array.from(new Set(
+        epLinks
+          .filter((l: any) => String(l.from) === String(cand.id))
+          .map((l: any) => canonicalPatternName(epNodesById.get(String(l.to))?.name || ''))
+          .filter(Boolean)
+      ));
+
+      if (epInputNames.length !== mappedInputNames.length) continue;
+      if (epOutputNames.length !== mappedOutputNames.length) continue;
+
+      const allInputsMatch = mappedInputNames.every((n: string) => epInputNames.includes(n));
+      const allOutputsMatch = mappedOutputNames.every((n: string) => epOutputNames.includes(n));
+
+      if (allInputsMatch && allOutputsMatch) {
+        const semanticParts = [
+          ...epInputNames,
+          candName,
+          ...epOutputNames,
+        ].filter(Boolean).map(toPatternNamePart);
+
+        const orderedPattern: any = {
+          id: pattern.id,
+          name: semanticParts.join('').replace(/[^a-zA-Z0-9]/g, '') || camelizePatternName(ep.id || ep.name || ''),
+          label: pattern.label,
+        };
+
+        if (pattern.input) orderedPattern.input = pattern.input;
+        if (pattern.output) orderedPattern.output = pattern.output;
+        if (pattern.process) orderedPattern.process = pattern.process;
+
+        return orderedPattern;
+      }
+    }
+  }
+
+  return pattern;
+}
+
+function attachElementaryPatternNamesToExport(exportData: any): any {
+  if (!exportData || !Array.isArray(exportData.boxologies)) return exportData;
+
+  for (const box of exportData.boxologies) {
+    const patterns = Array.isArray(box.DesignPattern) ? box.DesignPattern : [];
+    box.DesignPattern = patterns.map((pattern: any) => attachElementaryPatternName(pattern));
+  }
+
+  return exportData;
 }
 
 /**
@@ -99,7 +250,7 @@ export function buildDesignPatternsFromModelData(
     }
 
     const pattern: any = {
-      id: g.key,
+      id: normalizePatternId(g.key),
       label: g.label ?? g.text ?? 'Cluster'
     };
 
@@ -233,5 +384,9 @@ export const generateMultiPageRMLExport = (pages: any[]): any => {
     };
   });
 
-  return { boxologies };
+  return attachElementaryPatternNamesToExport({ boxologies });
 };
+
+export function enrichExportWithElementaryPatternNames(exportData: any): any {
+  return attachElementaryPatternNamesToExport(exportData);
+}
