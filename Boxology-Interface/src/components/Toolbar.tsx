@@ -33,8 +33,6 @@ type ToolbarProps = {
   onUploadKG?: (files: FileList) => void;
   onOpenKGViewer?: () => void;
   kgJson?: any; // <-- Add this prop
-  onTogglePrototype?: () => void;
-  isPrototypeMode?: boolean;
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({

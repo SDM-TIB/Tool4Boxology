@@ -36,6 +36,7 @@ const allPatterns = [
   // Transform data with symbol/artifacts/data
   { name: "transform to data (symbol)", edges: [["symbol", "transform"], ["transform", "data"]] },
   { name: "transform to data (data)", edges: [["data", "transform"], ["transform", "data"]] },
+  { name: "transform to data (data + model)", edges: [["data", "transform"], ["model", "transform"], ["transform", "data"]] },
   { name: "transform to symbol (data)", edges: [["data", "transform"], ["transform", "symbol"]] },
   { name: "transform to symbol (symbol)", edges: [["symbol", "transform"], ["transform", "symbol"]] },
   { name: "transform_model (model)", edges: [["model", "transform"], ["transform", "model"]] },
