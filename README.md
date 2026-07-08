@@ -267,20 +267,11 @@ docker-compose up
 
 
 ---
-
-# 📚 References
-
-- Harmelen et al., Web Semantics 2023   
-
----
-
 # 📜 License
 -CC BY 4.0 — diagrams, documentation, educational assets
 
 -Apache 2.0 — included third-party or extended modules
 
-
----
 ## 📖 Related Source Paper & Authors
 
 Tool4Boxology is based on the research and methodology described in the source paper (submitted):
@@ -303,3 +294,30 @@ This work is supervised by the above authors and institutions.
 📧 mahsa.forghani.tehrani@stud.uni-hannover.de
 Leibniz University Hannover 
 
+## 📄📚 Publication
+
+If you use Tool4Boxology in your research, please cite:
+
+**Tool4Boxology: A Semantic Toolbox for Constructing and Analysing Neuro-Symbolic Architectures**  
+Johannes E. Bendler, Yashrajsinh Chudasama, Mahsa Forghani, Enrique Iglesias, Disha Purohit, Jacquiline Roney, Annette ten Teije, Frank van Harmelen, Maria-Esther Vidal  
+*ESWC 2026* — Springer-Verlag, pp. 191–211.  
+🔗 [https://doi.org/10.1007/978-3-032-25159-6_11](https://doi.org/10.1007/978-3-032-25159-6_11)
+
+<details>
+<summary>BibTeX</summary>
+
+```bibtex
+@inproceedings{10.1007/978-3-032-25159-6_11,
+  author    = {Bendler, Johannes E. and Chudasama, Yashrajsinh and Forghani, Mahsa and Iglesias, Enrique and Purohit, Disha and Roney, Jacquiline and ten Teije, Annette and van Harmelen, Frank and Vidal, Maria-Esther},
+  title     = {Tool4Boxology: A Semantic Toolbox for Constructing and Analysing Neuro-Symbolic Architectures},
+  booktitle = {The Semantic Web: 23rd European Semantic Web Conference, ESWC 2026},
+  year      = {2026},
+  publisher = {Springer-Verlag},
+  address   = {Berlin, Heidelberg},
+  pages     = {191--211},
+  doi       = {10.1007/978-3-032-25159-6_11}
+}
+` ` `
+</details>
+```
+---

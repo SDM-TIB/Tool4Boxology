@@ -1,95 +1,65 @@
-<!DOCTYPE HTML>
-<!--
-	Hyperspace by HTML5 UP
-	html5up.net | @ajlkn
-	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
--->
-<html>
-	<head>
-		<title>Tool4Boxology</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="assets/css/main.css" />
-		<noscript><link rel="stylesheet" href="/css/architecture.css" /></noscript>
-	</head>
-	<body class="is-preload">
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Architecture | Tool4Boxology</title>
+  <link rel="icon" type="image/png" href="images/logos/logo.png" />
+  <link rel="stylesheet" href="assets/css/home.css" />
+</head>
+<body class="home-shell">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html" aria-label="Tool4Boxology home">
+        <span class="brand-mark"><img src="images/logos/logo.png" alt="Tool4Boxology logo" /></span>
+        <span class="brand-copy">
+          <strong>Tool4Boxology</strong>
+          <span>Architecture</span>
+        </span>
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <a href="index.html#start">Start</a>
+        <a href="tutorial.html">Tutorial</a>
+        <a href="index.html#features">Features</a>
+        <a href="abstract.html">Graphical abstract</a>
+      </nav>
+    </div>
+  </header>
 
-		<!-- Sidebar -->
-		<section id="sidebar">
-			<div class="inner">
-					<image src="images/Logo-tool4boxology.png" alt="Tool4Boxology Logo" style="width: 270px; height: auto; margin-top: -60px; margin-left: -30px;" />
+  <main class="page-body">
+    <section class="page-hero">
+      <div class="shell page-header">
+        <span class="eyebrow">System view</span>
+        <h1>Architecture</h1>
+        <p>
+          The Tool4Boxology knowledge graph is the machine-readable representation of Boxology designs created in the editor.
+          It is defined, populated, and validated through a declarative pipeline that keeps the design semantically consistent and ready for downstream querying and analysis.
+        </p>
+      </div>
+      <div class="shell page-image">
+        <img src="images/content/Architecture.png" alt="Tool4Boxology architecture diagram" />
+      </div>
+    </section>
 
-				<nav>
-					<ul>
-						<li><a href="index.html">Home</a></li>
-						<li><a href="architecture.html" class="active">Architecture</a></li>
-						<li><a href="abstract.html">Graphical Abstract</a></li>
-					</ul>
-				</nav>
-				<!-- University logos -->
-				<div style="margin-top: 32px; display: flex; flex-direction: column; align-items: center; gap: 16px;">
-					    <!-- TIB Logo -->
-					<img 
-						src="images/TIB_Logo_EN.webp" 
-						alt="TIB" 
-						style="height: 55px; width: auto;" 
-					/>
-
-					<!-- Leibniz Universität Hannover Logo -->
-					<img 
-						src="images/Leibniz-Universität_Hannover.svg.png" 
-						alt="Leibniz Universität Hannover" 
-						style="height: 65px; width: auto;" 
-					/>
-
-					<!-- VU Amsterdam Logo -->
-					<img 
-						src="images/VU-Logo.png" 
-						alt="VU Amsterdam" 
-						style="height: 55px; width: auto;" 
-					/>
-				</div>
-			</div>
-		</section>
-
-		<!-- Wrapper -->
-			<div id="wrapper">
-
-				<!-- Main -->
-					<section id="main" class="wrapper style1">
-						<div class="inner">
-							<h1 class="major">Architecture</h1>
-							<span class="image fit"><img src="images/Architecture.png" alt="Architecture Diagram" style="background-size: cover;background-color: aliceblue;" /></span>
-							<p>
-								The Tool4Boxology Knowledge Graph (T4B KG) provides the machine-readable
-								representation of Boxology designs created in the graphical editor. It is defined,
-								populated, and validated through a declarative data-integration pipeline that
-								ensures semantic consistency with the T4B Ontology and enables downstream
-								querying, analysis, and reuse of NeSy architectures.
-							</p>
-						</div>
-					</section>
-
-			</div>
-
-		<!-- Footer -->
-			<footer id="footer" class="wrapper alt">
-				<div class="inner">
-					<ul class="menu">
-						<li>&copy; Tool4Boxology. All rights reserved.</li>
-						<li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
-					</ul>
-				</div>
-			</footer>
-
-		<!-- Scripts -->
-			<script src="assets/js/jquery.min.js"></script>
-			<script src="assets/js/jquery.scrollex.min.js"></script>
-			<script src="assets/js/jquery.scrolly.min.js"></script>
-			<script src="assets/js/browser.min.js"></script>
-			<script src="assets/js/breakpoints.min.js"></script>
-			<script src="assets/js/util.js"></script>
-			<script src="assets/js/main.js"></script>
-
-	</body>
+    <section class="section">
+      <div class="shell grid-2">
+        <article class="content-panel">
+          <span class="section-kicker">Why this matters</span>
+          <h2>A single path from editor output to reusable knowledge graph.</h2>
+          <p>Each stage is meant to be inspectable so researchers can validate and reuse the design without losing the semantic structure.</p>
+        </article>
+        <article class="content-panel">
+          <span class="section-kicker">Follow-up</span>
+          <h2>Use the editor to create your own architecture.</h2>
+          <p>Open the homepage or launch the editor directly to start building, then compare the result with this reference view.</p>
+          <div class="mini-links">
+            <a class="mini-link" href="https://tool4boxology.service.tib.eu/" target="_blank" rel="noreferrer">Open editor</a>
+            <a class="mini-link" href="tutorial.html">Worked example: Tumor Diagnosis</a>
+            <a class="mini-link" href="abstract.html">Graphical abstract</a>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+</body>
 </html>

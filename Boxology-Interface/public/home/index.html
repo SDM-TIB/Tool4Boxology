@@ -1,246 +1,307 @@
-<!DOCTYPE HTML>
-<!--
-	Hyperspace by HTML5 UP
-	html5up.net | @ajlkn
-	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
--->
-<html>
-	<head>
-		<link rel="icon" type="image/png" style="width: 220px; height: auto;" href="images/logo.png" />
-		<title>Tool4Boxology</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes" />
-		<link rel="stylesheet" href="assets/css/main.css" />
-		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
-	</head>
-	<body class="is-preload">
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tool4Boxology — A Semantic Toolbox for Neuro-Symbolic AI</title>
+  <meta name="description" content="Tool4Boxology is a semantic toolbox for designing, validating, and analysing neuro-symbolic AI architectures — from a visual Boxology diagram to an RDF knowledge graph you can query." />
+  <link rel="icon" type="image/png" href="images/logos/logo.png" />
+  <link rel="stylesheet" href="assets/css/home.css" />
+</head>
+<body class="home-shell">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html" aria-label="Tool4Boxology home">
+        <span class="brand-mark"><img src="images/logos/logo.png" alt="Tool4Boxology logo" /></span>
+        <span class="brand-copy">
+          <strong>Tool4Boxology</strong>
+        </span>
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <a href="#start">Start</a>
+        <a href="tutorial.html">Tutorial</a>
+        <a href="#about">About</a>
+        <a href="#features">Features</a>
+        <a href="#kg-viewer">KG Viewer</a>
+        <a href="#team">Team</a>
+        <a href="#research">Research</a>
+        <a href="#support">Support</a>
+      </nav>
+    </div>
+  </header>
 
-		<!-- Sidebar -->
-			<section id="sidebar" >
-				<div class="inner" style="font-family: Arial, sans-serif; font-size: 20px;" >
-					<image src="images/Logo-tool4boxology.png" alt="Tool4Boxology Logo" style="width: 270px; height: auto; margin-top: -60px; margin-left: -30px;" />
-					<nav>
-						<ul>
-							<li><a href="#intro">Welcome</a></li>
-							<li><a href="#one">How to do</a></li>
-							<li><a href="#two">Contributions</a></li>
-							<li><a href="#three">Get in touch</a></li>
-						</ul>
-					</nav>
-					<!-- Add university logos here -->
-<div style="
-    margin-top: 32px; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    gap: 20px;
-">
+  <main>
+    <section class="hero">
+      <div class="shell hero-stack">
+        <div class="hero-banner">
+          <img src="images/logos/Tool4Boxology-banner-v3.png" alt="Tool4Boxology" />
+        </div>
+        <div class="hero-copy">
 
-    <!-- TIB Logo -->
-    <img 
-        src="images/TIB_Logo_EN.webp" 
-        alt="TIB" 
-        style="height: 55px; width: auto;" 
-    />
+          <span class="eyebrow">Neuro-symbolic AI · Boxology · Knowledge graphs</span>
+          <p class="hero-tagline" >A semantic toolbox for designing, validating, and understanding neuro-symbolic AI systems.</p>
+          <p >
+            NeSy architectures are usually just prose or one-off diagrams — hard to compare or reuse. Tool4Boxology lets you draw them, validate them, and turn them into a queryable knowledge graph. Try it: open <a class="inline-link" href="https://tool4boxology.service.tib.eu/" target="_blank" rel="noreferrer">Tool4Boxology</a>.
+          </p>
+          <div class="actions" >
+            <a class="button primary" href="https://tool4boxology.service.tib.eu/" target="_blank" rel="noreferrer">Open online editor</a>
+            <a class="button secondary" href="https://github.com/SDM-TIB/Tool4Boxology" target="_blank" rel="noreferrer">GitHub</a>
+            <a class="button secondary" href="https://www.youtube.com/watch?v=yr8KNgPh-Vw" target="_blank" rel="noreferrer">Watch tutorial</a>
+            <a class="button secondary" href="tutorial.html" >Example</a>
+            <a class="button secondary" href="https://doi.org/10.1007/978-3-032-25159-6_11" target="_blank" rel="noreferrer">Read the paper</a>
+          </div>
+        </div>
 
-    <!-- Leibniz Universität Hannover Logo -->
-    <img 
-        src="images/Leibniz-Universität_Hannover.svg.png" 
-        alt="Leibniz Universität Hannover" 
-        style="height: 65px; width: auto;" 
-    />
+        <div class="hero-panel hero-panel-wide hero-infographic">
+          <div class="infographic-steps">
+            <div class="infographic-step">
+              <div class="infographic-icon" style="background: linear-gradient(135deg, var(--accent), #ea580c)">
+                <svg viewBox="0 0 24 24" fill="none"><rect x="10.5" y="5" width="3" height="9" rx="1.5" fill="#fff"/><circle cx="12" cy="17.5" r="1.7" fill="#fff"/></svg>
+              </div>
+              <strong>Problem</strong>
+              <span>NeSy designs are informal and hard to compare</span>
+            </div>
+            <div class="infographic-arrow">→</div>
+            <div class="infographic-step">
+              <div class="infographic-icon" style="background: linear-gradient(135deg, var(--brand), #2563eb)">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <strong>Design &amp; validate</strong>
+              <span>Draw it in Tool4Boxology and check it's structurally and semantically valid</span>
+            </div>
+            <div class="infographic-arrow">→</div>
+            <div class="infographic-step">
+              <div class="infographic-icon" style="background: linear-gradient(135deg, var(--brand-3), #6d28d9)">
+                <svg viewBox="0 0 24 24" fill="none"><circle cx="6" cy="7" r="2.2" fill="#fff"/><circle cx="18" cy="7" r="2.2" fill="#fff"/><circle cx="12" cy="18" r="2.2" fill="#fff"/><path d="M7.7 8.4L10.5 16.2M16.3 8.4L13.5 16.2M8.2 7H15.8" stroke="#fff" stroke-width="1.6"/></svg>
+              </div>
+              <strong>Knowledge graph</strong>
+              <span>A validated design becomes an RDF graph you can query</span>
+            </div>
+            <div class="infographic-arrow">→</div>
+            <div class="infographic-step">
+              <div class="infographic-icon" style="background: linear-gradient(135deg, var(--brand-2), #0d5c56)">
+                <svg viewBox="0 0 24 24" fill="none"><rect x="4.5" y="5.5" width="15" height="4.2" rx="1.4" fill="#fff" opacity="0.55"/><rect x="4.5" y="10.4" width="15" height="4.2" rx="1.4" fill="#fff" opacity="0.75"/><rect x="4.5" y="15.3" width="15" height="4.2" rx="1.4" fill="#fff"/></svg>
+              </div>
+              <strong>Reusable format</strong>
+              <span>Machine-readable, and shared across every architecture you design</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <!-- VU Amsterdam Logo -->
-    <img 
-        src="images/VU-Logo.png" 
-        alt="VU Amsterdam" 
-        style="height: 55px; width: auto;" 
-    />
+    <section class="section" id="about">
+      <div class="shell">
+        <div class="section-head">
+          <span class="section-kicker">Why Tool4Boxology</span>
+          <h2>Neuro-symbolic architectures deserve a shared, checkable language.</h2>
+          <p class="section-lead">UML and ML-pipeline editors don't capture what a NeSy component is, or enforce whether it's valid. Boxology closes that gap.</p>
+        </div>
+        <div class="content-panel">
+          <p>Boxology (van Harmelen et al., 2023) is a typed notation for hybrid AI systems — elementary patterns of data, symbols, actors, processes, and models. Tool4Boxology lets you draw it, validate it against the T4B ontology, and turn it into a queryable RDF knowledge graph.</p>
+          <div class="mini-links">
+            <a class="mini-link" href="tutorial.html">Worked example: Tumor Diagnosis</a>
+            <a class="mini-link" href="abstract.html">Graphical abstract</a>
+            <a class="mini-link" href="architecture.html">Architecture</a>
+          </div>
+        </div>
+      </div>
+    </section>
 
-</div>
+    <section class="section" id="start">
+      <div class="shell">
+        <div class="section-head">
+          <span class="section-kicker">Getting started</span>
+          <h2>Start online in seconds, or run it yourself.</h2>
+        </div>
+        <div class="two-tone">
+          <div class="content-panel">
+            <h3>Two ways to start</h3>
+            <p>Use the hosted <a class="inline-link" href="https://tool4boxology.service.tib.eu/" target="_blank" rel="noreferrer">online editor</a> — no install needed. Or clone the <a class="inline-link" href="https://github.com/SDM-TIB/Tool4Boxology" target="_blank" rel="noreferrer">GitHub repo</a> and run <code>npm run dev</code> (or <code>docker-compose up</code> for the full pipeline).</p>
+            <div class="callout">New to Boxology? Watch the <a class="inline-link" href="https://www.youtube.com/watch?v=yr8KNgPh-Vw" target="_blank" rel="noreferrer">video tutorial</a> or follow the pipeline on the right.</div>
+          </div>
+          <div class="image-panel">
+            <img src="images/content/WorkFlow.png" alt="Tool4Boxology editor workflow: select components, connect and cluster, annotate semantics, validate, generate the knowledge graph, and explore with SPARQL" />
+          </div>
+        </div>
+      </div>
+    </section>
 
-			</section>
+    <section class="section" id="features">
+      <div class="shell">
+        <div class="section-head">
+          <span class="section-kicker">Feature overview</span>
+          <h2>Four pieces, one pipeline.</h2>
+        </div>
+        <div class="grid-4">
+          <article class="card">
+            <div class="icon-badge">01</div>
+            <h3>Visual editor</h3>
+            <p>Drag data, symbol, actor, process, and model shapes onto the canvas and wire them into Input → Process → Output triples.</p>
+          </article>
+          <article class="card">
+            <div class="icon-badge">02</div>
+            <h3>Semantic validation</h3>
+            <p>Diagrams are checked against the T4B ontology, catching mismatches while they're easy to fix.</p>
+          </article>
+          <article class="card">
+            <div class="icon-badge">03</div>
+            <h3>Knowledge graph export</h3>
+            <p>An RML pipeline turns a validated diagram into a machine-readable RDF knowledge graph.</p>
+          </article>
+          <article class="card">
+            <div class="icon-badge">04</div>
+            <h3>Interactive KG Viewer</h3>
+            <p>Click any pattern in the graph for a live valid/invalid check — see it below.</p>
+          </article>
+        </div>
+      </div>
+    </section>
 
-		<!-- Wrapper -->
-			<div id="wrapper">
+    <section class="section" id="kg-viewer">
+      <div class="shell">
+        <div class="section-head">
+          <span class="section-kicker">Exploration layer</span>
+          <h2>Every pattern in the knowledge graph documents and validates itself.</h2>
+        </div>
+        <div class="content-panel">
+          <p>Click a pattern for its <strong>Type</strong>, a live <strong>VALID / INVALID</strong> status, and its inputs and outputs. <strong>Generate Documentation</strong> turns the whole graph into a shareable summary — or filter, search, and export the view as JSON or PNG.</p>
+        </div>
+        <div class="kg-screenshot">
+          <img src="images/content/KG-Viewer-Screenshot.png" alt="Boxology Knowledge Graph viewer: the Fuzzy Decision Tree (FDT) Construction pattern is selected, showing its Type, VALID status, validation pattern Data&gt;Train&gt;Model, and its inputs and outputs" />
+        </div>
+      </div>
+    </section>
 
-				<!-- Intro -->
-					<section id="intro" class="wrapper style1 fullscreen fade-up">
-						<div class="inner" style="margin-top: -80px; margin-left:-20px;">
-							<h1>Tool4Boxology</h1>
-							<div class="description">
-							<p><h2>Build, Validate, and Understand Neuro-Symbolic AI Systems—Visually and Semantically.</h2></p>
-								<h3><li>Tool4Boxology Editor</li>
-								<li>Syntactic-based Validation</li>
-								<li>Tool4Boxology Knowledge Graph</li>
-								<li>Knowledge Graph Querying</li>
-								</ul></h3></p>
-							</div>
-							<ul class="actions">
-								<li><a href="http://localhost:5173/" class="button scrolly"">Tool4Boxology Editor</a></li>
-								<li><a href="https://github.com/SDM-TIB/Tool4Boxology/tree/main" class="button scrolly"">GitHub</a></li>
-								<li><a href="https://www.youtube.com/watch?v=yr8KNgPh-Vw" class="button scrolly"">YouTube Tutorial</a></li>
-							</ul>
-						</div>
-					</section>
+    <section class="section" id="team">
+      <div class="shell">
+        <div class="section-head">
+          <span class="section-kicker">Who built this</span>
+          <h2>Meet the team</h2>
+          <p class="section-lead">Researchers at TIB, Leibniz University Hannover, L3S, and Vrije Universiteit Amsterdam.</p>
+        </div>
+        <div class="team-grid">
+          <article class="team-card">
+            <img src="images/people/Johannes_Bendler.png" alt="Johannes Bendler" />
+            <h3>Johannes Bendler</h3>
+            <span class="team-role">M.Sc. · Vrije Universiteit Amsterdam</span>
+          </article>
+          <article class="team-card">
+            <img src="images/people/Yashrajsinh_Chudasama.png" alt="Yashrajsinh Chudasama" />
+            <h3>Yashrajsinh Chudasama</h3>
+            <span class="team-role">M.Sc. · TIB · Leibniz University Hannover</span>
+          </article>
+          <article class="team-card">
+            <img src="images/people/Mahsa_Forghani.png" alt="Mahsa Forghani" />
+            <h3>Mahsa Forghani</h3>
+            <span class="team-role">TIB · Leibniz University Hannover</span>
+          </article>
+          <article class="team-card">
+            <img src="images/people/Enrique_Iglesias.png" alt="Enrique Iglesias" />
+            <h3>Enrique Iglesias</h3>
+            <span class="team-role">M.Sc. · TIB · L3S Research Center, Hannover</span>
+          </article>
+          <article class="team-card">
+            <img src="images/people/Disha_Purohit.jpg" alt="Disha Purohit" />
+            <h3>Disha Purohit</h3>
+            <span class="team-role">Dr. · TIB · Leibniz University Hannover</span>
+          </article>
+          <article class="team-card">
+            <img src="images/people/Annette_ten_Teije.png" alt="Annette ten Teije" />
+            <h3>Annette ten Teije</h3>
+            <span class="team-role">Prof. Dr. · Vrije Universiteit Amsterdam</span>
+          </article>
+          <article class="team-card">
+            <img src="images/people/Frank_van_Harmelen.png" alt="Frank van Harmelen" />
+            <h3>Frank van Harmelen</h3>
+            <span class="team-role">Prof. Dr. · Vrije Universiteit Amsterdam</span>
+          </article>
+          <article class="team-card">
+            <img src="images/people/Maria-Esther_Vidal.png" alt="Maria-Esther Vidal" />
+            <h3>Maria-Esther Vidal</h3>
+            <span class="team-role">Prof. Dr. · TIB · Leibniz University Hannover</span>
+          </article>
+        </div>
+        <p class="team-note">With additional contributions from Jacquiline Roney (Vrije Universiteit Amsterdam).</p>
+        <div class="mini-links">
+          <a class="mini-link" href="#research">Read about the paper</a>
+          <a class="mini-link" href="https://link.springer.com/chapter/10.1007/978-3-032-25159-6_11" target="_blank" rel="noreferrer">Tool4Boxology on SpringerLink</a>
+        </div>
+      </div>
+    </section>
 
-				<!-- One -->
-					<section id="one" class="wrapper style3 fade-up">
-					<div class="inner">
-						<h2>How Tool4Boxology Works</h2>
-						<p>
-							Tool4Boxology guides you through a structured workflow for creating, validating, and transforming Neuro-Symbolic AI architectures into knowledge graphs.
-						</p>
-						<ol>
-						  <li>
-						    <strong>Add Components or Patterns:</strong>
-						    <br>
-						    Select single components or predefined elementary patterns from the left sidebar and place them onto the canvas.
-						  </li>
-						  <li>
-						    <strong>Connect &amp; Define Clusters:</strong>
-						    <br>
-						    Connect components to form Input → Process → Output triples. Select a complete triple and right-click to group it into a cluster.
-						  </li>
-						  <li>
-						    <strong>Name &amp; Annotate:</strong>
-						    <br>
-						    Assign meaningful names to components and clusters. Specify the appropriate semantic type for each element.
-						  </li>
-						  <li>
-						    <strong>Validate Your Architecture:</strong>
-						    <br>
-						    Use the validation tool to ensure your boxology follows the required structural and semantic rules.
-						  </li>
-						  <li>
-						    <strong>Generate a Knowledge Graph:</strong>
-						    <br>
-						    Click <em>Create KG</em> to automatically generate the corresponding RDF knowledge graph and store it in Virtuoso.
-						  </li>
-						  <li>
-						    <strong>Query &amp; Explore:</strong>
-						    <br>
-						    Run SPARQL queries directly from the interface to analyze, inspect, and explore your generated knowledge graph.
-						  </li>
-						</ol>
-						
-						<span class="image fit">
-						<img src="images/WorkFlow.png" alt="Workflow Diagram" />
-						</span>
-					</div>
-	
-					</section>
+    <section class="section" id="research">
+      <div class="shell">
+        <div class="section-head">
+          <span class="section-kicker">Research</span>
+          <h2>Published at ESWC 2026.</h2>
+        </div>
+        <div class="grid-2">
+          <article class="content-panel">
+            <h3>Tool4Boxology: A Semantic Toolbox for Constructing and Analysing Neuro-Symbolic Architectures</h3>
+            <p>Johannes E. Bendler<sup>1</sup>, Yashrajsinh Chudasama<sup>2,3</sup>, Mahsa Forghani<sup>2,3</sup>, Enrique Iglesias<sup>2,4</sup>, Disha Purohit<sup>2,3</sup>, Jacquiline Roney<sup>1</sup>, Annette ten Teije<sup>1</sup>, Frank van Harmelen<sup>1</sup>, Maria-Esther Vidal<sup>2,3</sup> — <em>ESWC 2026</em>, Springer-Verlag, pp. 191–211.</p>
+            <p><sup>1</sup> Vrije Universiteit Amsterdam · <sup>2</sup> TIB · <sup>3</sup> Leibniz University Hannover · <sup>4</sup> L3S Research Center</p>
+            <p>Validated on 68 neuro-symbolic systems across biomedical, military, robotics, and energy domains.</p>
+            <div class="mini-links">
+              <a class="mini-link" href="https://doi.org/10.1007/978-3-032-25159-6_11" target="_blank" rel="noreferrer">Read the paper (DOI)</a>
+              <a class="mini-link" href="https://doi.org/10.5281/zenodo.17711495" target="_blank" rel="noreferrer">Cite the software (Zenodo)</a>
+            </div>
+          </article>
+          <article class="content-panel">
+            <h3>Cite this work</h3>
+            <p>Please cite the ESWC 2026 paper if Tool4Boxology is useful in your research.</p>
+            <details class="bibtex">
+              <summary>Show BibTeX</summary>
+              <pre><code>@inproceedings{10.1007/978-3-032-25159-6_11,
+  author    = {Bendler, Johannes E. and Chudasama, Yashrajsinh and Forghani, Mahsa and Iglesias, Enrique and Purohit, Disha and Roney, Jacquiline and ten Teije, Annette and van Harmelen, Frank and Vidal, Maria-Esther},
+  title     = {Tool4Boxology: A Semantic Toolbox for Constructing and Analysing Neuro-Symbolic Architectures},
+  booktitle = {The Semantic Web: 23rd European Semantic Web Conference, ESWC 2026},
+  year      = {2026},
+  publisher = {Springer-Verlag},
+  address   = {Berlin, Heidelberg},
+  pages     = {191--211},
+  doi       = {10.1007/978-3-032-25159-6_11}
+}</code></pre>
+            </details>
+          </article>
+        </div>
+      </div>
+    </section>
 
-					<!-- Two -->
-					<section id="two" class="wrapper style2 spotlights">
-						<section>
-							<a href="abstract.html" class="image">
-							<img src="images/Abstract.png" alt="Tool4Boxology Graphical Abstract"/>
-							</a>
-							<div class="content">
-								<div class="inner">
-									<h2>Graphical Abstract</h2>
-									<p>A layered framework for constructing and analyzing NeSy
-										systems that integrate symbolic and neural components.</p>
-									<ul class="actions">
-										<li><a href="abstract.html" class="button">Learn more</a></li>
-									</ul>
-								</div>
-							</div>
-						</section>
-						<section id="two" class="wrapper style2 spotlights">
-							<a href="architecture.html" class="image">
-								<img src="images/Architecture-preview.png" alt="Tool4Boxology Architecture"  /></a>
-							<div class="content">
-								<div class="inner">
-									<h2>Architecture</h2>
-									<p>The pipeline that generates the T4B KG mirrors the Tool4Boxology Editor workflow </p>
-									<ul class="actions">
-										<li><a href="architecture.html" class="button">Learn more</a></li>
-									</ul>
-								</div>
-							</div>
-						</section>
-					</section>
+    <section class="section" id="support">
+      <div class="shell grid-2">
+        <article class="support-panel">
+          <div class="section-kicker">Support</div>
+          <h2>Questions, bugs, or ideas?</h2>
+          <ul>
+            <li><a href="mailto:toolboxology@gmail.com">toolboxology@gmail.com</a></li>
+            <li><a href="https://github.com/SDM-TIB/Tool4Boxology" target="_blank" rel="noreferrer">GitHub repository</a></li>
+            <li><a href="https://www.youtube.com/watch?v=yr8KNgPh-Vw" target="_blank" rel="noreferrer">Video tutorial</a></li>
+          </ul>
+        </article>
+        <article class="support-panel">
+          <div class="section-kicker">License</div>
+          <h2>Open for reuse and extension.</h2>
+          <p>Diagrams and docs: CC BY 4.0. Code: Apache 2.0.</p>
+          <div class="mini-links">
+            <a class="mini-link" href="https://github.com/SDM-TIB/Tool4Boxology/blob/main/LICENSE" target="_blank" rel="noreferrer">Apache 2.0</a>
+            <a class="mini-link" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
 
-
-				<!-- Three -->
-					<section id="three" class="wrapper style1 fade-up">
-						<div class="inner">
-							<h2>Get in touch</h2>
-							<p>For questions, collaborations, or feedback related to Tool4Boxology, please feel free to contact us. We welcome inquiries from researchers, developers, and practitioners working on neuro-symbolic AI,
-								 semantic technologies, and knowledge graph applications.</p>
-							<div class="split style1">
-								<section>
-									<form method="post" action="#">
-										<div class="fields">
-											<div class="field half">
-												<label for="name">Name</label>
-												<input type="text" name="name" id="name" />
-											</div>
-											<div class="field half">
-												<label for="email">Email</label>
-												<input type="text" name="email" id="email" />
-											</div>
-											<div class="field">
-												<label for="message">Message</label>
-												<textarea name="message" id="message" rows="5"></textarea>
-											</div>
-										</div>
-										<ul class="actions">
-											<li><a href="" class="button submit">Send Message</a></li>
-										</ul>
-									</form>
-								</section>
-								<section>
-									<ul class="contact">
-										<li>
-											<h3>Address</h3>
-											<span>Germany, Hannover<br />
-					
-											</span>
-										</li>
-										<li>
-											<h3>Email</h3>
-											<a href="mailto:mahsa.forghani.tehrani@stud.uni-hannover.de">mahsa.forghani.tehrani@stud.uni-hannover.de</a>
-										</li>
-										<li>
-											<h3>Phone</h3>
-											<span>+49 511 762-2268</span>
-										</li>
-										<li>
-											<h3>Social</h3>
-											<ul class="icons">
-												<li><a href="" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
-												<li><a href="https://github.com/SDM-TIB/Tool4Boxology" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
-							
-											</ul>
-										</li>
-									</ul>
-								</section>
-							</div>
-						</div>
-					</section>
-
-			</div>
-
-		<!-- Footer -->
-			<footer id="footer" class="wrapper style1-alt">
-				<div class="inner">
-					<ul class="menu">
-						<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
-					</ul>
-				</div>
-			</footer>
-
-		<!-- Scripts -->
-			<script src="assets/js/jquery.min.js"></script>
-			<script src="assets/js/jquery.scrollex.min.js"></script>
-			<script src="assets/js/jquery.scrolly.min.js"></script>
-			<script src="assets/js/browser.min.js"></script>
-			<script src="assets/js/breakpoints.min.js"></script>
-			<script src="assets/js/util.js"></script>
-			<script src="assets/js/main.js"></script>
-
-	</body>
+  <footer class="footer">
+    <div class="shell contribution-strip" aria-label="Contributing institutions">
+      <img src="images/logos/TIB_Logo_EN.webp" alt="TIB" />
+      <img src="images/logos/Leibniz-Universität_Hannover.svg.png" alt="Leibniz Universität Hannover" />
+      <img src="images/logos/VU-Logo.png" alt="VU Amsterdam" />
+    </div>
+    <div class="shell footer-inner">
+      <span>Tool4Boxology</span>
+      <span>A semantic toolbox for constructing, validating, and analysing neuro-symbolic AI architectures — ESWC 2026.</span>
+    </div>
+  </footer>
+</body>
 </html>

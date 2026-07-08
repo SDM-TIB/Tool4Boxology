@@ -1,0 +1,79 @@
+<svg viewBox="0 0 1160 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="t4b-editor-title t4b-editor-desc">
+  <title id="t4b-editor-title">Tool4Boxology editor</title>
+  <desc id="t4b-editor-desc">A mockup of the Tool4Boxology canvas showing a neuro-symbolic pattern drawn with real Boxology shapes: an Actor and Data feeding a Train process, producing a Model, which a Deduce process turns into a Symbol output.</desc>
+  <defs>
+    <pattern id="edots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="1.3" cy="1.3" r="1.3" fill="#1d4ed8" opacity="0.09"/>
+    </pattern>
+    <marker id="arrow2" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect width="1160" height="420" fill="#ffffff"/>
+  <rect x="0" y="44" width="1160" height="376" fill="url(#edots)"/>
+  <rect x="0" y="0" width="1160" height="44" fill="#f8fafc"/>
+  <line x1="0" y1="44" x2="1160" y2="44" stroke="#e5e9f0" stroke-width="1.5"/>
+  <circle cx="28" cy="22" r="6" fill="#cbd5e1"/>
+  <circle cx="50" cy="22" r="6" fill="#cbd5e1"/>
+  <circle cx="72" cy="22" r="6" fill="#cbd5e1"/>
+  <text x="1132" y="27" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#5c6b80">Tool4Boxology Editor</text>
+
+  <!-- Arrows -->
+  <line x1="230" y1="250" x2="308" y2="250" stroke="#94a3b8" stroke-width="3" marker-end="url(#arrow2)"/>
+  <line x1="430" y1="250" x2="503" y2="250" stroke="#94a3b8" stroke-width="3" marker-end="url(#arrow2)"/>
+  <line x1="657" y1="250" x2="728" y2="250" stroke="#94a3b8" stroke-width="3" marker-end="url(#arrow2)"/>
+  <line x1="850" y1="250" x2="928" y2="250" stroke="#94a3b8" stroke-width="3" marker-end="url(#arrow2)"/>
+  <line x1="370" y1="175" x2="370" y2="216" stroke="#94a3b8" stroke-width="3" marker-end="url(#arrow2)"/>
+
+  <!-- Actor (triangle) -->
+  <polygon points="370,105 320,175 420,175" fill="#fdba74" stroke="#9a3412" stroke-width="2.5"/>
+  <rect x="328" y="53" width="84" height="24" rx="12" fill="#ffffff" stroke="#e5e9f0" stroke-width="1.5"/>
+  <circle cx="343" cy="65" r="5" fill="#9a3412"/>
+  <text x="356" y="69" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#334155">Actor</text>
+
+  <!-- Data (rect) -->
+  <rect x="110" y="218" width="120" height="64" rx="6" fill="#bbf7d0" stroke="#15803d" stroke-width="2.5"/>
+  <rect x="128" y="180" width="84" height="24" rx="12" fill="#ffffff" stroke="#e5e9f0" stroke-width="1.5"/>
+  <circle cx="143" cy="192" r="5" fill="#15803d"/>
+  <text x="156" y="196" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#334155">Data</text>
+  <text x="170" y="255" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="800" fill="#0b1728">Cases</text>
+
+  <!-- Train (rounded rect - process) -->
+  <rect x="310" y="218" width="120" height="64" rx="22" fill="#fed7aa" stroke="#c2410c" stroke-width="2.5"/>
+  <rect x="328" y="180" width="84" height="24" rx="12" fill="#ffffff" stroke="#e5e9f0" stroke-width="1.5"/>
+  <circle cx="343" cy="192" r="5" fill="#c2410c"/>
+  <text x="356" y="196" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#334155">Train</text>
+  <text x="370" y="255" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="800" fill="#0b1728">Train</text>
+  <!-- selection handles -->
+  <rect x="306" y="214" width="8" height="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"/>
+  <rect x="426" y="214" width="8" height="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"/>
+  <rect x="306" y="278" width="8" height="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"/>
+  <rect x="426" y="278" width="8" height="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"/>
+
+  <!-- Model (pointed hexagon) -->
+  <polygon points="505,250 530,210 630,210 655,250 630,290 530,290" fill="#e9d5ff" stroke="#7c3aed" stroke-width="2.5"/>
+  <rect x="538" y="180" width="84" height="24" rx="12" fill="#ffffff" stroke="#e5e9f0" stroke-width="1.5"/>
+  <circle cx="553" cy="192" r="5" fill="#7c3aed"/>
+  <text x="566" y="196" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#334155">Model</text>
+  <text x="580" y="255" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="800" fill="#0b1728">Rules</text>
+
+  <!-- cursor -->
+  <path d="M600,300 L600,321 L604,317 L608,325 L611,323.5 L607,315.5 L613,315.5 Z" fill="#0b1728" stroke="#ffffff" stroke-width="1"/>
+
+  <!-- Deduce (rounded rect - process) -->
+  <rect x="730" y="218" width="120" height="64" rx="22" fill="#fecaca" stroke="#b91c1c" stroke-width="2.5"/>
+  <rect x="748" y="180" width="90" height="24" rx="12" fill="#ffffff" stroke="#e5e9f0" stroke-width="1.5"/>
+  <circle cx="763" cy="192" r="5" fill="#b91c1c"/>
+  <text x="776" y="196" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#334155">Deduce</text>
+  <text x="790" y="255" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="800" fill="#0b1728">Deduce</text>
+
+  <!-- Answer (dashed rect - symbol output) -->
+  <rect x="930" y="218" width="120" height="64" rx="6" fill="#bbf7d0" stroke="#15803d" stroke-width="2.5" stroke-dasharray="7 5"/>
+  <rect x="946" y="180" width="90" height="24" rx="12" fill="#ffffff" stroke="#e5e9f0" stroke-width="1.5"/>
+  <circle cx="961" cy="192" r="5" fill="#15803d"/>
+  <text x="974" y="196" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#334155">Symbol</text>
+  <text x="990" y="255" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="800" fill="#0b1728">Answer</text>
+
+  <rect x="1" y="1" width="1158" height="418" rx="18" fill="none" stroke="#e2e8f0" stroke-width="2"/>
+</svg>

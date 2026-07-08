@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tutorial: Tumor Diagnosis | Tool4Boxology</title>
+  <meta name="description" content="A worked example that walks through Tool4Boxology end to end: draw a Tumor Diagnosis neuro-symbolic pipeline, validate its patterns, generate a knowledge graph, query it with SPARQL, explore it in the KG Viewer, and auto-generate documentation." />
+  <link rel="icon" type="image/png" href="images/logos/logo.png" />
+  <link rel="stylesheet" href="assets/css/home.css" />
+  <style>
+    .page-header.hero-dialogue {
+      display: grid;
+
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .hero-dialogue-copy {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .hero-dialogue-panel {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+      padding: 18px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.76);
+      border: 1px solid rgba(16, 32, 51, 0.08);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .hero-dialogue-image {
+      width: 100%;
+      border-radius: 18px;
+      overflow: hidden;
+      background: rgba(16, 32, 51, 0.04);
+      border: 1px solid rgba(16, 32, 51, 0.08);
+    }
+
+    .hero-dialogue-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .dialogue-stack {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .dialogue-line {
+      display: grid;
+      grid-template-columns: 80px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(16, 32, 51, 0.08);
+      box-shadow: var(--shadow-soft);
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .speaker-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 16px;
+      object-fit: cover;
+      border: 1px solid rgba(16, 32, 51, 0.12);
+      background: #fff;
+    }
+
+    .speaker-copy {
+      min-width: 0;
+    }
+
+    .dialogue-line strong {
+      color: var(--text);
+      margin-right: 10px;
+    }
+
+    .hero-note {
+      color: var(--muted);
+      font-size: 0.94rem;
+      line-height: 1.6;
+      margin: 2px 0 0;
+    }
+
+    .workflow-step ul {
+      margin: 10px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+    .workflow-step li + li {
+      margin-top: 6px;
+    }
+    .code-block {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: rgba(16, 32, 51, 0.06);
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.6;
+    }
+    .code-block pre {
+      margin: 0;
+    }
+    .code-block code {
+      background: none;
+      padding: 0;
+      border-radius: 0;
+      font-family: "Cascadia Code", "Consolas", monospace;
+      white-space: pre;
+    }
+    .page-header.hero-dialogue h1.hero-title {
+      font-size: 2.1rem;
+      line-height: 1.1;
+    }
+  </style>
+</head>
+<body class="home-shell">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html" aria-label="Tool4Boxology home">
+        <span class="brand-mark"><img src="images/logos/logo.png" alt="Tool4Boxology logo" /></span>
+        <span class="brand-copy">
+          <strong>Tool4Boxology</strong>
+          <span>Example Walkthrough</span>
+        </span>
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <a href="index.html#start">Start</a>
+        <a href="tutorial.html">Tutorial</a>
+        <a href="index.html#features">Features</a>
+        <a href="abstract.html">Graphical abstract</a>
+        <a href="architecture.html">Architecture</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-body">
+    <section class="page-hero">
+      <div class="shell page-header hero-dialogue">
+        <div class="hero-dialogue-copy">
+          <span class="eyebrow">Follow the example to see how an idea becomes a neuro-symbolic architecture.</span>
+          <h1 class="hero-title">Tumor Diagnosis: a Tool4Boxology walkthrough</h1>
+          <div class="dialogue-stack">
+            <div class="dialogue-line">
+              <img class="speaker-avatar" src="images/icons/Ana.png" alt="Dr. Ana avatar" />
+              <div class="speaker-copy"><strong>Dr. Ana:</strong> "I want something simple in my head. Show the system enough tumors I already diagnosed, so it learns what I look for. Then let it check new scans the same way and tell me why, so I can compare its reasoning to mine."</div>
+            </div>
+            <div class="dialogue-line">
+              <img class="speaker-avatar" src="images/icons/Marco.png" alt="Marco avatar" />
+              <div class="speaker-copy"><strong>Marco:</strong> "That is really three things. First we define the labels and the data: labels are the meaning we want to capture, and data is the example input we train on. Then we train a model, and later we apply it to a new scan."</div>
+            </div>
+            <div class="dialogue-line">
+              <img class="speaker-avatar" src="images/icons/Ana.png" alt="Dr. Ana avatar" />
+              <div class="speaker-copy"><strong>Dr. Ana:</strong> "Right, but the why matters most to me. I do not just want an answer. I want to see the reasoning so I can check it against my own judgment."</div>
+            </div>
+            <div class="dialogue-line">
+              <img class="speaker-avatar" src="images/icons/Marco.png" alt="Marco avatar" />
+              <div class="speaker-copy"><strong>Marco:</strong> "Then we should not train a plain black-box model. We should use a neural-symbolic setup, so the system can learn from examples but still keep the reasoning traceable."</div>
+            </div>
+            <div class="dialogue-line">
+              <img class="speaker-avatar" src="images/icons/Marco.png" alt="Marco avatar" />
+              <div class="speaker-copy"><strong>Marco:</strong> "Tool4Boxology gives us a unified visual language for that workflow. We draw the labeling, training, and deduction blocks, check validation live, and make sure the system stays explainable instead of just predictive."</div>
+            </div>
+            <div class="dialogue-line">
+              <img class="speaker-avatar" src="images/icons/Ana.png" alt="Dr. Ana avatar" />
+              <div class="speaker-copy"><strong>Dr. Ana:</strong> "And if I connect something wrong?"</div>
+            </div>
+            <div class="dialogue-line">
+              <img class="speaker-avatar" src="images/icons/Marco.png" alt="Marco avatar" />
+              <div class="speaker-copy"><strong>Marco:</strong> "The tool checks it live. If the label does not match what training expects, or the trained model does not match what deduction needs, it flags it immediately — before either of us writes code."</div>
+            </div>
+          </div>
+    </section>
+
+    <section class="section" id="overview">
+      <div class="shell grid-2">
+        <article class="content-panel">
+          <span class="section-kicker">What you're looking at</span>
+          <h2>Three composed patterns, one pipeline</h2>
+          <p>Tumor Diagnosis chains three design patterns end to end — the output of each one is the input to the next:</p>
+          <ul>
+            <li><strong>Labeling</strong> — an <code>Expert</code> (Actor) performs <code>Engineering</code> to produce <code>Label for Segments</code> (Symbol). A human expert manually engineers ground-truth labels.</li>
+            <li><strong>Train a Supervised Model</strong> — those labels plus <code>Preprocessed MRT Data</code> (Data) go through <code>Train</code> to produce a <code>Supervised Model</code> (Model).</li>
+            <li><strong>Symptom Detection</strong> — a new <code>MRT Image</code> (Data) and the trained <code>Supervised Model</code> go through <code>Deduce</code> to produce a <code>Diagnosis</code> (Symbol).</li>
+          </ul>
+          <p>That's the point of drawing it in Boxology rather than a generic flowchart: each step is named by its epistemic role — engineering, training, deducing — so the kind of neuro-symbolic integration is explicit and, as the next steps show, checkable.</p>
+        </article>
+        <article class="content-panel">
+          <span class="section-kicker">Reading the shapes</span>
+          <h2>The shape legend</h2>
+          <ul>
+            <li><strong>Triangle</strong> — an Actor (a person or agent), e.g. <code>Expert</code>.</li>
+            <li><strong>Solid rounded rectangle</strong> — a Process, e.g. <code>Engineering</code>, <code>Train</code>, <code>Deduce</code>.</li>
+            <li><strong>Solid rectangle</strong> — Data, e.g. <code>Preprocessed MRT Data</code>, <code>MRT Image</code>.</li>
+            <li><strong>Dashed green rectangle</strong> — a Symbol, e.g. <code>Label for Segments</code>, <code>Diagnosis</code>.</li>
+            <li><strong>Dashed hexagon</strong> — a Model, e.g. <code>Supervised Model</code>.</li>
+            <li><strong>Grey rounded group</strong> — one design pattern: Input(s) → Process → Output.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="steps">
+      <div class="shell">
+        <div class="section-head">
+          <span class="section-kicker">The pipeline</span>
+          <h2>From diagram to knowledge discovery — five steps</h2>
+          <p class="section-lead">The same five steps apply to any design you build in Tool4Boxology, not just this one.</p>
+        </div>
+
+        <div class="workflow">
+          <div class="workflow-step">
+            <div>
+              <h3>Validate every pattern</h3>
+              <p>Tool4Boxology doesn't just check that boxes are connected — <strong>Check Boxology</strong> checks each pattern's Input(s) → Process → Output triple against the legal typed combinations defined in the T4B ontology. Running it on Tumor Diagnosis confirms all three patterns:</p>
+              <ul>
+                <li><code>Engineer: [Actor] -&gt; [Symbol]</code></li>
+                <li><code>Train: [Symbol, Data] -&gt; [Model]</code></li>
+                <li><code>Deduce: [Data, Model] -&gt; [Symbol]</code></li>
+              </ul>
+              <p>Because every stage matches a recognised pattern, the whole diagram is a well-formed neuro-symbolic system — a symbolic labeling step, a neural training step, and a hybrid inference step, wired together correctly — not just a plausible-looking flowchart.</p>
+              <div class="kg-screenshot">
+                <img src="images/content/example/validation.png" alt="Tool4Boxology validation dialog: 'Valid pattern(s) detected: Train: [Symbol, Data] -> [Model]; Engineer: [Actor] -> [Symbol]; Deduce: [Data, Model] -> [Symbol]'" />
+              </div>
+              <span class="infographic-example-caption">Check Boxology confirms Labeling, Train a Supervised Model, and Symptom Detection are all valid.</span>
+            </div>
+          </div>
+
+          <div class="workflow-step">
+            <div>
+              <h3>Turn it into a knowledge graph</h3>
+              <p>Once a diagram validates, Tool4Boxology's RML pipeline turns it into RDF triples using the T4B vocabulary. Each pattern becomes a <code>t4b:DesignPattern</code> connected to its process, inputs, and outputs (<code>t4b:hasProcess</code>, <code>t4b:hasInput</code>, <code>t4b:hasOutput</code>), and the whole diagram becomes a top-level system — here, <code>Tumor-Diagnosis</code> — connected to its three patterns via <code>t4b:hasPattern</code>. Nothing about the design is lost: the same Labeling / Train a Supervised Model / Symptom Detection structure now exists as data you can query.</p>
+            </div>
+          </div>
+
+          <div class="workflow-step">
+            <div>
+              <h3>Query the graph with SPARQL</h3>
+              <p>The editor ships a SPARQL panel with ready-made example queries (<em>Find output nodes</em>, <em>List Boxologies and Pattern Counts</em>) plus a free-form editor. Say you want to know which pattern in Tumor Diagnosis actually produced <code>Label for Segments</code> — ask the graph directly:</p>
+              <div class="code-block"><pre><code>PREFIX t4b: &lt;http://tool4boxology.org/&gt;
+PREFIX rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt;
+SELECT * WHERE {
+  ?pattern t4b:hasOutput ?OutPut;
+    rdfs:label ?patternLabel.
+  ?OutPut rdfs:label "Label for Segments" .
+}</code></pre></div>
+              <p><strong>Run Query</strong> returns exactly one row — the pattern that produced that output:</p>
+              <table class="compare-table">
+                <thead><tr><th>pattern</th><th>OutPut</th><th>patternLabel</th></tr></thead>
+                <tbody>
+                  <tr><td>…/DesignPattern/group_1783160823186</td><td>…/Component/node_17831606554893</td><td>"Labeling"</td></tr>
+                </tbody>
+              </table>
+              <p>You can also query the inputs and outputs of any pattern, find all patterns in a system, or discover which systems use a specific pattern. This makes it much easier to explore existing neuro-symbolic architectures and reuse proven design patterns when building new AI systems.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="workflow-step">
+            <div>
+              <h3>Explore it — and check node status — in the KG Viewer</h3>
+              <p>The KG Viewer renders the whole graph as an explorable node-link diagram: <code>Tumor-Diagnosis</code> at the centre, connected to its three patterns, which fan out to their inputs, outputs, and processes. Clicking any pattern node re-runs the same validity check from Step 1, live, on that node — its <strong>Type</strong>, a <strong>VALID</strong>/<strong>INVALID</strong> <strong>Status</strong>, the matched validation pattern, and its inputs and outputs. Clicking <em>Train a Supervised Model</em> shows:</p>
+              <ul>
+                <li>Status: <strong>VALID</strong></li>
+                <li>Validation Pattern: <code>Symbol-Data&gt;Train&gt;Model</code></li>
+                <li>Inputs (2): Label for Segments, Preprocessed MRT Data</li>
+                <li>Outputs (1): Supervised Model</li>
+              </ul>
+              <p>If you edit the diagram later and accidentally break a pattern — say, remove one of its inputs — this is where you'd see it flip to invalid.</p>
+              <div class="kg-screenshot">
+                <img src="images/content/example/examplKG.png" alt="Tool4Boxology KG Viewer showing the Tumor-Diagnosis graph with the Train a Supervised Model node selected, displaying Type: DesignPattern, Status: VALID, Validation Pattern: Symbol-Data>Train>Model, Inputs (2): Label for Segments, Preprocessed MRT Data, Outputs (1): Supervised Model" />
+              </div>
+              <span class="infographic-example-caption">The full Tumor-Diagnosis graph in the KG Viewer, with one pattern selected.</span>
+            </div>
+          </div>
+
+          <div class="workflow-step">
+            <div>
+              <h3>Generate documentation for a one-page overview</h3>
+              <p><strong>Generate Documentation</strong> (in the KG Viewer toolbar) turns the whole graph into a plain-text summary you can save and share: a system description, the pipeline order, and every pattern with its process and inputs/outputs. For Tumor Diagnosis, it reads roughly like this:</p>
+              <div class="code-block"><pre><code># Automatic System Documentation
+
+## Tumor-Diagnosis
+
+### System Description
+
+The system collects Expert, Label for Segments, Preprocessed MRT Data,
+MRT Image, Supervised Model, performs an ordered pipeline of
+transformations and inference steps (Labeling: engineers system
+artifacts; Train a Supervised Model: trains a model; Symptom
+Detection: infers symbolic outputs), and produces Label for Segments,
+Supervised Model, Diagnosis.
+
+### Example Pipeline
+
+Engineering -> Train -> Deduce
+
+### Design Patterns
+
+1. Labeling
+   - Process: Engineering
+   - Inputs: Expert
+   - Outputs: Label for Segments
+2. Train a Supervised Model
+   - Process: Train
+   - Inputs: Label for Segments, Preprocessed MRT Data
+   - Outputs: Supervised Model
+3. Symptom Detection
+   - Process: Deduce
+   - Inputs: MRT Image, Supervised Model
+   - Outputs: Diagnosis</code></pre></div>
+              <p>That's a full, accurate overview of the system — generated from the graph, not written by hand — good for a README, a paper appendix, or onboarding a teammate who's never seen the diagram.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="next">
+      <div class="shell grid-2">
+        <article class="content-panel">
+          <span class="section-kicker">Try it yourself</span>
+          <h2>Rebuild Tumor Diagnosis, or start your own.</h2>
+          <p>Open the editor, draw the three patterns above, and run Check Boxology, then Export, then the SPARQL panel and the KG Viewer — the same five steps, on your own design.</p>
+          <div class="mini-links">
+            <a class="mini-link" href="https://tool4boxology.service.tib.eu/" target="_blank" rel="noreferrer">Open online editor</a>
+            <a class="mini-link" href="https://www.youtube.com/watch?v=yr8KNgPh-Vw" target="_blank" rel="noreferrer">Watch the video tutorial</a>
+          </div>
+        </article>
+        <article class="content-panel">
+          <span class="section-kicker">Keep exploring</span>
+          <h2>See how the pieces fit together.</h2>
+          <p>The graphical abstract gives the shortest overview of the three layers; the architecture page shows how the pipeline is implemented underneath.</p>
+          <div class="mini-links">
+            <a class="mini-link" href="abstract.html">Graphical abstract</a>
+            <a class="mini-link" href="architecture.html">Architecture</a>
+            <a class="mini-link" href="index.html#kg-viewer">KG Viewer overview</a>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as go from 'gojs';
-import ExCls from '../Examples/Pain-Cls-Example.json';
-import ExSeg from '../Examples/MRI-seg-Example.json';
-import InstructionDialog from './InstructionDialog';  
-import WorkflowImg from '../assets/WorkFlow.png';
-import { generateMultiPageRMLExport } from '../utils/exportHelpers';
-import { shapes, shapeTypesMin } from '../data/shape';
+import { v4 as uuidv4 } from 'uuid';
+import ExCls from '../../Examples/Pain-Cls-Example.json';
+import ExSeg from '../../Examples/MRI-seg-Example.json';
+import InstructionDialog from '../dialogs/InstructionDialog';
+import WorkflowImg from '../../assets/WorkFlow.png';
+import { generateMultiPageRMLExport } from '../../utils/exportHelpers';
+import { shapes, shapeTypesMin } from '../../data/shape';
+import { getButtonStyle, getMenuButtonStyle } from '../../styles/buttonStyles';
+import { colors } from '../../styles/theme';
 
 interface RightSidebarProps {
   selectedData: {
@@ -116,48 +119,6 @@ const strokePresets = [
   '#B8A600', '#4c003b', '#CD5C5C', '#C1307A',
   '#A9A9A9', '#FF8C00', '#DC143C', '#228B22'
 ];
-
-function getButtonStyle(options?: {
-  background?: string;
-  color?: string;
-  fontWeight?: number | string;
-  textAlign?: string;
-  marginBottom?: number;
-}): React.CSSProperties {
-  return {
-    padding: '6px',
-    background: options?.background ?? '#6c72d9',
-    color: options?.color ?? '#eaf2faff',
-    borderRadius: 6,
-    border: '1px solid #eee',
-    fontWeight: options?.fontWeight ?? 600,
-    textAlign: options?.textAlign ?? ('center' as any),
-    marginBottom: options?.marginBottom ?? 0,
-    fontFamily: 'Segoe UI, Arial, sans-serif',
-    fontSize: 14,
-    cursor: 'pointer'
-  };
-}
-
-function getMenuButtonStyle(active: boolean): React.CSSProperties {
-  return {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 10,
-    padding: '12px 12px',
-    background: active ? 'linear-gradient(135deg, #0f172a 0%, #111827 100%)' : '#f8fafc',
-    color: active ? '#f8fafc' : '#0f172a',
-    borderRadius: 12,
-    border: active ? '1px solid #0f172a' : '1px solid #e5e7eb',
-    fontWeight: 600,
-    fontFamily: 'Segoe UI, Arial, sans-serif',
-    fontSize: 13,
-    cursor: 'pointer',
-    boxShadow: active ? '0 10px 18px rgba(15, 23, 42, 0.2)' : '0 1px 2px rgba(0,0,0,0.06)',
-    transition: 'all 0.2s ease'
-  };
-}
 
 type ExportNode = {
   id: string;
@@ -418,42 +379,42 @@ function downloadTextFile(content: string, filename: string, mimeType: string) {
 // Perform an automatic layout on a GoJS diagram. Clears explicit `loc` properties
 // so the layout algorithm can position nodes. Use 'layered' for tidy flow layouts
 // or 'force' for organic layouts.
-function autoLayoutDiagram(diagram: go.Diagram | null, layoutType: 'layered' | 'force' = 'layered') {
-  if (!diagram) return;
+//function autoLayoutDiagram(diagram: go.Diagram | null, layoutType: 'layered' | 'force' = 'layered') {
+  //if (!diagram) return;
 
-  try {
-    const model = diagram.model as any;
+// try {
+//   const model = diagram.model as any;
 
-    // Clear explicit locations so the layout can reposition nodes
-    if (model && Array.isArray(model.nodeDataArray)) {
-      model.startTransaction && model.startTransaction('clear-locs');
-      for (const d of model.nodeDataArray) {
-        if (d && d.loc) {
-          // use setDataProperty when available so GoJS updates bindings
-          if (model.setDataProperty) model.setDataProperty(d, 'loc', undefined);
-          else d.loc = undefined;
-        }
-      }
-      model.commitTransaction && model.commitTransaction('clear-locs');
-    }
+//   // Clear explicit locations so the layout can reposition nodes
+//   if (model && Array.isArray(model.nodeDataArray)) {
+//     model.startTransaction && model.startTransaction('clear-locs');
+//     for (const d of model.nodeDataArray) {
+//       if (d && d.loc) {
+//         // use setDataProperty when available so GoJS updates bindings
+//         if (model.setDataProperty) model.setDataProperty(d, 'loc', undefined);
+//         else d.loc = undefined;
+//       }
+//     }
+//     model.commitTransaction && model.commitTransaction('clear-locs');
+//   }
 
-    // Choose and run layout
-    diagram.startTransaction && diagram.startTransaction('auto-layout');
-    if (layoutType === 'layered') {
-      diagram.layout = new go.LayeredDigraphLayout({ direction: 0, layerSpacing: 50, columnSpacing: 100, setsPortSpots: false });
-    } else {
-      diagram.layout = new go.ForceDirectedLayout({ defaultSpringLength: 80, defaultElectricalCharge: 100 });
-    }
-    // force synchronous relayout
-    diagram.layoutDiagram && diagram.layoutDiagram(true);
-    diagram.commitTransaction && diagram.commitTransaction('auto-layout');
-  } catch (e) {
-    // don't block the UI if layout fails
-    // eslint-disable-next-line no-console
-    console.warn('autoLayoutDiagram failed', e);
-  }
-}
-
+//   // Choose and run layout
+//   diagram.startTransaction && diagram.startTransaction('auto-layout');
+//   if (layoutType === 'layered') {
+//     diagram.layout = new go.LayeredDigraphLayout({ direction: 0, layerSpacing: 50, columnSpacing: 100, setsPortSpots: false });
+//   } else {
+//     diagram.layout = new go.ForceDirectedLayout({ defaultSpringLength: 80, defaultElectricalCharge: 100 });
+//   }
+//   // force synchronous relayout
+//   diagram.layoutDiagram && diagram.layoutDiagram(true);
+//   diagram.commitTransaction && diagram.commitTransaction('auto-layout');
+// } catch (e) {
+//   // don't block the UI if layout fails
+//   // eslint-disable-next-line no-console
+//   console.warn('autoLayoutDiagram failed', e);
+// }
+// }
+// ###
 export default function RightSidebar({ selectedData, diagramRef, pages, currentPageId, setPages, setCurrentPageId }: RightSidebarProps) {
   const [activeSection, setActiveSection] = useState<'howto' | 'examples' | 'query' | 'style' | 'symbols'>('howto');
   const [localLabel, setLocalLabel] = useState('');
@@ -566,7 +527,7 @@ WHERE {
       const boxologyLabel = modelData.boxologyLabel || modelData.label || 'Diagram';
 
       const newPage = {
-        id: boxologyId,
+        id: uuidv4(),
         name: boxologyLabel,
         nodeDataArray,
         linkDataArray,
@@ -574,8 +535,18 @@ WHERE {
         boxologyLabel,
       };
 
-      setPages([newPage]);
-      setCurrentPageId(boxologyId);
+      // Add the example as a new tab alongside the existing ones, syncing the
+      // outgoing tab's live (unsynced) edits first so they aren't lost.
+      const liveDiagramForSync = diagramRef.current;
+      const withSyncedCurrent = liveDiagramForSync
+        ? pages.map((p: any) => {
+            if (p.id !== currentPageId) return p;
+            const liveModel = liveDiagramForSync.model as go.GraphLinksModel;
+            return { ...p, nodeDataArray: liveModel.nodeDataArray, linkDataArray: liveModel.linkDataArray || [] };
+          })
+        : pages;
+      setPages([...withSyncedCurrent, newPage]);
+      setCurrentPageId(newPage.id);
 
       const diagram = diagramRef.current;
       diagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
@@ -591,7 +562,7 @@ WHERE {
         m.modelData.boxologyLabel = boxologyLabel;
       }
       // run automatic layout to arrange nodes after loading
-      autoLayoutDiagram(diagram, 'layered');
+      // autoLayoutDiagram(diagram, 'layered');
     } catch (err) {
       console.error('Failed to load example', err);
     }
@@ -655,9 +626,8 @@ WHERE {
     diagram.selection.each((part) => {
       if (part instanceof go.Link) {
         if (style === 'curve') {
-          part.routing = go.Routing.Normal;
           part.curve = go.Curve.Bezier;
-          part.curviness = 40;
+          part.routing = go.Link.Orthogonal;
         } else {
           part.routing = go.Link.Orthogonal;
           part.corner = 5;
@@ -699,7 +669,7 @@ WHERE {
         loadedModel.setDataProperty(loadedModel.modelData, 'boxologyId', convertedPages[0].boxologyId);
         loadedModel.setDataProperty(loadedModel.modelData, 'boxologyLabel', convertedPages[0].boxologyLabel);
         // Run automatic layout so uploaded diagrams are organized
-        autoLayoutDiagram(diagramRef.current, 'layered');
+        // autoLayoutDiagram(diagramRef.current, 'layered');
       }
 
       setConversionStatus(`Loaded ${convertedPages.length} converted page(s) from ${file.name}`);
@@ -895,9 +865,9 @@ WHERE {
                   style={{
                     flex: 1,
                     padding: '8px 12px',
-                    backgroundColor: linkRouting === 'straight' ? '#6c72d9' : '#fff',
+                    backgroundColor: linkRouting === 'straight' ? colors.primary.main : '#fff',
                     color: linkRouting === 'straight' ? '#fff' : '#333',
-                    border: linkRouting === 'straight' ? '2px solid #6c72d9' : '1px solid #ccc',
+                    border: linkRouting === 'straight' ? `2px solid ${colors.primary.main}` : '1px solid #ccc',
                     borderRadius: 6,
                     cursor: 'pointer',
                     fontWeight: 600,
@@ -911,9 +881,9 @@ WHERE {
                   style={{
                     flex: 1,
                     padding: '8px 12px',
-                    backgroundColor: linkRouting === 'curve' ? '#6c72d9' : '#fff',
+                    backgroundColor: linkRouting === 'curve' ? colors.primary.main : '#fff',
                     color: linkRouting === 'curve' ? '#fff' : '#333',
-                    border: linkRouting === 'curve' ? '2px solid #6c72d9' : '1px solid #ccc',
+                    border: linkRouting === 'curve' ? `2px solid ${colors.primary.main}` : '1px solid #ccc',
                     borderRadius: 6,
                     cursor: 'pointer',
                     fontWeight: 600,

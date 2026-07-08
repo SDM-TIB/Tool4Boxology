@@ -1,15 +1,32 @@
 import React, { useState, useMemo } from 'react';
-import { shapes } from '../data/shape';
-import { elementaryPatterns, compositePatterns, type Pattern } from '../data/patterns';
-import { kautzPatterns } from '../data/kautzPatterns';
-import type { ShapeDefinition } from '../types';
-import tibLogo from '../assets/TIB_Logo_EN.webp'; // adjust path if needed
-import vuLogo from '../assets/VU-Logo.png';   // add this line
+import { shapes, shapeTypesTree, type ShapeTypeTree } from '../../data/shape';
+import { elementaryPatterns, compositePatterns, type Pattern } from '../../data/patterns';
+import { kautzPatterns } from '../../data/kautzPatterns';
+import type { ShapeDefinition } from '../../types';
+import tibLogo from '../../assets/TIB_Logo_EN.webp'; // adjust path if needed
+import vuLogo from '../../assets/VU-Logo.png';   // add this line
 import { LineAxis, SpaOutlined } from '@mui/icons-material';
+import { colors } from '../../styles/theme';
+import { getSectionHeaderStyle } from '../../styles/buttonStyles';
 
 interface ShapeGroupMap {
   [group: string]: ShapeDefinition[];
 }
+
+// Flatten e.g. shapeTypesTree.Data = { Number, Dataset, Tensor, Text, Image, ... }
+// into a lowercase name list, so searching a subtype (e.g. "Image") also finds
+// the shape that owns it (e.g. "Data").
+function flattenTypeNames(node: ShapeTypeTree | null | undefined): string[] {
+  if (!node) return [];
+  return Object.keys(node).flatMap(key => [key, ...flattenTypeNames(node[key])]);
+}
+
+const shapeSubtypeIndex: Record<string, string[]> = Object.fromEntries(
+  Object.entries(shapeTypesTree).map(([rootName, subtree]) => [
+    rootName.toLowerCase(),
+    flattenTypeNames(subtree).map(name => name.toLowerCase()),
+  ])
+);
 
 function groupShapesByCategory(shapes: ShapeDefinition[]): ShapeGroupMap {
   return shapes.reduce((acc, shape) => {
@@ -63,12 +80,12 @@ export default function LeftSidebar({
   // Filter shapes based on search term
   const filteredShapes = useMemo(() => {
     if (!searchTerm.trim()) return shapes;
-    
+
     const term = searchTerm.toLowerCase();
-    return shapes.filter(shape => 
+    return shapes.filter(shape =>
       shape.name.toLowerCase().includes(term) ||
       shape.label.toLowerCase().includes(term) ||
-      shape.group.toLowerCase().includes(term)
+      (shapeSubtypeIndex[shape.name.toLowerCase()] || []).some(subtype => subtype.includes(term))
     );
   }, [searchTerm]);
 
@@ -159,7 +176,7 @@ export default function LeftSidebar({
       {/* Header */}
       <div
         style={{
-          background: ' #a680ce',
+          background: colors.surface.header,
           color: '#fff',
           padding: '12px 16px',
           display: 'flex',
@@ -277,13 +294,13 @@ export default function LeftSidebar({
               <div style={{ marginBottom: '8px' }}>
                 <div style={{
                   padding: '8px 12px',
-                  background: '#54ac67',
+                  background: colors.semantic.info.main,
                   border: '1px solid #bbdefb',
                   borderRadius: '6px',
                   marginBottom: '8px',
                   fontSize: '12px',
                   fontWeight: '600',
-                  color: '#eaf2faff',
+                  color: colors.text.onPrimary,
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px'
@@ -319,23 +336,7 @@ export default function LeftSidebar({
             <div style={{ marginBottom: '8px' }}>
               <div
                 onClick={() => setShapesMenuCollapsed((prev) => !prev)}
-                style={{
-                  padding: '10px 12px',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  fontSize: '13px',
-                  fontWeight: '700',
-                  letterSpacing: '0.4px',
-                  transition: 'all 0.2s ease',
-                  userSelect: 'none',
-                  background: shapesMenuCollapsed ? '#8680ce' : '#746eb3',
-                  color: '#eaf2faff',
-                  border: '1px solid #2f356f',
-                  textTransform: 'uppercase',
-                }}
+                style={getSectionHeaderStyle(shapesMenuCollapsed, 'top')}
               >
                 <span>Shapes</span>
                 <span style={{
@@ -353,21 +354,7 @@ export default function LeftSidebar({
                     <div key={category} style={{ marginBottom: '8px' }}>
                       <div
                         onClick={() => toggleCategory(category)}
-                        style={{
-                          padding: '10px 12px',
-                          borderRadius: '8px',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          fontSize: '13px',
-                          fontWeight: '600',
-                          transition: 'all 0.2s ease',
-                          userSelect: 'none',
-                         background: collapsedCategories.has(category) ? '#4f4b79' : '#8680ce',
-                          color: '#eaf2faff',
-                          border: '1px solid #bbdefb',
-                        }}
+                        style={getSectionHeaderStyle(collapsedCategories.has(category), 'category')}
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <span>{category}</span>
@@ -410,24 +397,7 @@ export default function LeftSidebar({
         <div style={{ marginBottom: '16px' }}>
           <div
             onClick={() => setPatternsMenuCollapsed((prev) => !prev)}
-            style={{
-              padding: '10px 12px',
-              borderRadius: '8px',
-              marginBottom: '8px',
-              fontSize: '13px',
-              fontWeight: '700',
-              textTransform: 'uppercase',
-              letterSpacing: '0.4px',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              cursor: 'pointer',
-              userSelect: 'none',
-              color: '#eaf2faff',
-              background: patternsMenuCollapsed ? '#8680ce' : '#746eb3',
-              border: '1px solid #2f356f',
-              transition: 'all 0.2s ease'
-            }}
+            style={{ ...getSectionHeaderStyle(patternsMenuCollapsed, 'top'), marginBottom: '8px' }}
           >
             <span>Patterns</span>
             <span style={{
@@ -446,24 +416,7 @@ export default function LeftSidebar({
                 <div style={{ marginBottom: '8px' }}>
                   <div
                     onClick={() => setPatternsCollapsed((prev) => !prev)}
-                    style={{
-                      padding: '8px 12px',
-                      border: '1px solid #bbdefb',
-                      borderRadius: '6px',
-                      marginBottom: '8px',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      cursor: 'pointer',
-                      userSelect: 'none',
-                      color: '#eaf2faff',
-                     background: patternsCollapsedState ? '#4f4b79' : '#8680ce',
-                      transition: 'background 0.2s'
-                    }}
+                    style={{ ...getSectionHeaderStyle(patternsCollapsedState, 'category'), textTransform: 'uppercase', letterSpacing: '0.5px', gap: '8px' }}
                   >
                     <span>Bekkum Patterns</span>
                     <span style={{
@@ -480,24 +433,7 @@ export default function LeftSidebar({
                       <div style={{ marginBottom: '8px' }}>
                         <div
                           onClick={() => setElementaryPatternsCollapsed((prev) => !prev)}
-                          style={{
-                            padding: '8px 12px',
-                            border: '1px solid #bbdefb',
-                            borderRadius: '6px',
-                            marginBottom: '8px',
-                            fontSize: '12px',
-                            fontWeight: '600',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.5px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            cursor: 'pointer',
-                            userSelect: 'none',
-                            color: '#eaf2faff',
-                            background: elementaryPatternsCollapsedState ? '#85a2d8' : '#9abbf8',
-                            transition: 'background 0.2s'
-                          }}
+                          style={{ ...getSectionHeaderStyle(elementaryPatternsCollapsedState, 'sub'), textTransform: 'uppercase', letterSpacing: '0.5px', gap: '8px' }}
                         >
                           <span>Elementary Patterns</span>
                           <span style={{
@@ -572,25 +508,7 @@ export default function LeftSidebar({
                       <div style={{ marginBottom: '8px' }}>
                         <div
                           onClick={() => setCompositePatternsCollapsed((prev) => !prev)}
-                          style={{
-                            padding: '8px 12px',
-                            border: '1px solid #bbdefb',
-                            borderRadius: '6px',
-                            marginBottom: '8px',
-                            fontSize: '12px',
-                            fontWeight: '600',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.5px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            cursor: 'pointer',
-                            userSelect: 'none',
-                            color: '#eaf2faff',
-                            background: compositePatternsCollapsedState ? '#85a2d8' : '#9abbf8',
-                            transition: 'background 0.2s',
-                            
-                          }}
+                          style={{ ...getSectionHeaderStyle(compositePatternsCollapsedState, 'sub'), textTransform: 'uppercase', letterSpacing: '0.5px', gap: '8px' }}
                         >
                           <span>Composite Patterns</span>
                           <span style={{
@@ -670,24 +588,7 @@ export default function LeftSidebar({
                 <div style={{ marginBottom: '8px' }}>
                   <div
                     onClick={() => setKautzCollapsed((prev) => !prev)}
-                    style={{
-                      padding: '8px 12px',
-                      border: '1px solid #bbdefb',
-                      borderRadius: '6px',
-                      marginBottom: '8px',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      cursor: 'pointer',
-                      userSelect: 'none',
-                      color: '#eaf2faff',
-                      background: patternsCollapsedState ? '#4f4b79' : '#8680ce',
-                      transition: 'background 0.2s'
-                    }}
+                    style={{ ...getSectionHeaderStyle(kautzCollapsedState, 'category'), textTransform: 'uppercase', letterSpacing: '0.5px', gap: '8px' }}
                   >
                     <span>Kautz model</span>
                     <span style={{
@@ -754,6 +655,7 @@ export default function LeftSidebar({
                   )}
                 </div>
               )}
+
             </div>
           )}
         </div>

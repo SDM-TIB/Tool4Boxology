@@ -10,6 +10,16 @@ import AlignHorizontalCenterIcon from '@mui/icons-material/AlignHorizontalCenter
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import ViewStreamIcon from '@mui/icons-material/ViewStream';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { useToast } from '../Toast/ToastProvider';
+import {
+  simpleButtonStyle,
+  toolbarGroupStyle,
+  iconButtonStyle,
+  getEmphasisButtonStyle,
+} from '../../styles/buttonStyles';
+// getToolbarButtonStyle also lives in ../../styles/buttonStyles if a caller needs a
+// fully custom one-off toolbar button style.
+import { colors } from '../../styles/theme';
 
 // Define ToolbarProps type
 type ToolbarProps = {
@@ -63,6 +73,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
   const exportMenuRef = React.useRef<HTMLDivElement>(null);
   const helpMenuRef = React.useRef<HTMLDivElement>(null);         // <-- added
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const { showToast } = useToast();
 
   // Close export menu when clicking outside
   React.useEffect(() => {
@@ -93,53 +104,6 @@ const Toolbar: React.FC<ToolbarProps> = ({
     }
   };
 
-  // Simple small button style for existing buttons
-  const simpleButtonStyle: React.CSSProperties = {
-    padding: '6px 10px',
-    margin: '2px',
-    border: '1px solid #d2d6dc',
-    backgroundColor: '#ffffff',
-    borderRadius: '999px',
-    cursor: 'pointer',
-    fontSize: '12px',
-    fontWeight: 600,
-    color: '#2f2d2a',
-    height: '30px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    lineHeight: 1,
-    boxShadow: '0 1px 1px rgba(0,0,0,0.03)',
-  };
-
-  const toolbarGroupStyle: React.CSSProperties = {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '4px',
-    padding: '3px',
-    border: '1px solid #d9ddd3',
-    borderRadius: '999px',
-    background: '#f8f7f3',
-    boxShadow: '0 4px 10px rgba(30, 28, 23, 0.08)'
-  };
-
-  // MUI icon button style for alignment tools
-  const iconButtonStyle: React.CSSProperties = {
-    padding: '4px',
-    border: '1px solid #ccc',
-    backgroundColor: '#fff',
-    borderRadius: 3,
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: '28px',
-    minWidth: '28px',
-    color: '#555',
-    margin: '1px',
-  };
-
   // Alignment functions
   const alignNodes = (alignment: string) => {
     if (!diagram) return;
@@ -147,7 +111,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
     const selectedNodes = diagram.selection.filter(part => part instanceof go.Node);
     
     if (selectedNodes.count < 2) {
-      alert('Please select at least 2 nodes to align');
+      showToast('Please select at least 2 nodes to align', 'warning');
       return;
     }
 
@@ -201,7 +165,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
     const selectedNodes = diagram.selection.filter(part => part instanceof go.Node);
     
     if (selectedNodes.count < 3) {
-      alert('Please select at least 3 nodes to distribute');
+      showToast('Please select at least 3 nodes to distribute', 'warning');
       return;
     }
 
@@ -242,7 +206,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
     const selectedNodes = diagram.selection.filter(part => part instanceof go.Node);
     
     if (selectedNodes.count < 2) {
-      alert('Please select at least 2 nodes to organize horizontally');
+      showToast('Please select at least 2 nodes to organize horizontally', 'warning');
       return;
     }
 
@@ -274,7 +238,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
     const selectedNodes = diagram.selection.filter(part => part instanceof go.Node);
     
     if (selectedNodes.count < 2) {
-      alert('Please select at least 2 nodes to organize vertically');
+      showToast('Please select at least 2 nodes to organize vertically', 'warning');
       return;
     }
 
@@ -312,7 +276,7 @@ WHERE {
 }
 LIMIT 100`;
     navigator.clipboard?.writeText(query).catch(()=>{});
-    alert('An example SPARQL query copied to clipboard. Paste it into Virtuoso.');
+    showToast('An example SPARQL query copied to clipboard. Paste it into Virtuoso.', 'success');
     window.open('http://localhost:8890/sparql', '_blank', 'noopener,noreferrer');
   };
 
@@ -322,12 +286,12 @@ LIMIT 100`;
       alignItems: 'center',
       gap: '8px',
       padding: '6px 10px',
-      backgroundColor: '#ede9fb',
+      backgroundColor: colors.primary.lighter,
       borderBottom: '1px solid #d6d5d0',
       flexWrap: 'wrap',
       minHeight: '46px'
     }}>
-      <div style={toolbarGroupStyle}>
+      <div style={toolbarGroupStyle} title="File">
       {/* HELP dropdown (replaces direct About button) */}
       <div ref={helpMenuRef} style={{ position: 'relative', display: 'inline-block' }}>
         <button
@@ -385,7 +349,7 @@ LIMIT 100`;
       </div>
 
       {/* Export Dropdown (unchanged) */}
-      <div style={toolbarGroupStyle}>
+      <div style={toolbarGroupStyle} title="Export">
       <div ref={exportMenuRef} style={{ position: 'relative', display: 'inline-block' }}>
         <button
           onClick={() => {
@@ -478,39 +442,29 @@ LIMIT 100`;
       </button>
       </div>
 
-      <div style={toolbarGroupStyle}>
+      <div style={toolbarGroupStyle} title="Diagram">
       <button onClick={onUndo} style={simpleButtonStyle}>🔄 Undo</button>
       <button onClick={onRedo} style={simpleButtonStyle}>🔃 Redo</button>
       <button
         onClick={onValidate}
-        style= {{
-          ...simpleButtonStyle,
-          backgroundColor: '#111827',
-          color: 'white',
-          borderColor: '#111827'
-        }}
+        style={getEmphasisButtonStyle('neutral')}
         title="Validate selected pattern or entire diagram"
       >
         Check Validation!
       </button>
-      
+      </div>
+
+      <div style={toolbarGroupStyle} title="Knowledge Graph">
       {onCreateKG && (
         <button
           onClick={onCreateKG}
-          style={{
-            ...simpleButtonStyle,
-            backgroundColor: '#BF124D',
-            color: 'white',
-            borderColor: '#BF124D'
-          }}
+          style={getEmphasisButtonStyle('danger')}
           title="Create Knowledge Graph in Virtuoso from current pages"
         >
           🔗 Create KG
         </button>
       )}
-      </div>
 
-      <div style={toolbarGroupStyle}>
         <button
           onClick={() => {
             if (onOpenKGViewer) {
@@ -520,33 +474,14 @@ LIMIT 100`;
 
             const blob = new Blob([JSON.stringify(kgJson)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
-            window.open(`/src/components/kg_viewer.html?blob=${encodeURIComponent(url)}`, '_blank');
+            window.open(`/kg_viewer.html?blob=${encodeURIComponent(url)}`, '_blank');
           }}
-          style={{
-            ...exportItemStyle,
-            ...simpleButtonStyle,
-            backgroundColor: '#2563eb',
-            color: 'white',
-            borderColor: '#2563eb',
-            width: 'auto'
-          }}
+          style={{ ...getEmphasisButtonStyle('info'), width: 'auto', padding: '6px 10px' }}
           title="View Knowledge Graph in D3 KG Viewer"
         >
           🧠 KG Viewer
         </button>
-      </div>
 
-      {/* Hidden file input */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".json"
-        multiple
-        style={{ display: 'none' }}
-        onChange={handleFileUpload}
-      />
-
-      <div style={toolbarGroupStyle}>
       {/* Upload KG button */}
       {onUploadKG && (
         <button
@@ -568,7 +503,17 @@ LIMIT 100`;
       </button>
       </div>
 
-      <div style={toolbarGroupStyle}>
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".json"
+        multiple
+        style={{ display: 'none' }}
+        onChange={handleFileUpload}
+      />
+
+      <div style={toolbarGroupStyle} title="Arrange">
       {/* Collapsible Alignment & Organization Section */}
       <button
         onClick={() => setShowAlignOrganize(prev => !prev)}
@@ -657,38 +602,6 @@ const hoverOn = (e: React.MouseEvent<HTMLButtonElement>) => {
 const hoverOff = (e: React.MouseEvent<HTMLButtonElement>) => {
   e.currentTarget.style.backgroundColor = 'transparent';
 };
-
-// Shared button style function for Toolbar
-export function getToolbarButtonStyle(options?: {
-  backgroundColor?: string;
-  color?: string;
-  borderColor?: string;
-  fontWeight?: number | string;
-  fontSize?: number | string;
-  padding?: string;
-  margin?: string;
-  borderRadius?: string | number;
-  height?: string | number;
-}): React.CSSProperties {
-  return {
-    padding: options?.padding ?? '4px 8px',
-    margin: options?.margin ?? '2px',
-    border: `1px solid ${options?.borderColor ?? '#110969ff'}`,
-    backgroundColor: options?.backgroundColor ?? '#f8f8f8',
-    borderRadius: options?.borderRadius ?? '3px',
-    cursor: 'pointer',
-    fontSize: options?.fontSize ?? '13px',
-    fontWeight: options?.fontWeight ?? 'normal',
-    color: options?.color ?? '#333',
-    height: options?.height ?? '24px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  };
-}
-
-// Example usage:
-// <button style={getToolbarButtonStyle({ backgroundColor: '#060771', color: 'white', borderColor: '#060771', fontWeight: 'bold' })}>Check Validation!</button>
 
 export default Toolbar;
 

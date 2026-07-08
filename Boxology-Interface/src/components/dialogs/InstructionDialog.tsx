@@ -24,7 +24,7 @@ import {
   AccountTree,
   CloudUpload,
 } from '@mui/icons-material';
-import boxologyLogo from '../assets/Thum-tool4boxology.png'; // place your logo file here
+import boxologyLogo from '../../assets/Thum-tool4boxology.png'; // place your logo file here
 
 interface InstructionDialogProps {
   open: boolean;
