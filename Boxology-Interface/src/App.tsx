@@ -7,7 +7,7 @@ import { saveWithPicker } from './utils/fs-save';
 import * as go from 'gojs';
 import RightSidebar from './components/RightSidebar';
 import ContextMenu from './ContextMenu';
-import { validateGoJSDiagram } from './plugin/GoJSBoxologyValidation';
+import { validateGoJSDiagram, validateElementaryOnlyDiagram } from './plugin/GoJSBoxologyValidation';
 import { v4 as uuidv4 } from 'uuid';
 import type { ValidationResult } from './utils/validation';
 import { elementaryPatterns } from './data/patterns';
@@ -20,6 +20,7 @@ import { API_BASE } from './config';
 import InstructionDialog from './components/InstructionDialog';
 import LoadingBox from './components/LoadingBox';
 
+
 function App() {
   const diagramRef = useRef<go.Diagram | null>(null);
   const [containers, setContainers] = useState<string[]>(['General', 'Annotation']);
@@ -27,6 +28,8 @@ function App() {
   const [selectedData, setSelectedData] = useState<any>(null);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
   const [customGroups, setCustomGroups] = useState<{ [key: string]: any[] }>({});
+  const [kgJson, setKgJson] = useState<any>(null); // <-- Add this line
+
 
   // Page management for GoJS diagrams
     type PageData = {
@@ -265,6 +268,44 @@ function App() {
     }
   };
 
+  const buildKgExportData = () => {
+    if (!diagramRef.current) {
+      throw new Error('No diagram available');
+    }
+
+    const model = diagramRef.current.model as go.GraphLinksModel;
+    const currentPageNodes = model.nodeDataArray.map((n: any) => ({ ...n, type: n.type ?? n.name }));
+    const currentPageLinks = (model.linkDataArray || []).map((l: any) => ({ ...l }));
+
+    const updatedPages = pages.map(p =>
+      p.id === currentPageId
+        ? { ...p, nodeDataArray: currentPageNodes, linkDataArray: currentPageLinks }
+        : p
+    );
+
+    const rmlData = generateMultiPageRMLExport(updatedPages);
+    const userId = window.localStorage.getItem('userId') || (() => {
+      const id = `user_${Math.random().toString(36).slice(2, 10)}`;
+      window.localStorage.setItem('userId', id);
+      return id;
+    })();
+    const exportUUID = uuidv4().replace(/-/g, '').slice(0, 8);
+
+    return {
+      exportData: {
+        metadata: {
+          exportId: exportUUID,
+          userId,
+          exportDate: new Date().toISOString(),
+        },
+        ...rmlData,
+      },
+      updatedPages,
+      userId,
+      exportUUID,
+    };
+  };
+
   // Consolidated file operations
   const handleFileOperation = async (operation: 'save' | 'open') => {
     if (operation === 'save') {
@@ -496,42 +537,15 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
 
 
       case 'json': {
-        if (!diagramRef.current) { alert('No diagram available'); return; }
+        // Elementary-pattern validation before exporting JSON
+        const elemResult = validateElementaryOnlyDiagram(diagram);
+        if (!elemResult.valid) {
+          alert('Cannot export: diagram failed elementary pattern validation.\n\n' + elemResult.summary);
+          return;
+        }
 
-        const userId = window.localStorage.getItem('userId') || (() => {
-          const id = `user_${Math.random().toString(36).slice(2, 10)}`;
-          window.localStorage.setItem('userId', id);
-          return id;
-        })();
-        const exportUUID = uuidv4().replace(/-/g, '').slice(0, 8);
-
-        // Build updated pages inline (avoid async setState race)
-        const model = diagramRef.current.model as go.GraphLinksModel;
-        const currentPageNodes = model.nodeDataArray.map((n: any) => ({
-          ...n,
-          type: n.type ?? n.name // ensure type present
-        }));
-        const currentPageLinks = model.linkDataArray.map((l: any) => ({ ...l }));
-
-        const updatedPages = pages.map(p =>
-          p.id === currentPageId
-            ? { ...p, nodeDataArray: currentPageNodes, linkDataArray: currentPageLinks }
-            : p
-        );
-
-        // persist pages with any newly generated boxology ids/labels (generateMultiPageRMLExport will also set them if missing)
+        const { exportData, updatedPages, userId, exportUUID } = buildKgExportData();
         setPages(updatedPages);
-
-        const rmlData = generateMultiPageRMLExport(updatedPages);
-
-        const exportData = {
-          metadata: {
-            exportId: exportUUID,
-            userId,
-            exportDate: new Date().toISOString()
-          },
-          ...rmlData
-        };
 
         const json = JSON.stringify(exportData, null, 2);
         const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
@@ -1056,25 +1070,10 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
     setLoadingMessage('Creating Knowledge Graph...');
     setIsCreatingKG(true);
 
-    // Snapshot current page
-    const model = diagramRef.current.model as go.GraphLinksModel;
-    const currentPageNodes = model.nodeDataArray.map((n: any) => ({ ...n, type: n.type ?? n.name }));
-    const currentPageLinks = (model.linkDataArray || []).map((l: any) => ({ ...l }));
-    const updatedPages = pages.map(p =>
-      p.id === currentPageId ? { ...p, nodeDataArray: currentPageNodes, linkDataArray: currentPageLinks } : p
-    );
+    const { exportData, updatedPages, userId, exportUUID } = buildKgExportData();
     setPages(updatedPages);
 
-    // Build same structure as Export → JSON
-    const rmlData = generateMultiPageRMLExport(updatedPages);
-    const userId = window.localStorage.getItem('userId') || (() => {
-      const id = `user_${Math.random().toString(36).slice(2, 10)}`; window.localStorage.setItem('userId', id); return id;
-    })();
-    const exportUUID = uuidv4().replace(/-/g, '').slice(0, 8);
-    const exportData = {
-      metadata: { exportId: exportUUID, userId, exportDate: new Date().toISOString() },
-      ...rmlData
-    };
+    setKgJson(exportData); // <-- Add this line to store the latest KG
 
     try {
       const res = await fetch(`${API_BASE}/api/kg`, {
@@ -1083,6 +1082,16 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
         body: JSON.stringify(exportData)
       });
       if (!res.ok) throw new Error(`Backend error ${res.status}: ${await res.text()}`);
+
+      const kgResult = await res.json().catch(() => null);
+      const rdfText = typeof kgResult?.rdf === 'string' ? kgResult.rdf : '';
+      if (rdfText) {
+        const rdfMime = typeof kgResult?.rdf_format === 'string' ? kgResult.rdf_format : 'application/n-triples';
+        const ntBlob = new Blob([rdfText], { type: `${rdfMime};charset=utf-8` });
+        const ntStamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+        await saveOrDownload(ntBlob, `boxology_${userId}_${ntStamp}_${exportUUID}.nt`, rdfMime);
+      }
+
       setLoadingMessage('KG created successfully.');
       setTimeout(() => setIsCreatingKG(false), 2000);
     } catch (err: any) {
@@ -1126,6 +1135,30 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
     }
   };
 
+  const handleOpenGraphvizEditor = () => {
+    const dot = (() => {
+      if (!diagramRef.current) return '';
+      const data = JSON.parse(diagramRef.current.model.toJson());
+      return modelToDOT(data, { graphLabel: 'Boxology' });
+    })();
+    if (!dot) {
+      alert('No DOT available.');
+      return;
+    }
+    openInGraphviz(dot, 'dot');
+  };
+
+  const handleOpenKGViewer = () => {
+    try {
+      const { exportData } = buildKgExportData();
+      const blob = new Blob([JSON.stringify(exportData)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      window.open(`/src/components/kg_viewer.html?blob=${encodeURIComponent(url)}`, '_blank');
+    } catch (error: any) {
+      alert(error?.message || 'No Knowledge Graph is available to view. Create the KG first.');
+    }
+  };
+
   return (
     <div className="app" style={{ height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column' }}>
       {/* Toolbar */}
@@ -1142,18 +1175,11 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
         onExportJPG={() => handleExport('jpg')}
         onExportJSON={() => handleExport('json')}
         onExportDOT={() => handleExport('dot')}
-
-        onOpenGraphviz={() => {
-          const dot = (() => {
-            if (!diagramRef.current) return '';
-            const data = JSON.parse(diagramRef.current.model.toJson());
-            return modelToDOT(data, { graphLabel: 'Boxology' });
-          })();
-          if (!dot) { alert('No DOT available.'); return; }
-          openInGraphviz(dot, 'dot');
-        }}
+        onOpenGraphviz={handleOpenGraphvizEditor}
         onCreateKG={handleCreateKG}
         onUploadKG={handleUploadKG}
+        onOpenKGViewer={handleOpenKGViewer}
+        kgJson={kgJson} // <-- Pass the KG JSON to the Toolbar
       />
 
       {/* Tab Bar */}
@@ -1364,6 +1390,8 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
             <RightSidebar
               selectedData={selectedData}
               diagramRef={diagramRef}
+              pages={pages}
+              currentPageId={currentPageId}
               setPages={setPages}
               setCurrentPageId={setCurrentPageId}
             />

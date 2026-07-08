@@ -1,0 +1,1881 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Boxology Knowledge Graph</title>
+  <script src="https://gojs.net/latest/release/go.js"></script>
+  <style>
+    html, body { height:100%; margin:0; padding:0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f3f4f6; display: flex; height: 100vh; }
+    #toolbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 48px;
+      background: #2563eb;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      z-index: 10;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      font-size: 18px;
+      letter-spacing: 0.5px;
+    }
+    #toolbar .hint {
+      font-size: 13px;
+      color: #dbeafe;
+      margin-left: 18px;
+      font-weight: 400;
+    }
+    #doc-btn {
+      margin-left: auto;
+      border: 1px solid #bfdbfe;
+      background: #eff6ff;
+      color: #1e3a8a;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    #doc-btn:hover {
+      background: #dbeafe;
+    }
+    #explorer-controls {
+      position: fixed;
+      top: 48px;
+      left: 0;
+      right: 0;
+      min-height: 52px;
+      background: #f8fafc;
+      border-bottom: 1px solid #dbe2ea;
+      z-index: 9;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      flex-wrap: wrap;
+    }
+    .ctrl-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #ffffff;
+      border: 1px solid #dbe2ea;
+      border-radius: 8px;
+      padding: 4px 6px;
+    }
+    .ctrl-group label {
+      font-size: 12px;
+      color: #334155;
+      font-weight: 600;
+    }
+    .ctrl-group select,
+    .ctrl-group input,
+    .ctrl-group button {
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 12px;
+      padding: 5px 8px;
+      background: #fff;
+      color: #0f172a;
+    }
+    .ctrl-group button {
+      cursor: pointer;
+      font-weight: 600;
+      background: #eff6ff;
+      border-color: #bfdbfe;
+      color: #1e3a8a;
+    }
+    .ctrl-group button:hover {
+      background: #dbeafe;
+    }
+    #graph-stats {
+      margin-left: auto;
+      font-size: 12px;
+      color: #334155;
+      background: #e2e8f0;
+      border-radius: 8px;
+      padding: 6px 10px;
+      border: 1px solid #cbd5e1;
+    }
+    #main {
+      display: flex;
+      flex: 1;
+      width: 100vw;
+      height: 100vh;
+      margin-top: 100px;
+    }
+    #myDiagramDiv {
+      flex: 1;
+      background: linear-gradient(120deg, #f3f4f6 0%, #e0e7ef 100%);
+      border-right: 1px solid #e5e7eb;
+      height: 100%;
+    }
+    #panel {
+      width: 340px;
+      background: #fff;
+      border-left: 1px solid #e5e7eb;
+      padding: 24px 20px 20px 20px;
+      box-shadow: -2px 0 8px #0001;
+      font-size: 15px;
+      overflow-y: auto;
+      transition: box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      min-width: 260px;
+    }
+    #panel h3 {
+      margin: 0 0 8px 0;
+      font-size: 1.25em;
+      color: #2563eb;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    #panel p {
+      margin: 0 0 8px 0;
+      color: #444;
+    }
+    #panel pre {
+      background: #f3f4f6;
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 13px;
+      color: #374151;
+      margin-top: 10px;
+      overflow-x: auto;
+    }
+    #panel .loading {
+      color: #64748b;
+      font-style: italic;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+    #panel .error {
+      color: #dc2626;
+      background: #fee2e2;
+      padding: 8px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    /* Node colors are handled via GoJS data binding */
+    #panel::-webkit-scrollbar { width: 8px; background: #f3f4f6; }
+    #panel::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
+    #legend-toggle-btn {
+      position: fixed;
+      top: 108px;
+      left: 16px;
+      z-index: 11;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #1e3a8a;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+    #legend-toggle-btn:hover {
+      background: #eff6ff;
+    }
+    #legend {
+      position: fixed;
+      top: 146px;
+      left: 16px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 10px 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      max-height: calc(100vh - 80px);
+      overflow-y: auto;
+      z-index: 5;
+      font-size: 13px;
+      max-width: 200px;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      opacity: 0;
+      transform: translateY(-6px);
+      pointer-events: none;
+    }
+    #legend.expanded {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    #legend h4 {
+      margin: 0 0 10px 0;
+      color: #2563eb;
+      font-size: 1em;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      user-select: none;
+    }
+    #legend-close-btn {
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      color: #334155;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      padding: 2px 6px;
+    }
+    #legend .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+    #legend .legend-color {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1.5px solid #fff;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      flex-shrink: 0;
+    }
+    #legend .legend-label {
+      color: #444;
+      font-size: 12px;
+    }
+    #legend::-webkit-scrollbar { width: 6px; }
+    #legend::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 3px; }
+
+    #comment-box {
+      position: fixed;
+      min-width: 220px;
+      max-width: 320px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      z-index: 20;
+      font-size: 13px;
+      display: none;
+    }
+    #comment-box h4 {
+      margin: 0 0 6px 0;
+      color: #2563eb;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    #comment-box p { margin: 0 0 6px 0; color: #444; }
+    #comment-box .muted { color: #6b7280; font-size: 12px; }
+    .result-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 30;
+      padding: 20px;
+    }
+    .result-modal.open {
+      display: flex;
+    }
+    .result-modal__dialog {
+      width: min(860px, 100%);
+      max-height: min(80vh, 760px);
+      overflow: auto;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.35);
+      border: 1px solid #e2e8f0;
+    }
+    .result-modal__header {
+      position: sticky;
+      top: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 18px;
+      background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .result-modal__header h3 {
+      margin: 0;
+      color: #1e3a8a;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .result-modal__close {
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #0f172a;
+      border-radius: 999px;
+      width: 34px;
+      height: 34px;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+      flex: 0 0 auto;
+    }
+    .result-modal__body {
+      padding: 18px;
+    }
+    .result-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .result-item {
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #2563eb;
+      border-radius: 10px;
+      padding: 12px;
+      background: #f8fafc;
+    }
+    .result-item a {
+      color: #1d4ed8;
+      text-decoration: none;
+      font-weight: 700;
+    }
+    .result-item a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div id="toolbar">
+    <span style="font-weight:700; font-size:20px; letter-spacing:1px;">🧠 Boxology Knowledge Graph</span>
+    <span class="hint">Drag nodes • Zoom • Click for details • Hover for highlight</span>
+    <button id="doc-btn" title="Generate system documentation from current KG">Generate Documentation</button>
+  </div>
+  <div id="explorer-controls">
+    <div class="ctrl-group">
+      <label for="layout-select">Layout</label>
+      <select id="layout-select">
+        <option value="force">Force</option>
+        <option value="layered">Layered</option>
+        <option value="circular">Circular</option>
+        <option value="grid">Grid</option>
+      </select>
+      <button id="fit-btn" type="button">Fit</button>
+    </div>
+    <div class="ctrl-group">
+      <label for="type-filter">Type</label>
+      <select id="type-filter">
+        <option value="All">All</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <label for="label-mode">Labels</label>
+      <select id="label-mode">
+        <option value="all">All</option>
+        <option value="none">None</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <label for="search-node">Search</label>
+      <input id="search-node" type="text" placeholder="Find node..." />
+      <button id="search-clear-btn" type="button">Clear</button>
+    </div>
+    <div class="ctrl-group">
+      <button id="export-json-btn" type="button">Export JSON</button>
+      <button id="export-png-btn" type="button">Export PNG</button>
+    </div>
+    <div id="graph-stats">Nodes: 0 | Edges: 0 | Types: 0</div>
+  </div>
+  <div id="main">
+    <div id="myDiagramDiv"></div>
+    <div id="panel"><b>Click a node to see details</b></div>
+  </div>
+  <button id="legend-toggle-btn" type="button">Color Guide</button>
+  <div id="legend">
+    <h4>
+      Node Colors
+      <button id="legend-close-btn" type="button">Close</button>
+    </h4>
+    <div id="legend-content"></div>
+  </div>
+  <div id="comment-box"></div>
+  <div id="result-modal" class="result-modal" aria-hidden="true">
+    <div class="result-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="result-modal-title">
+      <div class="result-modal__header">
+        <h3 id="result-modal-title">Results</h3>
+        <button id="result-modal-close" class="result-modal__close" type="button" aria-label="Close results">×</button>
+      </div>
+      <div id="result-modal-body" class="result-modal__body"></div>
+    </div>
+  </div>
+<script>
+  // Get backend URL from window if available, otherwise use default
+  const getBackendUrl = () => window.__CONFIG__?.API_BASE || 'http://localhost:8000';
+  const BACKEND_URL = getBackendUrl();
+  const NODE_EXPLAINER_URL = `${BACKEND_URL}/api/node/explain`.replace(':8000', ':8001');
+  let currentBoxology = null;
+  
+  console.log(`[KG Viewer] Backend URL: ${BACKEND_URL}`);
+  console.log(`[KG Viewer] Node Explainer URL: ${NODE_EXPLAINER_URL}`);
+  console.log(`[KG Viewer] Current location: ${window.location.origin}`);
+
+  // ✅ TEST: Verify backend is accessible
+  fetch(`${BACKEND_URL}/api/health`)
+    .then(r => r.json())
+    .then(data => {
+      console.log(`[KG Viewer] ✅ Backend is accessible:`, data);
+    })
+    .catch(err => {
+      console.error(`[KG Viewer] ❌ Backend NOT accessible:`, err);
+    });
+
+const ONTOLOGY_URL_CANDIDATES = [
+  window.__CONFIG__?.ONTOLOGY_URL,
+  '/Tool4BoxologyOntology.ttl',
+  'Tool4BoxologyOntology.ttl',
+  '../Tool4BoxologyOntology.ttl',
+  '../../Tool4BoxologyOntology.ttl'
+].filter(Boolean);
+
+const ontologyState = {
+  loaded: false,
+  sourceUrl: null,
+  classInfoByName: new Map(),
+  parentsByName: new Map(),
+  aliases: new Map(),
+};
+
+function localNameFromUri(uri) {
+  if (!uri) return '';
+  const parts = uri.split(/[#/]/);
+  return parts[parts.length - 1] || uri;
+}
+
+function ensureOntologyClass(name) {
+  if (!name) return;
+  if (!ontologyState.classInfoByName.has(name)) {
+    ontologyState.classInfoByName.set(name, { label: name, comment: '' });
+  }
+  if (!ontologyState.parentsByName.has(name)) {
+    ontologyState.parentsByName.set(name, new Set());
+  }
+}
+
+function parseOntologyTurtle(ttlText) {
+  const classMatches = ttlText.matchAll(/<([^>]+)>\s+rdf:type\s+owl:Class\b/g);
+  for (const m of classMatches) {
+    const c = localNameFromUri(m[1]);
+    ensureOntologyClass(c);
+  }
+
+  const subMatches = ttlText.matchAll(/<([^>]+)>\s+rdfs:subClassOf\s+([\s\S]*?)\s*\./g);
+  for (const m of subMatches) {
+    const child = localNameFromUri(m[1]);
+    ensureOntologyClass(child);
+    const parentUris = [...m[2].matchAll(/<([^>]+)>/g)].map(x => localNameFromUri(x[1]));
+    parentUris.forEach(parent => {
+      ensureOntologyClass(parent);
+      ontologyState.parentsByName.get(child).add(parent);
+    });
+  }
+
+  const labelMatches = ttlText.matchAll(/<([^>]+)>\s+rdfs:label\s+"([^"]+)"/g);
+  for (const m of labelMatches) {
+    const c = localNameFromUri(m[1]);
+    ensureOntologyClass(c);
+    ontologyState.classInfoByName.get(c).label = m[2];
+  }
+
+  const commentMatches = ttlText.matchAll(/<([^>]+)>\s+rdfs:comment\s+"([\s\S]*?)"\s*[;\.]/g);
+  for (const m of commentMatches) {
+    const c = localNameFromUri(m[1]);
+    ensureOntologyClass(c);
+    ontologyState.classInfoByName.get(c).comment = m[2].trim();
+  }
+
+  ontologyState.aliases.clear();
+  ontologyState.classInfoByName.forEach((info, name) => {
+    ontologyState.aliases.set(name.toLowerCase(), name);
+    if (info.label) ontologyState.aliases.set(info.label.toLowerCase(), name);
+  });
+}
+
+async function loadOntologyData() {
+  for (const url of ONTOLOGY_URL_CANDIDATES) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) continue;
+      const text = await response.text();
+      parseOntologyTurtle(text);
+      ontologyState.loaded = true;
+      ontologyState.sourceUrl = url;
+      console.log(`[KG Viewer] ✅ Ontology loaded from ${url} (${ontologyState.classInfoByName.size} classes)`);
+      return;
+    } catch (err) {
+      console.warn(`[KG Viewer] Ontology fetch failed for ${url}:`, err);
+    }
+  }
+  console.warn('[KG Viewer] Ontology not loaded. Falling back to built-in mapping.');
+}
+
+function resolveOntologyClass(name) {
+  if (!name) return null;
+  return ontologyState.aliases.get(String(name).trim().toLowerCase()) || null;
+}
+
+function getOntologyAncestors(className) {
+  if (!className) return [];
+  const visited = new Set();
+  const queue = [className];
+  const ancestors = [];
+  while (queue.length > 0) {
+    const current = queue.shift();
+    const parents = ontologyState.parentsByName.get(current);
+    if (!parents) continue;
+    parents.forEach(parent => {
+      if (visited.has(parent)) return;
+      visited.add(parent);
+      ancestors.push(parent);
+      queue.push(parent);
+    });
+  }
+  return ancestors;
+}
+
+function getOntologySemanticType(label) {
+  const className = resolveOntologyClass(label);
+  if (!className) return null;
+
+  if (PROCESS_NODES.has(className)) return className;
+
+  const preferred = ['Actor', 'Data', 'Symbol', 'Model', 'DesignPattern', 'Boxology'];
+  if (preferred.includes(className)) return className;
+
+  const ancestors = getOntologyAncestors(className);
+  for (const root of preferred) {
+    if (ancestors.includes(root)) return root;
+  }
+
+  if (ancestors.includes('Process') || className === 'Process') return 'Process';
+  return className;
+}
+
+const shapeTypesTree = {
+  Actor: { Human: null, Robot: null },
+  Data: { Number: null, Dataset: null, Tensor: null, Text: null, Image: null, Audio: null, Video: null, TimeSeries: null },
+  Symbol: { DB: null, KG: null, Label: null, Trace: null, Rules: null },
+  Model: {
+    InductiveModel: {
+      NumericModel: null,
+      SymbolicLearningModel: {
+        SelfSupervisedRuleMiningModel: {
+          AxiomMiningModel: null
+        },
+        UnsupervisedCommunityDetectionModel: null
+      }
+    },
+    NeuralModel: {
+      NeuralNetwork: {
+        CNN: null,
+        RNN: { LSTM: null, GRU: null },
+        Transformer: {
+          DecoderOnlyTransformer: null,
+          EncoderDecoderTransformer: null,
+          EncoderOnlyTransformer: null
+        },
+        GNN: {
+          GCN: null,
+          GAT: null,
+          SupervisedGraphNNModel: null
+        }
+      },
+      LLM: null
+    },
+    SemanticModel: {
+      OWLOntology: null,
+      RDFModel: null,
+      RDFSModel: null,
+      RuleBasedModel: null,
+      SHACLShapesModel: null
+    },
+    StatisticalModel: {
+      RegressionModel: null,
+      ClassificationModel: null,
+      ClusteringModel: null,
+      FuzzyModel: null
+    }
+  },
+  Transform: null,
+  Deduce: null,
+  Train: null,
+  Engineer: null,
+  comment: null,
+};
+
+const legendItems = [
+  { label: "Boxology", color: "#111827" },
+  { label: "DesignPattern", color: "#2563eb" },
+  { label: "ProcessNode", color: "#f97316" },
+  { label: "Node", color: "#22c55e" },
+  { label: "Actor", color: "#a21caf" },
+  { label: "Data", color: "#22c55e" },
+  { label: "Symbol", color: "#eab308" },
+  { label: "Model", color: "#0ea5e9" },
+  { label: "Transform", color: "#14b8a6" },
+  { label: "Deduce", color: "#fbbf24" },
+  { label: "Train", color: "#f43f5e" },
+  { label: "Engineer", color: "#64748b" },
+  { label: "comment", color: "#64748b" },
+  { label: "InductiveModel", color: "#38bdf8" },
+  { label: "NeuralModel", color: "#f472b6" },
+  { label: "SemanticModel", color: "#6366f1" },
+  { label: "StatisticalModel", color: "#f59e42" },
+  { label: "NumericModel", color: "#06b6d4" },
+  { label: "SymbolicLearningModel", color: "#fbbf24" },
+  { label: "NeuralNetwork", color: "#f472b6" },
+  { label: "CNN", color: "#fca5a5" },
+  { label: "RNN", color: "#fcd34d" },
+  { label: "LSTM", color: "#fde68a" },
+  { label: "GRU", color: "#fef08a" },
+  { label: "Transformer", color: "#a5b4fc" },
+  { label: "DecoderOnlyTransformer", color: "#818cf8" },
+  { label: "EncoderDecoderTransformer", color: "#6366f1" },
+  { label: "EncoderOnlyTransformer", color: "#818cf8" },
+  { label: "LLM", color: "#c084fc" },
+  { label: "GNN", color: "#4ade80" },
+  { label: "GCN", color: "#22d3ee" },
+  { label: "GAT", color: "#38bdf8" },
+  { label: "SupervisedGraphNNModel", color: "#0ea5e9" },
+  { label: "OWLOntology", color: "#a3e635" },
+  { label: "RDFModel", color: "#bef264" },
+  { label: "RDFSModel", color: "#d9f99d" },
+  { label: "RuleBasedModel", color: "#fde68a" },
+  { label: "SHACLShapesModel", color: "#fbbf24" },
+  { label: "RegressionModel", color: "#f59e42" },
+  { label: "ClassificationModel", color: "#fbbf24" },
+  { label: "ClusteringModel", color: "#fcd34d" },
+  { label: "FuzzyModel", color: "#fef08a" },
+  { label: "Number", color: "#a3e635" },
+  { label: "Dataset", color: "#bef264" },
+  { label: "Tensor", color: "#d9f99d" },
+  { label: "Text", color: "#fca5a5" },
+  { label: "Image", color: "#fcd34d" },
+  { label: "Audio", color: "#818cf8" },
+  { label: "Video", color: "#a5b4fc" },
+  { label: "TimeSeries", color: "#fbbf24" },
+  { label: "DB", color: "#fbbf24" },
+  { label: "KG", color: "#f59e42" },
+  { label: "Label", color: "#fca5a5" },
+  { label: "Trace", color: "#818cf8" },
+  { label: "Rules", color: "#fde68a" },
+  { label: "Human", color: "#f472b6" },
+  { label: "Robot", color: "#a21caf" },
+];
+
+const legendContent = document.getElementById("legend-content");
+if (legendContent) {
+  legendContent.innerHTML = "";
+  legendItems.forEach(({ label, color }) => {
+    const item = document.createElement("div");
+    item.className = "legend-item";
+    item.innerHTML = `
+      <div class="legend-color" style="background-color:${color};"></div>
+      <div class="legend-label">${label}</div>
+    `;
+    legendContent.appendChild(item);
+  });
+}
+
+const legend = document.getElementById('legend');
+const legendToggleBtn = document.getElementById('legend-toggle-btn');
+const legendCloseBtn = document.getElementById('legend-close-btn');
+
+function setLegendExpanded(expanded) {
+  if (!legend || !legendToggleBtn) return;
+  legend.classList.toggle('expanded', expanded);
+  legendToggleBtn.textContent = expanded ? 'Hide Color Guide' : 'Color Guide';
+}
+
+if (legendToggleBtn) {
+  legendToggleBtn.addEventListener('click', () => {
+    setLegendExpanded(!(legend && legend.classList.contains('expanded')));
+  });
+}
+
+if (legendCloseBtn) {
+  legendCloseBtn.addEventListener('click', () => setLegendExpanded(false));
+}
+
+function getRootType(label, tree = shapeTypesTree, root = null) {
+  const ontologyType = getOntologySemanticType(label);
+  if (ontologyType) return ontologyType;
+
+  for (const key in tree) {
+    if (key.toLowerCase() === label.toLowerCase()) return root || key;
+    const subtree = tree[key];
+    if (subtree && typeof subtree === "object") {
+      const found = getRootType(label, subtree, root || key);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+function addTypedNode(obj) {
+  const label = obj.name || obj.label || "";
+  const rootType = getRootType(label) || "Data";
+  return {
+    id: obj.id,
+    label: obj.label,
+    type: label,
+    rootType: rootType,
+    meta: obj
+  };
+}
+
+// Process nodes definition (from GoJSBoxologyValidation)
+const PROCESS_NODES = new Set(['Train', 'Engineer', 'Transform', 'Deduce']);
+const OUTPUT_TARGETS = new Set(['Symbol', 'Model', 'Data']);
+
+// Valid output cardinality for processes
+const PROCESS_OUTPUT_CARDINALITY = {
+  'Train': 1,      // Exactly one output
+  'Engineer': 1,   // Exactly one output
+  'Transform': 1,  // Exactly one output
+  'Deduce': 1      // Exactly one output
+};
+
+const validPatterns = [
+  // Train model patterns
+  { name: "train_model (symbol)", edges: [["Symbol", "Train"], ["Train", "Model"]] },
+  { name: "train_model (data)", edges: [["Data", "Train"], ["Train", "Model"]] },
+  { name: "generate_model from model and data", edges: [["Model", "Train"], ["Data", "Train"], ["Train", "Model"]] },
+  { name: "generate_model from model and symbol", edges: [["Model", "Train"], ["Symbol", "Train"], ["Train", "Model"]] },
+  
+  // Transform patterns
+  { name: "Transform to data (symbol)", edges: [["Symbol", "Transform"], ["Transform", "Data"]] },
+  { name: "Transform to data (data)", edges: [["Data", "Transform"], ["Transform", "Data"]] },
+  { name: "Transform to symbol (data)", edges: [["Data", "Transform"], ["Transform", "Symbol"]] },
+  { name: "Transform to symbol (symbol)", edges: [["Symbol", "Transform"], ["Transform", "Symbol"]] },
+  { name: "Transform_model (model)", edges: [["Model", "Transform"], ["Transform", "Model"]] },
+  
+  // Engineer patterns
+  { name: "actor Engineer model", edges: [["Actor", "Engineer"], ["Engineer", "Model"]] },
+  { name: "actor Engineer data from data", edges: [["Actor", "Engineer"], ["Data", "Engineer"], ["Engineer", "Data"]] },
+  { name: "actor Engineer symbol", edges: [["Actor", "Engineer"], ["Engineer", "Symbol"]] },
+  { name: "actor Engineer data", edges: [["Actor", "Engineer"], ["Engineer", "Data"]] },
+  
+  // Deduce/Infer patterns
+  { name: "infer_symbol (symbol → model → symbol)", edges: [["Model", "Deduce"], ["Symbol", "Deduce"], ["Deduce", "Symbol"]] },
+  { name: "infer_symbol (data → model → symbol)", edges: [["Model", "Deduce"], ["Data", "Deduce"], ["Deduce", "Symbol"]] },
+  { name: "infer_model (symbol → model → model)", edges: [["Model", "Deduce"], ["Symbol", "Deduce"], ["Deduce", "Model"]] },
+  { name: "infer_model (data → model → model)", edges: [["Model", "Deduce"], ["Data", "Deduce"], ["Deduce", "Model"]] },
+  { name: "infer_data (data → model → data)", edges: [["Model", "Deduce"], ["Data", "Deduce"], ["Deduce", "Data"]] },
+  { name: "infer_data (symbol → model → data)", edges: [["Model", "Deduce"], ["Symbol", "Deduce"], ["Deduce", "Data"]] },
+];
+
+function validateDesignPattern(dp) {
+  if (!dp.input || !dp.process || !dp.output) {
+    console.warn('[KG Validation] Missing input, process, or output');
+    return false;
+  }
+  
+  // Use NAME field (not label) - follows the type hierarchy
+  const inputNames = dp.input.map(i => i.name).filter(Boolean);
+  const processName = dp.process.name;
+  const outputNames = dp.output.map(o => o.name).filter(Boolean);
+  
+  if (inputNames.length === 0 || !processName || outputNames.length === 0) {
+    console.warn('[KG Validation] Missing name fields in input/process/output');
+    return false;
+  }
+  
+  // Resolve root types for each input/output through the type hierarchy
+  // e.g., LSTM -> NeuralNetwork -> NeuralModel -> Model
+  const inputRootTypes = inputNames.map(name => getRootType(name) || name);
+  const processRootType = getRootType(processName) || processName;
+  const outputRootTypes = outputNames.map(name => getRootType(name) || name);
+  
+  console.log(`[KG Validation] Pattern: ${inputRootTypes.join("-")}>${processRootType}>${outputRootTypes.join("-")}`);
+  console.log(`[KG Validation] Leaf types - Inputs: ${inputNames.join(", ")}, Process: ${processName}, Outputs: ${outputNames.join(", ")}`);
+  
+  // Check 1: Process node must be valid
+  if (!PROCESS_NODES.has(processRootType)) {
+    console.warn(`[KG Validation] Invalid process type: "${processRootType}". Must be Train, Engineer, Transform, or Deduce`);
+    return false;
+  }
+  
+  // Check 2: Process must have inputs
+  if (inputRootTypes.length === 0) {
+    console.warn(`[KG Validation] Process "${processName}" has no inputs`);
+    return false;
+  }
+  
+  // Check 3: Process must have exactly one unique output root type
+  const uniqueOutputRootTypes = new Set(outputRootTypes);
+  if (uniqueOutputRootTypes.size > 1) {
+    console.warn(`[KG Validation] Process "${processName}" has multiple different output types: ${Array.from(uniqueOutputRootTypes).join(", ")}`);
+    return false;
+  }
+  
+  // Check 4: Output root types must be valid targets (Symbol, Model, or Data)
+  outputRootTypes.forEach(ot => {
+    if (!OUTPUT_TARGETS.has(ot)) {
+      console.warn(`[KG Validation] Invalid output root type "${ot}" - must be Symbol, Model, or Data`);
+      return false;
+    }
+  });
+  
+  // Check 5: Pattern matches one of the valid patterns (using root types)
+  const patternMatched = validPatterns.some(pattern => {
+    const required = [...pattern.edges];
+    const edges = [];
+    
+    // Build edges using root types
+    inputRootTypes.forEach(input => {
+      edges.push([input, processRootType]);
+    });
+    outputRootTypes.forEach(output => {
+      edges.push([processRootType, output]);
+    });
+    
+    // Check if all required edges exist
+    return required.every(requiredEdge => 
+      edges.some(edge => 
+        edge[0] === requiredEdge[0] && edge[1] === requiredEdge[1]
+      )
+    );
+  });
+  
+  if (!patternMatched) {
+    console.warn(`[KG Validation] No valid pattern found for: ${inputRootTypes.join("-")}>${processRootType}>${outputRootTypes.join("-")}`);
+  } else {
+    console.log(`[KG Validation] ✅ Pattern validated successfully`);
+  }
+  
+  return patternMatched;
+}
+
+function buildDesignPatternSummary(dp) {
+  const inputs = dp.input ? dp.input.map(i => i.name || i.type).filter(Boolean) : [];
+  const outputs = dp.output ? dp.output.map(o => o.name || o.type).filter(Boolean) : [];
+  const process = dp.process ? (dp.process.name || dp.process.type) : "Unknown";
+  
+  const pattern = `${inputs.join("-")}>${process}>${outputs.join("-")}`;
+  const inputCount = inputs.length;
+  const outputCount = outputs.length;
+  
+  // Validate against actual patterns
+  const isValid = validateDesignPattern(dp);
+  const validityText = isValid ? "valid" : "invalid";
+  
+  return { pattern, inputCount, outputCount, inputs, outputs, validityText };
+}
+
+function generateNodeContent(d) {
+  // Handle DesignPattern nodes
+  if (d.type === "DesignPattern" && d.meta) {
+    const summary = buildDesignPatternSummary(d.meta);
+    const inputsList = summary.inputs.length > 0 ? summary.inputs.join(", ") : "none";
+    const outputsList = summary.outputs.length > 0 ? summary.outputs.join(", ") : "none";
+    
+    return `
+      <h4>📐 ${d.label}</h4>
+      <p><b>Type:</b> ${d.type}</p>
+      <p><b>Status:</b> <span style="color: ${summary.validityText === 'valid' ? '#22c55e' : '#dc2626'};">${summary.validityText.toUpperCase()}</span></p>
+      <p><b>Pattern:</b></p>
+      <p style="font-family: monospace; background: #f3f4f6; padding: 6px; border-radius: 4px; margin: 4px 0; font-size: 11px;">
+        ${summary.pattern}
+      </p>
+      <p><b>Inputs (${summary.inputCount}):</b> ${inputsList}</p>
+      <p><b>Outputs (${summary.outputCount}):</b> ${outputsList}</p>
+    `;
+  }
+  
+  // Handle all other node types
+  const typeEmojis = {
+    "Boxology": "📦",
+    "ProcessNode": "⚙️",
+    "Node": "⭕",
+    "Actor": "👤",
+    "Data": "📊",
+    "Symbol": "🔤",
+    "Model": "🧠",
+    "Transform": "🔄",
+    "Deduce": "🔍",
+    "Train": "🎓",
+    "Engineer": "🔧",
+    "comment": "💬",
+    "NeuralNetwork": "🧠",
+    "GNN": "🕸️",
+    "Transformer": "⚡",
+    "KG": "🗂️",
+    "Dataset": "💾",
+  };
+  
+  const emoji = typeEmojis[d.type] || "📌";
+  
+  let content = `
+    <h4>${emoji} ${d.label}</h4>
+    <p><b>Type:</b> ${d.type}</p>
+    <p><b>Root Type:</b> ${d.rootType}</p>
+  `;
+  
+  // Add metadata info if available
+  if (d.meta) {
+    if (d.meta.name && d.meta.name !== d.type) {
+      content += `<p><b>Name:</b> ${d.meta.name}</p>`;
+    }
+    if (d.meta.description) {
+      content += `<p><b>Description:</b> ${d.meta.description}</p>`;
+    }
+    if (Array.isArray(d.meta.input) && d.meta.input.length > 0) {
+      const inputs = d.meta.input.map(i => i.label || i.name || i.type).join(", ");
+      content += `<p><b>Inputs:</b> ${inputs}</p>`;
+    }
+    if (Array.isArray(d.meta.output) && d.meta.output.length > 0) {
+      const outputs = d.meta.output.map(o => o.label || o.name || o.type).join(", ");
+      content += `<p><b>Outputs:</b> ${outputs}</p>`;
+    }
+    if (d.meta.process) {
+      const processName = d.meta.process.label || d.meta.process.name || d.meta.process.type;
+      content += `<p><b>Process:</b> ${processName}</p>`;
+    }
+  }
+  
+  return content;
+}
+
+function showCommentBox(d, mouseEvent) {
+  const commentBox = document.getElementById("comment-box");
+  
+  if (!d) {
+    commentBox.style.display = "none";
+    return;
+  }
+
+  commentBox.innerHTML = generateNodeContent(d);
+
+  // Position box near cursor
+  if (mouseEvent) {
+    commentBox.style.left = (mouseEvent.pageX + 10) + "px";
+    commentBox.style.top = (mouseEvent.pageY + 10) + "px";
+  }
+  
+  commentBox.style.display = "block";
+}
+
+// ============================================================================
+// Architecture-Aware Node Explainer
+// ============================================================================
+
+
+// ===================== Ontology-Driven Node Explainer =====================
+// Ontology mapping: label/type -> { label, comment }
+const ontologyMap = {
+  // Core classes
+  "Boxology": {label: "Boxology", comment: "A complete Boxology diagram describing a neuro-symbolic architecture."},
+  "DesignPattern": {label: "Design Pattern", comment: "Abstract building block describing a Boxology operation."},
+  "ElementaryPattern": {label: "Elementary Pattern", comment: "A minimal well-typed Boxology pattern (train, transform, deduce, etc.)."},
+  "CompositePattern": {label: "Composite Pattern", comment: "A pattern composed from multiple elementary patterns."},
+  // Actor hierarchy
+  "Actor": {label: "Actor", comment: "Human or software agent participating in a system."},
+  "Human": {label: "Human", comment: "A human actor in the system."},
+  "Expert": {label: "Expert", comment: "A human with specialized knowledge."},
+  "MedicalProfessional": {label: "Medical Professional", comment: "A human expert in the medical domain."},
+  "Robot": {label: "Robot", comment: "A robot actor in the system."},
+  // Data hierarchy
+  "Data": {label: "Data", comment: "Any entity represented as a node in Boxology (data, symbols, models, processes, actors)."},
+  "Number": {label: "Number", comment: "A numeric data instance."},
+  "Dataset": {label: "Dataset", comment: "A collection of data instances."},
+  "Tensor": {label: "Tensor", comment: "A multi-dimensional array of data."},
+  "Text": {label: "Text", comment: "A text data instance."},
+  "Image": {label: "Image", comment: "An image data instance."},
+  "Audio": {label: "Audio", comment: "An audio data instance."},
+  "Video": {label: "Video", comment: "A video data instance."},
+  "TimeSeries": {label: "Time Series", comment: "A time series data instance."},
+  // Symbol hierarchy
+  "Symbol": {label: "Symbol", comment: "Symbolic structures (labels, triples, relations, KG entities)."},
+  "DB": {label: "Database", comment: "Database or table-like symbolic structure."},
+  "KG": {label: "Knowledge Graph", comment: "Knowledge Graph artifact."},
+  "Label": {label: "Label", comment: "A label or annotation in the system."},
+  "Trace": {label: "Trace", comment: "A trace or sequence in the system."},
+  "Rules": {label: "Rules", comment: "A set of rules in the system."},
+  // Model hierarchy
+  "Model": {label: "Model", comment: "A model used in a system (semantic, neural, inductive, etc.)."},
+  "InductiveModel": {label: "Inductive Model", comment: "A model learned from data."},
+  "NeuralModel": {label: "Neural Model", comment: "A model based on neural networks."},
+  "SemanticModel": {label: "Semantic Model", comment: "Logical or symbolic representation model."},
+  "StatisticalModel": {label: "Statistical Model", comment: "A model based on statistical methods."},
+  "NumericModel": {label: "Numeric Model", comment: "A model with numeric parameters."},
+  "SymbolicLearningModel": {label: "Symbolic Learning Model", comment: "A model learned using symbolic methods."},
+  "NeuralNetwork": {label: "Neural Network", comment: "A type of neural model."},
+  "CNN": {label: "Convolutional Neural Network", comment: "A type of neural network for grid-like data."},
+  "RNN": {label: "Recurrent Neural Network", comment: "A type of neural network for sequential data."},
+  "LSTM": {label: "Long Short-Term Memory", comment: "A type of RNN for long-term dependencies."},
+  "GRU": {label: "Gated Recurrent Unit", comment: "A type of RNN variant."},
+  "Transformer": {label: "Transformer", comment: "A neural network architecture for sequence modeling."},
+  "DecoderOnlyTransformer": {label: "Decoder-Only Transformer", comment: "A transformer with only a decoder stack."},
+  "EncoderDecoderTransformer": {label: "Encoder-Decoder Transformer", comment: "A transformer with both encoder and decoder."},
+  "EncoderOnlyTransformer": {label: "Encoder-Only Transformer", comment: "A transformer with only an encoder stack."},
+  "LLM": {label: "Large Language Model", comment: "A neural network model trained on large text corpora for language understanding and generation."},
+  "GNN": {label: "Graph Neural Network", comment: "A neural network for graph-structured data."},
+  "GCN": {label: "Graph Convolutional Network", comment: "A type of GNN using convolution operations."},
+  "GAT": {label: "Graph Attention Network", comment: "A type of GNN using attention mechanisms."},
+  "SupervisedGraphNNModel": {label: "Supervised Graph NN Model", comment: "A supervised learning model for graphs."},
+  "OWLOntology": {label: "OWL Ontology", comment: "An ontology in OWL format."},
+  "RDFModel": {label: "RDF Model", comment: "A model using RDF representation."},
+  "RDFSModel": {label: "RDFS Model", comment: "A model using RDFS representation."},
+  "RuleBasedModel": {label: "Rule-Based Model", comment: "A model based on rules."},
+  "SHACLShapesModel": {label: "SHACL Shapes Model", comment: "A model using SHACL shapes."},
+  "RegressionModel": {label: "Regression Model", comment: "A statistical model for regression tasks."},
+  "ClassificationModel": {label: "Classification Model", comment: "A statistical model for classification tasks."},
+  "ClusteringModel": {label: "Clustering Model", comment: "A statistical model for clustering tasks."},
+  "FuzzyModel": {label: "Fuzzy Model", comment: "A model using fuzzy logic."},
+  // Process hierarchy
+  "Process": {label: "Process", comment: "Operations such as generate, transform, or infer."},
+  "Train": {label: "Train", comment: "Process that trains a model."},
+  "Engineer": {label: "Engineer", comment: "Process that engineers a model, data, or symbol."},
+  "Transform": {label: "Transform", comment: "Process that transforms data or symbols (embedding, augmentation, cleaning)."},
+  "Deduce": {label: "Deduce", comment: "Symbolic deduction (rule-based, ontology reasoning)."},
+  "Infer": {label: "Infer", comment: "Inference process, symbolic or statistical."},
+};
+
+function explainNodeOntology(d) {
+  if (!d) return null;
+  const ontologyClass = resolveOntologyClass(d.type) || resolveOntologyClass(d.label);
+  const ontologyInfo = ontologyClass ? ontologyState.classInfoByName.get(ontologyClass) : null;
+  const fallbackInfo = ontologyMap[d.type] || ontologyMap[d.label] || null;
+  const info = ontologyInfo || fallbackInfo;
+  const ancestors = ontologyClass ? getOntologyAncestors(ontologyClass).slice(0, 6) : [];
+
+  // Try to find the node's role in a pattern (input, output, process)
+  let role = null, patternLabel = null;
+  if (d.meta && d.meta._patternRole && d.meta._patternLabel) {
+    role = d.meta._patternRole;
+    patternLabel = d.meta._patternLabel;
+  } else if (d.meta && d.meta.patternRole && d.meta.patternLabel) {
+    // fallback for other naming
+    role = d.meta.patternRole;
+    patternLabel = d.meta.patternLabel;
+  }
+
+  let roleText = "";
+  if (role && patternLabel) {
+    roleText = `<p><b>Role in Pattern:</b> <span style='color:#0ea5e9;'>${role}</span> in <b>${patternLabel}</b></p>`;
+  }
+
+  if (info) {
+    const lineageText = ancestors.length > 0
+      ? `<p><b>Ontology Lineage:</b> ${[ontologyClass, ...ancestors].join(' -> ')}</p>`
+      : '';
+    const sourceText = ontologyInfo && ontologyState.sourceUrl
+      ? `<p class="muted">Source ontology: ${ontologyState.sourceUrl}</p>`
+      : '';
+    return `<h3>🧠 Ontology Explanation</h3>
+      <p><b>${info.label || d.label}</b></p>
+      ${roleText}
+      ${lineageText}
+      <p style="color:#2563eb;">${info.comment || 'No ontology comment available for this class.'}</p>
+      ${sourceText}`;
+  }
+  // Fallback: show type and label
+  return `<h3>🧠 Ontology Explanation</h3>
+    <p><b>${d.label}</b></p>
+    ${roleText}
+    <p class="muted">No ontology description available for this node type.</p>`;
+}
+// GoJS diagram instance (set up inside renderKG)
+let myDiagram = null;
+let currentNodeDataArray = [];
+let currentLinksArray = [];
+let activeTypeFilter = 'All';
+
+// Compute fill colour from rootType
+function getNodeColor(rootType) {
+  const colorMap = {
+    Boxology: '#111827', DesignPattern: '#2563eb', ProcessNode: '#f97316',
+    Node: '#22c55e', Actor: '#a21caf', Data: '#22c55e', Symbol: '#eab308',
+    Model: '#0ea5e9', Transform: '#14b8a6', Deduce: '#fbbf24', Train: '#f43f5e',
+    Engineer: '#64748b', comment: '#64748b',
+    InductiveModel: '#38bdf8', NeuralModel: '#f472b6', SemanticModel: '#6366f1',
+    StatisticalModel: '#f59e42', NumericModel: '#06b6d4', SymbolicLearningModel: '#fbbf24',
+    NeuralNetwork: '#f472b6', CNN: '#fca5a5', RNN: '#fcd34d', LSTM: '#fde68a',
+    GRU: '#fef08a', Transformer: '#a5b4fc', DecoderOnlyTransformer: '#818cf8',
+    EncoderDecoderTransformer: '#6366f1', EncoderOnlyTransformer: '#818cf8', LLM: '#c084fc',
+    GNN: '#4ade80', GCN: '#22d3ee', GAT: '#38bdf8', SupervisedGraphNNModel: '#0ea5e9',
+    OWLOntology: '#a3e635', RDFModel: '#bef264', RDFSModel: '#d9f99d',
+    RuleBasedModel: '#fde68a', SHACLShapesModel: '#fbbf24',
+    RegressionModel: '#f59e42', ClassificationModel: '#fbbf24',
+    ClusteringModel: '#fcd34d', FuzzyModel: '#fef08a',
+    Number: '#a3e635', Dataset: '#bef264', Tensor: '#d9f99d', Text: '#fca5a5',
+    Image: '#fcd34d', Audio: '#818cf8', Video: '#a5b4fc', TimeSeries: '#fbbf24',
+    DB: '#fbbf24', KG: '#f59e42', Label: '#fca5a5', Trace: '#818cf8',
+    Rules: '#fde68a', Human: '#f472b6', Robot: '#a21caf',
+  };
+  return colorMap[rootType] || '#6b7280';
+}
+
+// Pick white or dark text depending on background luminance
+function getTextColor(hex) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.55 ? '#111827' : '#ffffff';
+}
+
+function updateGraphStats() {
+  const stats = document.getElementById('graph-stats');
+  if (!stats) return;
+
+  const types = new Set(currentNodeDataArray.map(n => n.rootType || n.type).filter(Boolean));
+  const mapped = currentNodeDataArray.filter(n => !!resolveOntologyClass(n.type) || !!resolveOntologyClass(n.label)).length;
+  const ontologyBadge = ontologyState.loaded ? ` | Ontology: ${mapped}/${currentNodeDataArray.length}` : '';
+  stats.textContent = `Nodes: ${currentNodeDataArray.length} | Edges: ${currentLinksArray.length} | Types: ${types.size}${ontologyBadge}`;
+}
+
+function populateTypeFilter() {
+  const typeFilter = document.getElementById('type-filter');
+  if (!typeFilter) return;
+
+  const types = Array.from(new Set(currentNodeDataArray.map(n => n.rootType || n.type).filter(Boolean))).sort();
+  const previous = typeFilter.value || 'All';
+  typeFilter.innerHTML = '<option value="All">All</option>';
+  types.forEach(type => {
+    const option = document.createElement('option');
+    option.value = type;
+    option.textContent = type;
+    typeFilter.appendChild(option);
+  });
+  typeFilter.value = types.includes(previous) ? previous : 'All';
+}
+
+function applyLayout(layoutType) {
+  if (!myDiagram) return;
+  if (layoutType === 'layered') {
+    myDiagram.layout = new go.LayeredDigraphLayout({ direction: 0, layerSpacing: 70, columnSpacing: 30 });
+  } else if (layoutType === 'circular') {
+    myDiagram.layout = new go.CircularLayout({ spacing: 30 });
+  } else if (layoutType === 'grid') {
+    myDiagram.layout = new go.GridLayout({ spacing: new go.Size(40, 40) });
+  } else {
+    myDiagram.layout = new go.ForceDirectedLayout({ defaultElectricalCharge: 300, defaultSpringLength: 150 });
+  }
+  myDiagram.layoutDiagram(true);
+}
+
+function applyTypeFilter(filterType) {
+  if (!myDiagram) return;
+  activeTypeFilter = filterType || 'All';
+
+  myDiagram.startTransaction('type-filter');
+  myDiagram.nodes.each(node => {
+    const nodeType = node.data.rootType || node.data.type;
+    const keepContext = node.data.type === 'Boxology' || node.data.type === 'DesignPattern';
+    node.visible = activeTypeFilter === 'All' || nodeType === activeTypeFilter || keepContext;
+  });
+  myDiagram.links.each(link => {
+    link.visible = link.fromNode && link.toNode && link.fromNode.visible && link.toNode.visible;
+  });
+  myDiagram.commitTransaction('type-filter');
+}
+
+function setLabelMode(mode) {
+  if (!myDiagram) return;
+  const visible = mode !== 'none';
+  myDiagram.startTransaction('label-mode');
+  myDiagram.nodes.each(node => {
+    const label = node.findObject('NODE_LABEL');
+    if (label) label.visible = visible;
+  });
+  myDiagram.commitTransaction('label-mode');
+}
+
+function applySearchHighlight(text) {
+  if (!myDiagram) return;
+  const term = (text || '').trim().toLowerCase();
+
+  myDiagram.startTransaction('search-highlight');
+  if (!term) {
+    myDiagram.nodes.each(node => {
+      node.opacity = 1;
+      node.scale = 1;
+    });
+    myDiagram.links.each(link => {
+      link.opacity = 1;
+    });
+    myDiagram.commitTransaction('search-highlight');
+    return;
+  }
+
+  const matched = new Set();
+  myDiagram.nodes.each(node => {
+    const name = `${node.data.label || ''} ${node.data.type || ''} ${node.data.rootType || ''}`.toLowerCase();
+    const isMatch = name.includes(term);
+    node.opacity = isMatch ? 1 : 0.15;
+    node.scale = isMatch ? 1.15 : 1;
+    if (isMatch) matched.add(node);
+  });
+
+  myDiagram.links.each(link => {
+    const strong = matched.has(link.fromNode) || matched.has(link.toNode);
+    link.opacity = strong ? 1 : 0.08;
+  });
+  myDiagram.commitTransaction('search-highlight');
+
+  const firstMatch = Array.from(matched)[0];
+  if (firstMatch) myDiagram.centerRect(firstMatch.actualBounds);
+}
+
+function exportCurrentGraphJson() {
+  if (!myDiagram || !myDiagram.model) return;
+  const data = myDiagram.model.toJson();
+  const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  downloadTextFile(data, `boxology_graph_${ts}.json`, 'application/json');
+}
+
+function exportCurrentGraphPng() {
+  if (!myDiagram) return;
+  const imageData = myDiagram.makeImageData({ background: '#ffffff', scale: 1 });
+  const a = document.createElement('a');
+  const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  a.href = imageData;
+  a.download = `boxology_graph_${ts}.png`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function setupExplorerControls() {
+  const layoutSelect = document.getElementById('layout-select');
+  const fitBtn = document.getElementById('fit-btn');
+  const typeFilter = document.getElementById('type-filter');
+  const labelMode = document.getElementById('label-mode');
+  const searchNode = document.getElementById('search-node');
+  const searchClearBtn = document.getElementById('search-clear-btn');
+  const exportJsonBtn = document.getElementById('export-json-btn');
+  const exportPngBtn = document.getElementById('export-png-btn');
+
+  if (layoutSelect && !layoutSelect.dataset.bound) {
+    layoutSelect.addEventListener('change', () => applyLayout(layoutSelect.value));
+    layoutSelect.dataset.bound = '1';
+  }
+  if (fitBtn && !fitBtn.dataset.bound) {
+    fitBtn.addEventListener('click', () => {
+      if (myDiagram) myDiagram.commandHandler.zoomToFit();
+    });
+    fitBtn.dataset.bound = '1';
+  }
+  if (typeFilter && !typeFilter.dataset.bound) {
+    typeFilter.addEventListener('change', () => applyTypeFilter(typeFilter.value));
+    typeFilter.dataset.bound = '1';
+  }
+  if (labelMode && !labelMode.dataset.bound) {
+    labelMode.addEventListener('change', () => setLabelMode(labelMode.value));
+    labelMode.dataset.bound = '1';
+  }
+  if (searchNode && !searchNode.dataset.bound) {
+    searchNode.addEventListener('input', () => applySearchHighlight(searchNode.value));
+    searchNode.dataset.bound = '1';
+  }
+  if (searchClearBtn && !searchClearBtn.dataset.bound) {
+    searchClearBtn.addEventListener('click', () => {
+      if (searchNode) searchNode.value = '';
+      applySearchHighlight('');
+    });
+    searchClearBtn.dataset.bound = '1';
+  }
+  if (exportJsonBtn && !exportJsonBtn.dataset.bound) {
+    exportJsonBtn.addEventListener('click', exportCurrentGraphJson);
+    exportJsonBtn.dataset.bound = '1';
+  }
+  if (exportPngBtn && !exportPngBtn.dataset.bound) {
+    exportPngBtn.addEventListener('click', exportCurrentGraphPng);
+    exportPngBtn.dataset.bound = '1';
+  }
+}
+
+function renderExplanation(node, explanation) {
+  const panel = document.getElementById("panel");
+  
+  let html = `
+    <h3>🧠 Architecture Explanation</h3>
+    <p style="font-size: 1.1em; font-weight: 600; color: #111; margin-bottom: 16px;">
+      ${node.label}
+    </p>
+  `;
+
+  // Summary
+  if (explanation.summary) {
+    html += `
+      <div style="background: #f8fafc; border-left: 3px solid #2563eb; padding: 12px; margin-bottom: 16px; border-radius: 4px;">
+        <h4 style="margin: 0 0 8px 0; color: #1e40af; font-size: 0.9em;">📋 What It Is</h4>
+        <p style="margin: 0; font-size: 0.95em; line-height: 1.5;">${explanation.summary}</p>
+      </div>
+    `;
+  }
+
+  // Why it matters
+  if (explanation.why_it_matters) {
+    html += `
+      <div style="background: #fef3c7; border-left: 3px solid #f59e0b; padding: 12px; margin-bottom: 16px; border-radius: 4px;">
+        <h4 style="margin: 0 0 8px 0; color: #92400e; font-size: 0.9em;">⚡ Why It Matters</h4>
+        <p style="margin: 0; font-size: 0.95em; line-height: 1.5;">${explanation.why_it_matters}</p>
+      </div>
+    `;
+  }
+
+  // Context info
+  if (explanation.context) {
+    const ctx = explanation.context;
+    html += `
+      <div style="margin-bottom: 16px;">
+        <h4 style="margin: 0 0 8px 0; color: #1e40af; font-size: 0.9em;">🔗 Architectural Context</h4>
+        <p style="margin: 4px 0; font-size: 0.9em;"><b>Task:</b> ${ctx.task}</p>
+        <p style="margin: 4px 0; font-size: 0.9em;"><b>Domain:</b> ${ctx.domain}</p>
+        ${ctx.node_type ? `
+          <p style="margin: 4px 0; font-size: 0.9em;"><b>Node Type:</b> ${ctx.node_type}</p>
+        ` : ''}
+        ${ctx.used_in_patterns && ctx.used_in_patterns.length > 0 ? `
+          <p style="margin: 4px 0; font-size: 0.9em;">
+            <b>Used in:</b> ${ctx.used_in_patterns.slice(0, 3).join(", ")}
+            ${ctx.used_in_patterns.length > 3 ? ` (+${ctx.used_in_patterns.length - 3} more)` : ''}
+          </p>
+        ` : ''}
+        ${ctx.feeds_into && ctx.feeds_into.length > 0 ? `
+          <p style="margin: 4px 0; font-size: 0.9em;">
+            <b>Feeds into:</b> ${ctx.feeds_into.slice(0, 3).join(", ")}
+            ${ctx.feeds_into.length > 3 ? ` (+${ctx.feeds_into.length - 3} more)` : ''}
+          </p>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  // Recommended datasets
+  if (explanation.recommended_datasets && explanation.recommended_datasets.length > 0) {
+    html += `
+      <div style="margin-bottom: 16px;">
+        <h4 style="margin: 0 0 8px 0; color: #1e40af; font-size: 0.9em;">💾 Recommended Datasets</h4>
+        <ul style="margin: 0; padding-left: 20px; font-size: 0.9em;">
+    `;
+    explanation.recommended_datasets.slice(0, 5).forEach(ds => {
+      html += `<li style="margin: 4px 0;">${ds}</li>`;
+    });
+    if (explanation.recommended_datasets.length > 5) {
+      html += `<li style="margin: 4px 0; color: #666;">+${explanation.recommended_datasets.length - 5} more</li>`;
+    }
+    html += `</ul></div>`;
+  }
+
+  // Recommended methods
+  if (explanation.recommended_methods && explanation.recommended_methods.length > 0) {
+    html += `
+      <div style="margin-bottom: 16px;">
+        <h4 style="margin: 0 0 8px 0; color: #1e40af; font-size: 0.9em;">🔬 Research Methods</h4>
+        <ul style="margin: 0; padding-left: 20px; font-size: 0.9em;">
+    `;
+    explanation.recommended_methods.slice(0, 5).forEach(method => {
+      const label = method.label || method;
+      const score = typeof method.score === "number" ? ` <span style="color:#0f766e; font-size:0.85em;">(score: ${method.score})</span>` : "";
+      html += `<li style="margin: 4px 0;">${label}${score}</li>`;
+    });
+    if (explanation.recommended_methods.length > 5) {
+      html += `<li style="margin: 4px 0; color: #666;">+${explanation.recommended_methods.length - 5} more</li>`;
+    }
+    html += `</ul></div>`;
+  }
+
+  // Research ideas
+  if (explanation.research_ideas && explanation.research_ideas.length > 0) {
+    html += `
+      <div style="margin-bottom: 16px;">
+        <h4 style="margin: 0 0 8px 0; color: #1e40af; font-size: 0.9em;">💡 Research Ideas</h4>
+        <ul style="margin: 0; padding-left: 20px; font-size: 0.9em;">
+    `;
+    explanation.research_ideas.forEach(idea => {
+      html += `<li style="margin: 6px 0; line-height: 1.4;">${idea}</li>`;
+    });
+    html += `</ul></div>`;
+  }
+
+  // Actionable next steps
+  if (explanation.next_steps && explanation.next_steps.length > 0) {
+    html += `
+      <div style="margin-bottom: 16px;">
+        <h4 style="margin: 0 0 8px 0; color: #1e40af; font-size: 0.9em;">✅ Next Steps</h4>
+        <ul style="margin: 0; padding-left: 20px; font-size: 0.9em;">
+    `;
+    explanation.next_steps.forEach(step => {
+      html += `<li style="margin: 6px 0; line-height: 1.4;">${step}</li>`;
+    });
+    html += `</ul></div>`;
+  }
+
+  panel.innerHTML = html;
+}
+
+function normText(v) {
+  return (v || '').toString().trim().toLowerCase();
+}
+
+function processPhrase(name) {
+  const key = normText(name);
+  if (key === 'train' || key === 'training') return 'trains a model';
+  if (key === 'transform') return 'transforms artifacts';
+  if (key === 'embed' || key === 'embedding') return 'embeds data representations';
+  if (key === 'deduce' || key === 'infer' || key === 'induce' || key === 'induction') return 'infers symbolic outputs';
+  if (key === 'engineer' || key === 'engineering') return 'engineers system artifacts';
+  return `executes ${name || 'a process'}`;
+}
+
+function orderDesignPatterns(patterns) {
+  const producedBy = new Map();
+  patterns.forEach((p) => {
+    (p.output || []).forEach((o) => {
+      if (o && o.id) producedBy.set(o.id, p.id);
+    });
+  });
+
+  const edges = new Map();
+  const indegree = new Map();
+  patterns.forEach((p) => {
+    edges.set(p.id, new Set());
+    indegree.set(p.id, 0);
+  });
+
+  patterns.forEach((target) => {
+    (target.input || []).forEach((i) => {
+      const src = i && i.id ? producedBy.get(i.id) : null;
+      if (!src || src === target.id) return;
+      if (!edges.get(src).has(target.id)) {
+        edges.get(src).add(target.id);
+        indegree.set(target.id, (indegree.get(target.id) || 0) + 1);
+      }
+    });
+  });
+
+  const queue = [];
+  patterns.forEach((p) => {
+    if ((indegree.get(p.id) || 0) === 0) queue.push(p.id);
+  });
+
+  const byId = new Map(patterns.map((p) => [p.id, p]));
+  const ordered = [];
+  while (queue.length > 0) {
+    const id = queue.shift();
+    const p = byId.get(id);
+    if (!p) continue;
+    ordered.push(p);
+    (edges.get(id) || []).forEach((next) => {
+      const d = (indegree.get(next) || 0) - 1;
+      indegree.set(next, d);
+      if (d === 0) queue.push(next);
+    });
+  }
+
+  if (ordered.length < patterns.length) {
+    const seen = new Set(ordered.map((p) => p.id));
+    patterns.forEach((p) => {
+      if (!seen.has(p.id)) ordered.push(p);
+    });
+  }
+  return ordered;
+}
+
+function generateSystemDocumentation(raw) {
+  const box = raw && raw.boxologies && raw.boxologies[0];
+  if (!box) throw new Error('No boxology found in KG data.');
+
+  const patterns = orderDesignPatterns(box.DesignPattern || []);
+
+  const allInputs = [];
+  const allOutputs = [];
+  patterns.forEach((p) => {
+    (p.input || []).forEach((i) => allInputs.push(i));
+    (p.output || []).forEach((o) => allOutputs.push(o));
+  });
+
+  const uniqById = (arr) => {
+    const seen = new Set();
+    return arr.filter((x) => {
+      if (!x || !x.id || seen.has(x.id)) return false;
+      seen.add(x.id);
+      return true;
+    });
+  };
+
+  const inputNames = uniqById(allInputs).slice(0, 5).map((x) => x.label || x.name || x.id);
+  const outputNames = uniqById(allOutputs).slice(0, 5).map((x) => x.label || x.name || x.id);
+
+  const flow = patterns.map((p) => {
+    const proc = p.process || {};
+    const procName = proc.label || proc.name || 'Process';
+    return `${p.label}: ${processPhrase(proc.name || proc.label || '')}`;
+  });
+
+  const pipelineLine = patterns.map((p) => (p.process?.label || p.process?.name || p.label)).join(' -> ');
+
+  const lines = [];
+  lines.push('# Automatic System Documentation');
+  lines.push('');
+  lines.push(`## ${box.label || box.id}`);
+  lines.push('');
+  lines.push('### System Description');
+  lines.push('');
+  lines.push(`The system collects ${inputNames.length ? inputNames.join(', ') : 'input artifacts'}, performs an ordered pipeline of transformations and inference steps (${flow.join('; ')}), and produces ${outputNames.length ? outputNames.join(', ') : 'output artifacts'}.`);
+  lines.push('');
+  lines.push('### Example Pipeline');
+  lines.push('');
+  lines.push(pipelineLine || 'No process pipeline detected.');
+  lines.push('');
+  lines.push('### Design Patterns');
+  lines.push('');
+
+  patterns.forEach((p, idx) => {
+    const proc = p.process || {};
+    const inTxt = (p.input || []).map((x) => x.label || x.name || x.id).join(', ') || 'none';
+    const outTxt = (p.output || []).map((x) => x.label || x.name || x.id).join(', ') || 'none';
+    lines.push(`${idx + 1}. ${p.label}`);
+    lines.push(`   - Process: ${proc.label || proc.name || 'Unknown'}`);
+    lines.push(`   - Inputs: ${inTxt}`);
+    lines.push(`   - Outputs: ${outTxt}`);
+  });
+
+  return lines.join('\n');
+}
+
+function downloadTextFile(content, filename, mimeType) {
+  const blob = new Blob([content], { type: `${mimeType};charset=utf-8` });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+const resultModal = document.getElementById('result-modal');
+const resultModalTitle = document.getElementById('result-modal-title');
+const resultModalBody = document.getElementById('result-modal-body');
+const resultModalClose = document.getElementById('result-modal-close');
+
+function openResultModal(title, bodyHtml) {
+  if (!resultModal || !resultModalTitle || !resultModalBody) return;
+  resultModalTitle.textContent = title;
+  resultModalBody.innerHTML = bodyHtml;
+  resultModal.classList.add('open');
+  resultModal.setAttribute('aria-hidden', 'false');
+}
+
+function closeResultModal() {
+  if (!resultModal || !resultModalBody) return;
+  resultModal.classList.remove('open');
+  resultModal.setAttribute('aria-hidden', 'true');
+  resultModalBody.innerHTML = '';
+}
+
+const T4B_CONFIG = {
+  SPARQL_ENDPOINT: `${BACKEND_URL}/api/t4b/sparql`,
+};
+
+function buildT4BBoxologyLookupQuery(boxologyUri) {
+  const safeUri = String(boxologyUri || '').trim();
+  return `
+PREFIX t4b: <http://tool4boxology.org/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?label
+WHERE {
+  <${safeUri}> a t4b:Boxology ;
+            rdfs:label ?label .
+}
+  `.trim();
+}
+
+async function queryT4BBoxology(boxologyUri) {
+  const response = await fetch(T4B_CONFIG.SPARQL_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+      'Accept': 'application/sparql-results+json',
+    },
+    body: new URLSearchParams({ query: buildT4BBoxologyLookupQuery(boxologyUri) }).toString(),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => '');
+    throw new Error(`Tool4Boxology query failed: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`);
+  }
+
+  return response.json();
+}
+
+function formatT4BBoxologyResults(results, boxologyUri) {
+  const bindings = results?.results?.bindings || [];
+  if (bindings.length === 0) {
+    return `
+      <div class="result-item" style="border-left-color:#ef4444;">
+        <p style="margin:0;">No corresponding Boxology label found for <b>${escapeHtml(boxologyUri)}</b>.</p>
+      </div>
+    `;
+  }
+
+  return `
+    <p style="margin:0;color:#475569;">Tool4Boxology label${bindings.length === 1 ? '' : 's'} for <b>${escapeHtml(boxologyUri)}</b>:</p>
+    <div class="result-list">
+      ${bindings.map((binding) => {
+        const label = binding.label?.value || 'Unnamed Boxology';
+        return `
+          <div class="result-item">
+            <p style="margin:0;color:#0f172a;font-weight:700;">${escapeHtml(label)}</p>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+if (resultModalBody) {
+  resultModalBody.addEventListener('click', async (event) => {
+    const button = event.target.closest?.('.t4b-boxology-run-btn');
+    if (!button) return;
+
+    const boxologyUri = button.getAttribute('data-boxology-uri') || '';
+    if (!boxologyUri) return;
+
+    const originalText = button.textContent || 'Run';
+    button.disabled = true;
+    button.textContent = 'Running...';
+
+    try {
+      openResultModal('Tool4Boxology Lookup', '<p style="margin:0;color:#475569;">Loading boxology label...</p>');
+      const results = await queryT4BBoxology(boxologyUri);
+      openResultModal('Tool4Boxology Lookup', formatT4BBoxologyResults(results, boxologyUri));
+    } catch (error) {
+      openResultModal('Tool4Boxology Lookup', `<p class="error">${escapeHtml(String(error?.message || error))}</p>`);
+    } finally {
+      button.disabled = false;
+      button.textContent = originalText;
+    }
+  });
+}
+
+if (resultModalClose) {
+  resultModalClose.addEventListener('click', closeResultModal);
+}
+
+if (resultModal) {
+  resultModal.addEventListener('click', (event) => {
+    if (event.target === resultModal) {
+      closeResultModal();
+    }
+  });
+}
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    closeResultModal();
+  }
+});
+
+function setupDocumentationButton() {
+  const btn = document.getElementById('doc-btn');
+  const panel = document.getElementById('panel');
+  if (!btn || !panel) return;
+
+  btn.addEventListener('click', () => {
+    try {
+      if (!currentBoxology) {
+        panel.innerHTML = '<h3>Documentation</h3><p class="error">No KG loaded yet.</p>';
+        return;
+      }
+      const markdown = generateSystemDocumentation(currentBoxology);
+
+      panel.innerHTML = `
+        <h3>Documentation Generated</h3>
+        <p>Review the generated documentation, then click save.</p>
+        <button id="doc-save-btn" style="margin: 6px 0 10px 0; border: 1px solid #93c5fd; background: #eff6ff; color: #1e40af; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">Save as .txt</button>
+        <pre>${escapeHtml(markdown)}</pre>
+      `;
+
+      const saveBtn = document.getElementById('doc-save-btn');
+      if (saveBtn) {
+        saveBtn.addEventListener('click', () => {
+          const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+          downloadTextFile(markdown, `system_documentation_${ts}.txt`, 'text/plain');
+        });
+      }
+    } catch (err) {
+      panel.innerHTML = `<h3>Documentation Error</h3><p class="error">${String(err.message || err)}</p>`;
+    }
+  });
+}
+
+
+// ============================================================
+// GoJS-based KG renderer (concept map approach)
+// ============================================================
+function renderKG(raw) {
+  currentBoxology = raw;
+
+  const nodesMap = {};
+  const linksArr = [];
+  const box = raw?.boxologies?.[0];
+
+  if (!box) {
+    document.getElementById('panel').innerHTML =
+      '<h3>⚠️ Invalid KG JSON</h3><p class="error">Missing "boxologies[0]" in the JSON.</p>';
+    return;
+  }
+
+  function ensureNode(obj) {
+    if (nodesMap[obj.id]) return;
+    const color = getNodeColor(obj.rootType);
+    nodesMap[obj.id] = {
+      key: obj.id,
+      id: obj.id,             // kept for backward-compat with utility fns
+      label: obj.label,
+      type: obj.type,
+      rootType: obj.rootType,
+      color: color,
+      textColor: getTextColor(color),
+      meta: obj.meta,
+    };
+  }
+
+  ensureNode({ id: box.id, label: box.label, type: 'Boxology', rootType: 'Boxology', meta: box });
+
+  for (const dp of box.DesignPattern || []) {
+    ensureNode({ id: dp.id, label: dp.label, type: 'DesignPattern', rootType: 'DesignPattern', meta: dp });
+    linksArr.push({ from: box.id, to: dp.id, text: 'hasPattern' });
+
+    if (dp.input)   for (const inp of dp.input)  { const t = addTypedNode(inp);      ensureNode(t); linksArr.push({ from: dp.id, to: t.id, text: 'hasInput' }); }
+    if (dp.process) { const t = addTypedNode(dp.process); ensureNode(t); linksArr.push({ from: dp.id, to: t.id, text: 'hasProcess' }); }
+    if (dp.output)  for (const out of dp.output) { const t = addTypedNode(out);      ensureNode(t); linksArr.push({ from: dp.id, to: t.id, text: 'hasOutput' }); }
+  }
+
+  const nodeDataArray = Object.values(nodesMap);
+  currentNodeDataArray = nodeDataArray;
+  currentLinksArray = linksArr;
+  updateGraphStats();
+  populateTypeFilter();
+  setupExplorerControls();
+
+  // Detach any previous diagram
+  if (myDiagram) myDiagram.div = null;
+
+  // Build GoJS diagram
+  myDiagram = new go.Diagram('myDiagramDiv', {
+    initialAutoScale: go.AutoScale.Uniform,
+    contentAlignment: go.Spot.Center,
+    layout: new go.ForceDirectedLayout({
+      defaultElectricalCharge: 300,
+      defaultSpringLength: 150,
+    }),
+  });
+
+  // ── Node template: rounded rectangles with data-driven colours ──────────
+  myDiagram.nodeTemplate =
+    new go.Node('Auto', { locationSpot: go.Spot.Center, cursor: 'pointer' })
+      .add(
+        new go.Shape('RoundedRectangle', { strokeWidth: 2, stroke: 'rgba(255,255,255,0.4)' })
+          .bind('fill', 'color'),
+        new go.TextBlock({
+          name: 'NODE_LABEL',
+          font: 'bold 10pt Segoe UI, sans-serif',
+          margin: new go.Margin(6, 10, 6, 10),
+          maxSize: new go.Size(160, NaN),
+          wrap: go.Wrap.Fit,
+          overflow: go.TextOverflow.Ellipsis,
+        })
+          .bind('stroke', 'textColor')
+          .bind('text', 'label')
+      );
+
+  // ── Link template: concept-map style with labelled links ─────────────────
+  myDiagram.linkTemplate =
+    new go.Link({ curve: go.Curve.Bezier, adjusting: go.LinkAdjusting.Stretch })
+      .add(
+        new go.Shape({ stroke: '#a3a3a3', strokeWidth: 1.7 }),
+        new go.Shape({ toArrow: 'standard', stroke: null, fill: '#a3a3a3' }),
+        new go.Panel('Auto')
+          .add(
+            new go.Shape({
+              fill: new go.Brush('Radial', {
+                0: 'rgb(243,244,246)',
+                0.3: 'rgb(243,244,246)',
+                1: 'rgba(243,244,246,0)',
+              }),
+              stroke: null,
+            }),
+            new go.TextBlock({
+              textAlign: 'center',
+              font: '9pt Segoe UI, sans-serif',
+              stroke: '#64748b',
+              margin: 3,
+            }).bind('text')
+          )
+      );
+
+  // ── Click: node details ──────────────────────────────────────────────────
+  myDiagram.addDiagramListener('ObjectSingleClicked', function (e) {
+    const part = e.subject.part;
+    if (!(part instanceof go.Node)) return;
+
+    const d = part.data;
+
+    // Annotate with pattern role (input / output / process)
+    if (!d.meta._patternRole && d.meta && currentBoxology && currentBoxology.boxologies) {
+      for (const b of currentBoxology.boxologies) {
+        for (const dp of b.DesignPattern || []) {
+          if (dp.input  && dp.input.some(i => i.id === d.key))  { d.meta._patternRole = 'input';   d.meta._patternLabel = dp.label; }
+          if (dp.output && dp.output.some(o => o.id === d.key)) { d.meta._patternRole = 'output';  d.meta._patternLabel = dp.label; }
+          if (dp.process && dp.process.id === d.key)            { d.meta._patternRole = 'process'; d.meta._patternLabel = dp.label; }
+        }
+      }
+    }
+
+    // Position and show the hover comment box
+    const mouseEvt = e.diagram.lastInput.event;
+    showCommentBox(d, mouseEvt);
+
+    // Ontology explanation in the side panel
+    document.getElementById('panel').innerHTML = explainNodeOntology(d);
+
+  });
+
+  // ── Background click: hide comment box ───────────────────────────────────
+  myDiagram.addDiagramListener('BackgroundSingleClicked', function () {
+    document.getElementById('comment-box').style.display = 'none';
+  });
+
+  myDiagram.model = new go.GraphLinksModel(nodeDataArray, linksArr);
+  applyTypeFilter(activeTypeFilter);
+}
+
+// Load KG from blob URL query param
+void (async function initKGViewer() {
+  await loadOntologyData();
+  setupExplorerControls();
+  setupDocumentationButton();
+  const params = new URLSearchParams(window.location.search);
+  const blobUrl = params.get('blob');
+  if (blobUrl) {
+    fetch(blobUrl).then(r => r.json()).then(renderKG);
+  } else {
+    document.getElementById('panel').innerHTML =
+      '<h3>Welcome</h3><p>No KG loaded. Use "Upload KG JSON" or open from the main app.</p>';
+  }
+})();
+</script>
+</body>
+</html>

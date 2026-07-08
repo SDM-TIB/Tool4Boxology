@@ -7,7 +7,7 @@ export const shapes: ShapeDefinition[] = [
   //{ name: 'artifact', label: 'id-artifact', shape: 'Rectangle', color: '#99e5e1ff', stroke: '#0D5F5C', group: 'Data & Information' },
 
   // Actors & Entities
-  { name: 'Actor', label: 'id-actor', shape: 'Triangle', color: '#f8ce92ff', stroke: '#8B6200', group: 'Actors & Entities' },
+  { name: 'Actor', label: 'id-actor', shape: 'Triangle', color: '#f8ce92ff', stroke: '#000000ff', group: 'Actors & Entities' },
 
   // AI & Models
   { name: 'Model', label: 'id-model', shape: 'Hexagon', color: '#f4ccf4ff', stroke: '#8B4F8B', group: 'AI & Models' },
@@ -15,9 +15,9 @@ export const shapes: ShapeDefinition[] = [
   //{ name: 'StatisticalModel', label: 'id-StatisticalModel', shape: 'Hexagon', color: '#f4ccf4ff', stroke: '#8B4F8B', group: 'AI & Models' },
 
   // Processes & Actions
-  { name: 'Transform', label: 'id-transform', shape: 'RoundedRectangle', borderRadius: '45px', color: '#fbf2a2ff', stroke: '#B8A600', group: 'Processes & Actions' },
-  { name: 'Deduce', label: 'id-deduce', shape: 'RoundedRectangle', borderRadius: '45px', color: '#FFC4C4', stroke: '#8B3A6B', group: 'Processes & Actions' },
-  { name: 'Train', label: 'id-training', shape: 'RoundedRectangle', borderRadius: '45px', color: '#FFA07A', stroke: '#CD5C5C', group: 'Processes & Actions' },
+  { name: 'Transform', label: 'id-transform', shape: 'RoundedRectangle',color: '#fbf2a2ff', stroke: '#B8A600', group: 'Processes & Actions' },
+  { name: 'Deduce', label: 'id-deduce', shape: 'RoundedRectangle', color: '#FFC4C4', stroke: '#4c003bff', group: 'Processes & Actions' },
+  { name: 'Train', label: 'id-training', shape: 'RoundedRectangle', color: '#FFA07A', stroke: '#CD5C5C', group: 'Processes & Actions' },
   { name: 'Engineer', label: 'id-engineering', shape: 'RoundedRectangle', color: '#F5E5E1', stroke: '#C1307A', group: 'Processes & Actions' },
   //{ name: 'generate', label: 'id-generate', shape: 'RoundedRectangle', color: '#f067acff', stroke: '#C1307A', group: 'Processes & Actions' },
   //{ name: 'embedding', label: 'id-embedding', shape: 'RoundedRectangle', borderRadius: '45px', color: '#5a562fff', stroke: '#B8A600', group: 'Processes & Actions' },

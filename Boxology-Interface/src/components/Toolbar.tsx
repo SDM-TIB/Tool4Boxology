@@ -9,7 +9,6 @@ import AlignVerticalTopIcon from '@mui/icons-material/AlignVerticalTop';
 import AlignHorizontalCenterIcon from '@mui/icons-material/AlignHorizontalCenter';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import ViewStreamIcon from '@mui/icons-material/ViewStream';
-import Grid3x3Icon from '@mui/icons-material/Grid3x3';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 // Define ToolbarProps type
@@ -32,6 +31,10 @@ type ToolbarProps = {
   onOpenGraphviz: () => void;
   onCreateKG?: () => void;
   onUploadKG?: (files: FileList) => void;
+  onOpenKGViewer?: () => void;
+  kgJson?: any; // <-- Add this prop
+  onTogglePrototype?: () => void;
+  isPrototypeMode?: boolean;
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({
@@ -52,7 +55,9 @@ const Toolbar: React.FC<ToolbarProps> = ({
   onExportDOT,
   onOpenGraphviz,
   onCreateKG,
-  onUploadKG
+  onUploadKG,
+  onOpenKGViewer,
+  kgJson
 }) => {
   const [showExportMenu, setShowExportMenu] = React.useState(false);
   const [showHelpMenu, setShowHelpMenu] = React.useState(false);  // <-- added
@@ -92,19 +97,32 @@ const Toolbar: React.FC<ToolbarProps> = ({
 
   // Simple small button style for existing buttons
   const simpleButtonStyle: React.CSSProperties = {
-    padding: '4px 8px',
+    padding: '6px 10px',
     margin: '2px',
-    border: '1px solid #110969ff',
-    backgroundColor: '#f8f8f8',
-    borderRadius: '3px',
+    border: '1px solid #d2d6dc',
+    backgroundColor: '#ffffff',
+    borderRadius: '999px',
     cursor: 'pointer',
-    fontSize: '13px',
-    fontWeight: 'normal',
-    color: '#333',
-    height: '24px',
+    fontSize: '12px',
+    fontWeight: 600,
+    color: '#2f2d2a',
+    height: '30px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    lineHeight: 1,
+    boxShadow: '0 1px 1px rgba(0,0,0,0.03)',
+  };
+
+  const toolbarGroupStyle: React.CSSProperties = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '4px',
+    padding: '3px',
+    border: '1px solid #d9ddd3',
+    borderRadius: '999px',
+    background: '#f8f7f3',
+    boxShadow: '0 4px 10px rgba(30, 28, 23, 0.08)'
   };
 
   // MUI icon button style for alignment tools
@@ -122,33 +140,6 @@ const Toolbar: React.FC<ToolbarProps> = ({
     minWidth: '28px',
     color: '#555',
     margin: '1px',
-  };
-
-  const iconButtonHoverStyle = {
-    backgroundColor: '#f0f0f0',
-    borderColor: '#999',
-  };
-
-  // Grid Snap functions
-  const toggleGridLock = () => {
-    if (!diagram) return;
-
-    const isEnabled = diagram.toolManager.draggingTool.isGridSnapEnabled;
-    diagram.toolManager.draggingTool.isGridSnapEnabled = !isEnabled;
-    diagram.toolManager.resizingTool.isGridSnapEnabled = !isEnabled;
-
-    const toggleBtn = document.getElementById('gridToggle');
-    if (toggleBtn) {
-      if (isEnabled) {
-        toggleBtn.style.backgroundColor = '#fff';
-        toggleBtn.style.borderColor = '#555';
-        toggleBtn.style.color = '#555';
-      } else {
-        toggleBtn.style.backgroundColor = '#e3f2fd';
-        toggleBtn.style.borderColor = '#1976d2';
-        toggleBtn.style.color = '#1976d2';
-      }
-    }
   };
 
   // Alignment functions
@@ -331,13 +322,14 @@ LIMIT 100`;
     <div style={{
       display: 'flex',
       alignItems: 'center',
-      gap: '6px',
-      padding: '4px 8px',
-      backgroundColor: '#f5f5f5',
-      borderBottom: '1px solid #ddd',
+      gap: '8px',
+      padding: '6px 10px',
+      backgroundColor: '#ede9fb',
+      borderBottom: '1px solid #d6d5d0',
       flexWrap: 'wrap',
-      minHeight: '36px'
+      minHeight: '46px'
     }}>
+      <div style={toolbarGroupStyle}>
       {/* HELP dropdown (replaces direct About button) */}
       <div ref={helpMenuRef} style={{ position: 'relative', display: 'inline-block' }}>
         <button
@@ -392,8 +384,10 @@ LIMIT 100`;
       {/* Open / Save */}
       <button onClick={onOpen} style={simpleButtonStyle}>📁 Open</button>
       <button onClick={onSave} style={simpleButtonStyle}>💾 Save</button>
+      </div>
 
       {/* Export Dropdown (unchanged) */}
+      <div style={toolbarGroupStyle}>
       <div ref={exportMenuRef} style={{ position: 'relative', display: 'inline-block' }}>
         <button
           onClick={() => {
@@ -437,6 +431,18 @@ LIMIT 100`;
 
             <button
               onClick={() => {
+                onExportJPG();
+                setShowExportMenu(false);
+              }}
+              style={exportItemStyle}
+              onMouseOver={hoverOn}
+              onMouseOut={hoverOff}
+            >
+              🖼️ JPG
+            </button>
+
+            <button
+              onClick={() => {
                 onExportDOT();        // NEW
                 setShowExportMenu(false);
               }}
@@ -472,18 +478,18 @@ LIMIT 100`;
       >
         🟦 Graphviz
       </button>
+      </div>
 
-      <div style={{ width: '1px', height: '20px', background: '#ccc', margin: '0 4px' }} />
-
+      <div style={toolbarGroupStyle}>
       <button onClick={onUndo} style={simpleButtonStyle}>🔄 Undo</button>
       <button onClick={onRedo} style={simpleButtonStyle}>🔃 Redo</button>
       <button
         onClick={onValidate}
         style= {{
           ...simpleButtonStyle,
-          backgroundColor: '#060771',
+          backgroundColor: '#111827',
           color: 'white',
-          borderColor: '#060771'
+          borderColor: '#111827'
         }}
         title="Validate selected pattern or entire diagram"
       >
@@ -504,6 +510,33 @@ LIMIT 100`;
           🔗 Create KG
         </button>
       )}
+      </div>
+
+      <div style={toolbarGroupStyle}>
+        <button
+          onClick={() => {
+            if (onOpenKGViewer) {
+              onOpenKGViewer();
+              return;
+            }
+
+            const blob = new Blob([JSON.stringify(kgJson)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            window.open(`/src/components/kg_viewer.html?blob=${encodeURIComponent(url)}`, '_blank');
+          }}
+          style={{
+            ...exportItemStyle,
+            ...simpleButtonStyle,
+            backgroundColor: '#2563eb',
+            color: 'white',
+            borderColor: '#2563eb',
+            width: 'auto'
+          }}
+          title="View Knowledge Graph in D3 KG Viewer"
+        >
+          🧠 KG Viewer
+        </button>
+      </div>
 
       {/* Hidden file input */}
       <input
@@ -515,6 +548,7 @@ LIMIT 100`;
         onChange={handleFileUpload}
       />
 
+      <div style={toolbarGroupStyle}>
       {/* Upload KG button */}
       {onUploadKG && (
         <button
@@ -534,36 +568,32 @@ LIMIT 100`;
       >
         🔍 SPARQL
       </button>
-      
+      </div>
 
-      {/* Separator */}
-      <div style={{ width: '1px', height: '20px', backgroundColor: '#ccc', margin: '0 4px' }} />
-      
-      {/* Grid Snap */}
-      <button id="gridToggle" onClick={() => toggleGridLock()} style={{ ...iconButtonStyle, backgroundColor: '#e3f2fd', borderColor: '#1976d2', color: '#1976d2' }} title="Toggle Grid"><Grid3x3Icon fontSize="small" /></button>
-
+      <div style={toolbarGroupStyle}>
       {/* Collapsible Alignment & Organization Section */}
       <button
         onClick={() => setShowAlignOrganize(prev => !prev)}
         style={{
           ...simpleButtonStyle,
-          backgroundColor: showAlignOrganize ? '#e3f2fd' : '#f8f8f8',
-          fontWeight: 'bold'
+          backgroundColor: showAlignOrganize ? '#e5e1ef' : '#ffffff',
+          fontWeight: 700
         }}
         title="Show/hide alignment and organization tools"
       >
         {showAlignOrganize ? '▼' : '▶'} Arrange Nodes
       </button>
+      </div>
 
       {showAlignOrganize && (
         <div style={{
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
-          background: '#f9f9f9',
-          borderRadius: '6px',
+          background: '#f8f7f3',
+          borderRadius: '999px',
           padding: '4px 8px',
-          border: '1px solid #e0e0e0',
+          border: '1px solid #d9ddd3',
         }}>
           {/* Alignment Tools */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>

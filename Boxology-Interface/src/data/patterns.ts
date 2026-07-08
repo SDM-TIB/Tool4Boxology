@@ -35,11 +35,22 @@ export interface PatternNode {
   stroke: string;
   x: number;
   y: number;
+  type?: string;
+  parameter1?: number;
+  group?: string;
+  isShared?: boolean;
+  sharedGroups?: string[];
 }
 
 export interface PatternLink {
   from: string;
   to: string;
+}
+
+export interface PatternCluster {
+  id: string;
+  label: string;
+  category?: string;
 }
 
 export interface Pattern {
@@ -48,6 +59,7 @@ export interface Pattern {
   description: string;
   nodes: PatternNode[];
   links: PatternLink[];
+  clusters?: PatternCluster[];
   thumbnail?: string;
 }
 
@@ -267,6 +279,46 @@ export const elementaryPatterns: Pattern[] = [
     links: [
       { from: '1', to: '2' },
       { from: '2', to: '3' }
+    ]
+  },
+  {
+    id: 'transform_Data_model_to_Data',
+    name: 'Transform Data and Model to Data',
+    description: 'Transform Data and model to Data',
+    nodes: normalizePatternNodes([
+      {
+        id: '1',
+        name: 'Data',
+        label: 'id-Data',
+        shape: 'Rectangle',
+        color: '', stroke: '', x: 0, y: 0
+      },
+      {
+        id: '2',
+        name: 'model',
+        label: 'id-model',
+        shape: 'Hexagon',
+        color: '', stroke: '', x: 0, y: 80
+      },
+      {
+        id: '3',
+        name: 'transform',
+        label: 'id-transform',
+        shape: 'RoundedRectangle',
+        color: '', stroke: '', x: 150, y: 40
+      },
+      {
+        id: '4',
+        name: 'Data',
+        label: 'id-Data',
+        shape: 'Rectangle',
+        color: '', stroke: '', x: 300, y: 40
+      }
+    ]),
+    links: [
+      { from: '1', to: '3' },
+      { from: '2', to: '3' },
+      { from: '3', to: '4' }
     ]
   },
 
@@ -756,5 +808,214 @@ export const elementaryPatterns: Pattern[] = [
   }
 ];
 
-// Export patterns for use in components
-export const patterns = elementaryPatterns;
+export const compositePatterns: Pattern[] = [
+  // Train + inference composite pattern
+  {
+    id: 'learning-prediction',
+    name: 'Learning and Prediction Task from Data',
+    description: 'Train a model with data and then use it for prediction',
+    clusters: [
+      { id: 'learning_cluster', label: 'Learning', category: 'ClusterGroup' },
+      { id: 'prediction_cluster', label: 'Prediction', category: 'ClusterGroup' }
+    ],
+    nodes: normalizePatternNodes([
+      {
+        id: '1',
+        name: 'Data',
+        label: 'id-Data',
+        shape: 'Rectangle',
+        color: '', stroke: '', x: 0, y: 0,
+        group: 'learning_cluster'
+      },
+      {
+        id: '2',
+        name: 'Train',
+        label: 'id-Train',
+        shape: 'RoundedRectangle',
+        color: '', stroke: '', x: 150, y: 0,
+        group: 'learning_cluster'
+      },
+      {
+        id: '3',
+        name: 'Model',
+        label: 'id-model',
+        shape: 'Hexagon',
+        color: '', stroke: '', x: 300, y: 0,
+        sharedGroups: ['learning_cluster', 'prediction_cluster']
+      },
+      {
+        id: '4',
+        name: 'Data',
+        label: 'id-Data',
+        shape: 'Rectangle',
+        color: '', stroke: '', x: 150, y: 150,
+        group: 'prediction_cluster'
+      },
+      {
+        id: '5',
+        name: 'Deduce',
+        label: 'id-deduce',
+        shape: 'RoundedRectangle',
+        color: '', stroke: '', x: 300, y: 150,
+        group: 'prediction_cluster'
+      },
+      {
+        id: '6',
+        name: 'Symbol',
+        label: 'id-symbol',
+        shape: 'Rectangle',
+        color: '', stroke: '', x: 450, y: 150,
+        group: 'prediction_cluster'
+      }
+    ]),
+    links: [
+      { from: '1', to: '2' },
+      { from: '2', to: '3' },
+      { from: '4', to: '5' },
+      { from: '3', to: '5' },
+      { from: '5', to: '6' }
+    ]
+  },
+  {
+    id: 'learning-prediction',
+    name: 'Learning and Prediction Task from Symbol',
+    description: 'Train a model with symbol and then use it for prediction',
+    clusters: [
+      { id: 'learning_cluster', label: 'Learning', category: 'ClusterGroup' },
+      { id: 'prediction_cluster', label: 'Prediction', category: 'ClusterGroup' }
+    ],
+    nodes: normalizePatternNodes([
+      {
+        id: '1',
+        name: 'Symbol',
+        label: 'id-symbol',
+        shape: 'Rectangle',
+        color: '', stroke: '', x: 0, y: 0,
+        group: 'learning_cluster'
+      },
+      {
+        id: '2',
+        name: 'Train',
+        label: 'id-Train',
+        shape: 'RoundedRectangle',
+        color: '', stroke: '', x: 150, y: 0,
+        group: 'learning_cluster'
+      },
+      {
+        id: '3',
+        name: 'Model',
+        label: 'id-model',
+        shape: 'Hexagon',
+        color: '', stroke: '', x: 300, y: 0,
+        sharedGroups: ['learning_cluster', 'prediction_cluster']
+      },
+      {
+        id: '4',
+        name: 'Symbol',
+        label: 'id-symbol',
+        shape: 'Rectangle',
+        color: '', stroke: '', x: 150, y: 150,
+        group: 'prediction_cluster'
+      },
+      {
+        id: '5',
+        name: 'Deduce',
+        label: 'id-deduce',
+        shape: 'RoundedRectangle',
+        color: '', stroke: '', x: 300, y: 150,
+        group: 'prediction_cluster'
+      },
+      {
+        id: '6',
+        name: 'Symbol',
+        label: 'id-symbol',
+        shape: 'Rectangle',
+        color: '', stroke: '', x: 450, y: 150,
+        group: 'prediction_cluster'
+      }
+    ]),
+    links: [
+      { from: '1', to: '2' },
+      { from: '2', to: '3' },
+      { from: '4', to: '5' },
+      { from: '3', to: '5' },
+      { from: '5', to: '6' }
+    ]
+  },
+{
+    id: 'learning-inference',
+    name: 'Learn Ontology from Data',
+    description: 'Learn an ontology from data by first training a model and then using it to infer new knowledge, including hierarchies and axioms',
+    clusters: [
+      { id: 'group_1779964483811', label: 'Text Translated into Relation', category: 'ClusterGroup' },
+      { id: 'group_1779964685138', label: 'Infer hierarchies and Axioms', category: 'ClusterGroup' }
+    ],
+    nodes: normalizePatternNodes([
+      {
+        id: '1',
+        name: 'Data',
+        label: 'id-Data',
+        shape: 'Rectangle',
+        color: '', stroke: '', x: 0, y: 150,
+        group: 'group_1779964483811'
+      },
+      {
+        id: '2',
+        name: 'Model',
+        label: 'id-model',
+        shape: 'Hexagon',
+        color: '', stroke: '', x: 150, y: 0,
+        group: 'group_1779964483811'
+      },
+      {
+        id: '3',
+        name: 'Deduce',
+        label: 'infer:predict',
+        shape: 'RoundedRectangle',
+        color: '', stroke: '', x: 150, y: 150,
+        group: 'group_1779964483811'
+      },
+      {
+        id: '4',
+        name: 'Symbol',
+        label: 'id-symbol',
+        shape: 'Rectangle',
+        color: '', stroke: '', x: 300, y: 150,
+        sharedGroups: ['group_1779964685138', 'group_1779964483811']
+      },
+      {
+        id: '5',
+        name: 'Model',
+        label: 'id-model',
+        shape: 'Hexagon',
+        color: '', stroke: '', x: 450, y: 0,
+        group: 'group_1779964685138'
+      },
+      {
+        id: '6',
+        name: 'Deduce',
+        label: 'infer:deduce',
+        shape: 'RoundedRectangle',
+        color: '', stroke: '', x: 450, y: 150,
+        group: 'group_1779964685138'
+      },
+      {
+        id: '7',
+        name: 'Symbol',
+        label: 'id-symbol',
+        shape: 'Rectangle',
+        color: '', stroke: '', x: 600, y: 150,
+        group: 'group_1779964685138'
+      }
+    ]),
+    links: [
+      { from: '1', to: '3' },
+      { from: '2', to: '3' },
+      { from: '3', to: '4' },
+      { from: '4', to: '6' },
+      { from: '5', to: '6' },
+      { from: '6', to: '7' }
+    ]
+  },
+];
+
