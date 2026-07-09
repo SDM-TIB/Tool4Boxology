@@ -41,6 +41,20 @@
     #doc-btn:hover {
       background: #dbeafe;
     }
+    #kautz-btn {
+      margin-left: 10px;
+      border: 1px solid #fbcfe8;
+      background: #fdf2f8;
+      color: #86198f;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    #kautz-btn:hover {
+      background: #fce7f3;
+    }
     #explorer-controls {
       position: fixed;
       top: 48px;
@@ -349,6 +363,7 @@
     <span style="font-weight:700; font-size:20px; letter-spacing:1px;">🧠 Boxology Knowledge Graph</span>
     <span class="hint">Drag nodes • Zoom • Click for details • Hover for highlight</span>
     <button id="doc-btn" title="Generate system documentation from current KG">Generate Documentation</button>
+    <button id="kautz-btn" title="Check the current system against known Kautz neuro-symbolic patterns">🧠 Validate Kautz</button>
   </div>
   <div id="explorer-controls">
     <div class="ctrl-group">
@@ -788,6 +803,325 @@ const validPatterns = [
   { name: "infer_data (symbol → model → data)", edges: [["Model", "Deduce"], ["Symbol", "Deduce"], ["Deduce", "Data"]] },
 ];
 
+// Kautz composed neuro-symbolic patterns (kept in sync with src/data/kautzPatterns.ts).
+// Matching is based purely on each component's stable "name" (semantic role type:
+// Data/Symbol/Model/Actor/Train/Engineer/Transform/Deduce), the same way
+// GoJSBoxologyValidation.ts's elementary pattern check works -- never on id or on
+// the freeform "label" text, so renaming a box's label never breaks a match.
+const kautzPatternsData = [
+  {
+    id: 'symbolic>neuro', name: 'Symbolic > Neuro [SymbolicInput/SymbolicOutput]',
+    nodes: [
+      { id: 'node_17823072000001_s1', name: 'Symbol' },
+      { id: 'node_17823072000002_s1', name: 'Model' },
+      { id: 'node_17823072000003_s1', name: 'Train' },
+      { id: 'node_17823072000004_s1', name: 'Model' },
+      { id: 'node_17823072000005_s1', name: 'Deduce' },
+      { id: 'node_17823072000006_s1', name: 'Neural Network' },
+      { id: 'node_17823072000007_s1', name: 'Symbol' },
+    ],
+    links: [
+      { from: 'node_17823072000001_s1', to: 'node_17823072000003_s1' },
+      { from: 'node_17823072000002_s1', to: 'node_17823072000003_s1' },
+      { from: 'node_17823072000003_s1', to: 'node_17823072000004_s1' },
+      { from: 'node_17823072000004_s1', to: 'node_17823072000005_s1' },
+      { from: 'node_17823072000006_s1', to: 'node_17823072000005_s1' },
+      { from: 'node_17823072000005_s1', to: 'node_17823072000007_s1' },
+    ],
+  },
+  {
+    id: 'symbolic>neuro', name: 'Symbolic > Neuro [DataInput/SymbolicOutput]',
+    nodes: [
+      { id: 'node_17823072000001_s2', name: 'Data' },
+      { id: 'node_17823072000002_s2', name: 'Model' },
+      { id: 'node_17823072000003_s2', name: 'Train' },
+      { id: 'node_17823072000004_s2', name: 'Model' },
+      { id: 'node_17823072000005_s2', name: 'Deduce' },
+      { id: 'node_17823072000006_s2', name: 'Neural Network' },
+      { id: 'node_17823072000007_s2', name: 'Symbol' },
+    ],
+    links: [
+      { from: 'node_17823072000001_s2', to: 'node_17823072000003_s2' },
+      { from: 'node_17823072000002_s2', to: 'node_17823072000003_s2' },
+      { from: 'node_17823072000003_s2', to: 'node_17823072000004_s2' },
+      { from: 'node_17823072000004_s2', to: 'node_17823072000005_s2' },
+      { from: 'node_17823072000006_s2', to: 'node_17823072000005_s2' },
+      { from: 'node_17823072000005_s2', to: 'node_17823072000007_s2' },
+    ],
+  },
+  {
+    id: 'symbolic>neuro', name: 'Symbolic > Neuro [SymbolicInput/DataOutput]',
+    nodes: [
+      { id: 'node_17823072000001_s3', name: 'Symbolic' },
+      { id: 'node_17823072000002_s3', name: 'Model' },
+      { id: 'node_17823072000003_s3', name: 'Train' },
+      { id: 'node_17823072000004_s3', name: 'Model' },
+      { id: 'node_17823072000005_s3', name: 'Deduce' },
+      { id: 'node_17823072000006_s3', name: 'Neural Network' },
+      { id: 'node_17823072000007_s3', name: 'Data' },
+    ],
+    links: [
+      { from: 'node_17823072000001_s3', to: 'node_17823072000003_s3' },
+      { from: 'node_17823072000002_s3', to: 'node_17823072000003_s3' },
+      { from: 'node_17823072000003_s3', to: 'node_17823072000004_s3' },
+      { from: 'node_17823072000004_s3', to: 'node_17823072000005_s3' },
+      { from: 'node_17823072000006_s3', to: 'node_17823072000005_s3' },
+      { from: 'node_17823072000005_s3', to: 'node_17823072000007_s3' },
+    ],
+  },
+  {
+    id: 'symbolic>neuro', name: 'Symbolic > Neuro [DataInput/DataOutput]',
+    nodes: [
+      { id: 'node_17823072000001_s4', name: 'Data' },
+      { id: 'node_17823072000002_s4', name: 'Model' },
+      { id: 'node_17823072000003_s4', name: 'Train' },
+      { id: 'node_17823072000004_s4', name: 'Model' },
+      { id: 'node_17823072000005_s4', name: 'Deduce' },
+      { id: 'node_17823072000006_s4', name: 'Neural Network' },
+      { id: 'node_17823072000007_s4', name: 'Data' },
+    ],
+    links: [
+      { from: 'node_17823072000001_s4', to: 'node_17823072000003_s4' },
+      { from: 'node_17823072000002_s4', to: 'node_17823072000003_s4' },
+      { from: 'node_17823072000003_s4', to: 'node_17823072000004_s4' },
+      { from: 'node_17823072000004_s4', to: 'node_17823072000005_s4' },
+      { from: 'node_17823072000006_s4', to: 'node_17823072000005_s4' },
+      { from: 'node_17823072000005_s4', to: 'node_17823072000007_s4' },
+    ],
+  },
+  {
+    id: 'neuro>symbolic', name: 'Neuro > Symbolic [DataInput/DataOutput]',
+    nodes: [
+      { id: 'node_17823071852981_p1', name: 'Data' },
+      { id: 'node_17823071852982_p1', name: 'Model' },
+      { id: 'node_17823071852983_p1', name: 'Deduce' },
+      { id: 'node_17823071852994_p1', name: 'Data' },
+      { id: 'node_1782307198834_p1', name: 'Model' },
+    ],
+    links: [
+      { from: 'node_17823071852981_p1', to: 'node_17823071852983_p1' },
+      { from: 'node_17823071852982_p1', to: 'node_17823071852983_p1' },
+      { from: 'node_17823071852983_p1', to: 'node_17823071852994_p1' },
+      { from: 'node_1782307198834_p1', to: 'node_17823071852983_p1' },
+    ],
+  },
+  {
+    id: 'neuro>symbolic', name: 'Neuro > Symbolic [DataInput/SymbolicOutput]',
+    nodes: [
+      { id: 'node_17823071852981_p2', name: 'Data' },
+      { id: 'node_17823071852982_p2', name: 'Model' },
+      { id: 'node_17823071852983_p2', name: 'Deduce' },
+      { id: 'node_17823071852994_p2', name: 'Symbol' },
+      { id: 'node_1782307198834_p2', name: 'Model' },
+    ],
+    links: [
+      { from: 'node_17823071852981_p2', to: 'node_17823071852983_p2' },
+      { from: 'node_17823071852982_p2', to: 'node_17823071852983_p2' },
+      { from: 'node_17823071852983_p2', to: 'node_17823071852994_p2' },
+      { from: 'node_1782307198834_p2', to: 'node_17823071852983_p2' },
+    ],
+  },
+  {
+    id: 'neuro>symbolic', name: 'Neuro > Symbolic [SymbolicInput/SymbolicOutput]',
+    nodes: [
+      { id: 'node_17823071852981_p3', name: 'Symbol' },
+      { id: 'node_17823071852982_p3', name: 'Model' },
+      { id: 'node_17823071852983_p3', name: 'Deduce' },
+      { id: 'node_17823071852994_p3', name: 'Symbol' },
+      { id: 'node_1782307198834_p3', name: 'Model' },
+    ],
+    links: [
+      { from: 'node_17823071852981_p3', to: 'node_17823071852983_p3' },
+      { from: 'node_17823071852982_p3', to: 'node_17823071852983_p3' },
+      { from: 'node_17823071852983_p3', to: 'node_17823071852994_p3' },
+      { from: 'node_1782307198834_p3', to: 'node_17823071852983_p3' },
+    ],
+  },
+  {
+    id: 'neuro>symbolic', name: 'Neuro > Symbolic [SymbolicInput/DataOutput]',
+    nodes: [
+      { id: 'node_17823071852981_p4', name: 'Symbol' },
+      { id: 'node_17823071852982_p4', name: 'Model' },
+      { id: 'node_17823071852983_p4', name: 'Deduce' },
+      { id: 'node_17823071852994_p4', name: 'Data' },
+      { id: 'node_1782307198834_p4', name: 'Model' },
+    ],
+    links: [
+      { from: 'node_17823071852981_p4', to: 'node_17823071852983_p4' },
+      { from: 'node_17823071852982_p4', to: 'node_17823071852983_p4' },
+      { from: 'node_17823071852983_p4', to: 'node_17823071852994_p4' },
+      { from: 'node_1782307198834_p4', to: 'node_17823071852983_p4' },
+    ],
+  },
+  {
+    id: 'neuro:symbolic>neuro', name: 'Neuro: Symbolic>Neuro',
+    nodes: [
+      { id: 'node_17823077123811', name: 'Symbol' },
+      { id: 'node_17823077123842', name: 'Model' },
+      { id: 'node_17823077123843', name: 'Deduce' },
+      { id: 'node_17823077123844', name: 'Symbol' },
+      { id: 'node_17823077258901', name: 'Model' },
+      { id: 'node_17823077258913', name: 'Train' },
+      { id: 'node_17823077258924', name: 'Model' },
+    ],
+    links: [
+      { from: 'node_17823077123811', to: 'node_17823077123843' },
+      { from: 'node_17823077123842', to: 'node_17823077123843' },
+      { from: 'node_17823077123843', to: 'node_17823077123844' },
+      { from: 'node_17823077258901', to: 'node_17823077258913' },
+      { from: 'node_17823077123844', to: 'node_17823077258913' },
+      { from: 'node_17823077258913', to: 'node_17823077258924' },
+    ],
+  },
+];
+
+// A few kautzPatterns.ts node "name" values don't literally match an ontology
+// tree key (e.g. 'Symbolic' vs the tree's 'Symbol' root) -- alias those first.
+const KAUTZ_ROLE_ALIASES = { Symbolic: 'Symbol', 'Neural Network': 'Model' };
+
+// Resolves a Kautz rule's "name" to its stable root category, exactly the same
+// semantic identity that GoJSBoxologyValidation.ts's getNodeName()/data.name check
+// relies on -- never label, shape, or id.
+// Single shared resolver so a Kautz rule's expected role and a graph node's actual
+// role are always computed the same way -- fixes both to a stable root category
+// (Data/Symbol/Model/Actor/Train/Engineer/Transform/Deduce) from a "name" value only.
+function resolveKautzRootType(name) {
+  const raw = (name || '').toString();
+  if (KAUTZ_ROLE_ALIASES[raw]) return KAUTZ_ROLE_ALIASES[raw];
+  return getRootType(raw.replace(/\s+/g, '')) || getRootType(raw) || null;
+}
+
+function kautzRuleRoleType(rule) {
+  return resolveKautzRootType(rule.name) || 'Model';
+}
+
+function nodeMatchesKautzRule(node, rule) {
+  return node.rootType === kautzRuleRoleType(rule);
+}
+
+// Reconstructs the component-level dataflow graph (Data/Symbol/Model/Actor nodes wired
+// through Train/Engineer/Transform/Deduce processes) from a Boxology's DesignPatterns,
+// since that's the shape Kautz patterns are defined over. Each node's "name" field
+// (never its label) is resolved to a root category, same as validateDesignPattern() above.
+function buildKautzComponentGraph(box) {
+  const nodes = new Map();
+  const edges = [];
+
+  function addNode(obj) {
+    if (!obj || !obj.id) return null;
+    if (!nodes.has(obj.id)) {
+      const semanticName = obj.name || obj.semanticName || obj.rootType || obj.label || '';
+      nodes.set(obj.id, { id: obj.id, label: obj.label || semanticName, rootType: resolveKautzRootType(semanticName) || 'Data' });
+    }
+    return nodes.get(obj.id);
+  }
+
+  for (const dp of box.DesignPattern || []) {
+    const processNode = dp.process ? addNode(dp.process) : null;
+    const inputNodes = (dp.input || []).map(addNode).filter(Boolean);
+    const outputNodes = (dp.output || []).map(addNode).filter(Boolean);
+
+    if (processNode) {
+      inputNodes.forEach((inp) => edges.push({ from: inp.id, to: processNode.id }));
+      outputNodes.forEach((out) => edges.push({ from: processNode.id, to: out.id }));
+    }
+  }
+
+  return { nodes: Array.from(nodes.values()), edges };
+}
+
+// Backtracking subgraph match of a Kautz pattern's node/link rules against the
+// reconstructed component graph -- same approach as KautzBoxologyValidation.ts's
+// comparePatternToDiagram/findMatch, adapted to plain {nodes, edges} data.
+function compareKautzPatternToGraph(pattern, graph) {
+  const candidates = new Map();
+  pattern.nodes.forEach((rule) => {
+    candidates.set(rule.id, graph.nodes.filter((node) => nodeMatchesKautzRule(node, rule)));
+  });
+
+  const missingNodeRules = pattern.nodes
+    .filter((rule) => (candidates.get(rule.id)?.length ?? 0) === 0)
+    .map((rule) => `${rule.name} (${kautzRuleRoleType(rule)})`);
+
+  if (missingNodeRules.length > 0) {
+    return { matches: false, missingNodeRules, missingLinks: [] };
+  }
+
+  const edgeSet = new Set(graph.edges.map((e) => `${e.from}->${e.to}`));
+  const orderedRules = [...pattern.nodes].sort(
+    (a, b) => (candidates.get(a.id)?.length ?? 0) - (candidates.get(b.id)?.length ?? 0)
+  );
+
+  const assignments = new Map();
+  const usedIds = new Set();
+  let attempts = 0;
+  const maxAttempts = 20000;
+
+  function hasRequiredLinks(ruleId) {
+    for (const link of pattern.links) {
+      if (link.from !== ruleId && link.to !== ruleId) continue;
+      const from = assignments.get(link.from);
+      const to = assignments.get(link.to);
+      if (from && to && !edgeSet.has(`${from.id}->${to.id}`)) return false;
+    }
+    return true;
+  }
+
+  function findMatch(index) {
+    if (index === orderedRules.length) return true;
+    if (attempts++ >= maxAttempts) return false;
+    const rule = orderedRules[index];
+    for (const candidate of candidates.get(rule.id) || []) {
+      if (usedIds.has(candidate.id)) continue;
+      assignments.set(rule.id, candidate);
+      usedIds.add(candidate.id);
+      if (hasRequiredLinks(rule.id) && findMatch(index + 1)) return true;
+      assignments.delete(rule.id);
+      usedIds.delete(candidate.id);
+    }
+    return false;
+  }
+
+  const matches = findMatch(0);
+  return { matches, missingNodeRules: [], missingLinks: matches ? [] : pattern.links.map((l) => `${l.from} -> ${l.to}`) };
+}
+
+function validateKautzForBoxology(box) {
+  const graph = buildKautzComponentGraph(box);
+  const comparisons = kautzPatternsData.map((pattern) => ({ pattern, result: compareKautzPatternToGraph(pattern, graph) }));
+  const matched = comparisons.filter(({ result }) => result.matches);
+  return { graph, matched, comparisons };
+}
+
+function buildKautzResultHtml(box, includeHeading) {
+  const heading = includeHeading ? '<h3>Kautz Validation</h3>' : '';
+  if (!box) return `${heading}<p class="error">No KG loaded yet.</p>`;
+
+  const { graph, matched } = validateKautzForBoxology(box);
+
+  if (graph.nodes.length === 0) {
+    return `${heading}<p class="error">No component nodes found for this system.</p>`;
+  }
+
+  if (matched.length === 0) {
+    return `
+      ${heading}
+      <p><b>Status:</b> <span style="color:#dc2626;">NO KAUTZ PATTERN DETECTED</span></p>
+      <p>Checked ${graph.nodes.length} node(s) and ${graph.edges.length} edge(s) against ${kautzPatternsData.length} known Kautz patterns.</p>
+    `;
+  }
+
+  const items = matched
+    .map(({ pattern }) => `<li><b>${pattern.name}</b> <span style="color:#94a3b8;">(${pattern.id})</span></li>`)
+    .join('');
+
+  return `
+    ${heading}
+    <p><b>Status:</b> <span style="color:#22c55e;">${matched.length} KAUTZ PATTERN(S) MATCHED</span></p>
+    <ul style="margin:8px 0 0; padding-left:18px;">${items}</ul>
+  `;
+}
+
 function validateDesignPattern(dp) {
   if (!dp.input || !dp.process || !dp.output) {
     console.warn('[KG Validation] Missing input, process, or output');
@@ -891,6 +1225,15 @@ function buildDesignPatternSummary(dp) {
 }
 
 function generateNodeContent(d) {
+  // Handle the root Boxology (system) node: show composed Kautz pattern matches
+  if (d.type === "Boxology" && d.meta) {
+    return `
+      <h4>📦 ${d.label}</h4>
+      <p><b>Type:</b> ${d.type}</p>
+      ${buildKautzResultHtml(d.meta, false)}
+    `;
+  }
+
   // Handle DesignPattern nodes
   if (d.type === "DesignPattern" && d.meta) {
     const summary = buildDesignPatternSummary(d.meta);
@@ -1760,6 +2103,21 @@ function setupDocumentationButton() {
   });
 }
 
+function setupKautzButton() {
+  const btn = document.getElementById('kautz-btn');
+  const panel = document.getElementById('panel');
+  if (!btn || !panel) return;
+
+  btn.addEventListener('click', () => {
+    try {
+      const box = currentBoxology?.boxologies?.[0] || null;
+      panel.innerHTML = buildKautzResultHtml(box, true);
+    } catch (err) {
+      panel.innerHTML = `<h3>Kautz Validation Error</h3><p class="error">${String(err.message || err)}</p>`;
+    }
+  });
+}
+
 
 // ============================================================
 // GoJS-based KG renderer (concept map approach)
@@ -1914,6 +2272,7 @@ void (async function initKGViewer() {
   await loadOntologyData();
   setupExplorerControls();
   setupDocumentationButton();
+  setupKautzButton();
   const params = new URLSearchParams(window.location.search);
   const blobUrl = params.get('blob');
   if (blobUrl) {

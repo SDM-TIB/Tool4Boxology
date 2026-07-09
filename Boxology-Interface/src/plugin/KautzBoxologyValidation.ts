@@ -65,13 +65,10 @@ function nodeMatchesRule(
 ): boolean {
   const data = node.data ?? {};
 
-  if (
-    data.name !== rule.name ||
-    data.label !== rule.label ||
-    data.shape !== rule.shape ||
-    (rule.type !== undefined && data.type !== rule.type) ||
-    (rule.parameter1 !== undefined && data.parameter1 !== rule.parameter1)
-  ) {
+  // Match on the stable semantic identity only (same as GoJSBoxologyValidation's
+  // getNodeName): a node's `name` never changes, but its `label`/`shape` can be
+  // edited freely by the user, so those must not affect whether a pattern matches.
+  if (data.name !== rule.name) {
     return false;
   }
 
