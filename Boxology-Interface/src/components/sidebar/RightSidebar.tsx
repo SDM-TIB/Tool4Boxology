@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import ExCls from '../../Examples/Pain-Cls-Example.json';
 import ExSeg from '../../Examples/MRI-seg-Example.json';
 import InstructionDialog from '../dialogs/InstructionDialog';
+import QueryExplorerDialog from '../dialogs/QueryExplorerDialog';
 import WorkflowImg from '../../assets/WorkFlow.png';
 import { generateMultiPageRMLExport } from '../../utils/exportHelpers';
 import { shapes, shapeTypesMin } from '../../data/shape';
@@ -424,41 +425,15 @@ export default function RightSidebar({ selectedData, diagramRef, pages, currentP
   const [isLinkSelected, setIsLinkSelected] = useState(false);
   const [linkRouting, setLinkRouting] = useState<'straight' | 'curve'>('straight');
   const [selectedCount, setSelectedCount] = useState(0);
-  const [queryText, setQueryText] = useState('');
   const [showInstruction, setShowInstruction] = useState(false);
+  const [showQueryExplorer, setShowQueryExplorer] = useState(false);
   const [mathSearch, setMathSearch] = useState('');
   const [copiedSymbol, setCopiedSymbol] = useState<string | null>(null);
   const [conversionStatus, setConversionStatus] = useState<string>('');
   const [kgExportStatus, setKgExportStatus] = useState<string>('');
   const exportUploadRef = useRef<HTMLInputElement | null>(null);
 
-  const videoUrl = 'https://www.youtube.com/watch?v=yr8KNgPh-Vw'; 
-
-  const queryExamples = [
-    {
-      id: 'q1',
-      title: 'Find Output nodes',
-      query: `PREFIX t4b: <http://tool4boxology.org/>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-SELECT * WHERE {
-  ?pattern t4b:hasOutput ?OutPut .
-  ?OutPut rdfs:label ?OutputLabel .
-}`
-    },
-    {
-      id: 'q2',
-      title: 'List Boxologies and Pattern Counts',
-      query: `PREFIX t4b: <http://tool4boxology.org/>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-
-SELECT (COUNT(DISTINCT ?pattern) AS ?PatternCount) ?boxology ?BoxologyLabel
-WHERE {
-  ?boxology a t4b:Boxology ;
-            rdfs:label ?BoxologyLabel ;
-            t4b:hasPattern ?pattern.
-}`
-    }
-  ];
+  const videoUrl = 'https://www.youtube.com/watch?v=yr8KNgPh-Vw';
 
   // Filter math symbols based on search
   const filteredMathSymbols = mathSymbols.filter(item =>
@@ -574,17 +549,6 @@ WHERE {
   
   const openVideoLink = () => {
     window.open(videoUrl, '_blank');
-  };
-
-  const sendToQuerySection = async (q: string) => {
-    setQueryText(q);
-  };
-
-  const sendQueryToVirtuoso = () => {
-    const endpoint = 'http://localhost:8890/sparql';
-    const encodedQuery = encodeURIComponent(queryText);
-    const url = `${endpoint}?query=${encodedQuery}&format=HTML`;
-    window.open(url, '_blank');
   };
 
   const handleSidebarChange = (field: string, value: string) => {
@@ -773,7 +737,7 @@ WHERE {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
               <span>Query + SPARQL</span>
               <span style={{ fontSize: 11, fontWeight: 500, color: activeSection === 'query' ? '#cbd5f5' : '#64748b' }}>
-                Examples and editor
+                Explore the knowledge graph
               </span>
             </div>
           </button>
@@ -819,38 +783,16 @@ WHERE {
 
       {activeSection === 'query' && (
         <div style={{ marginBottom: 12, padding: 8, background: '#fff', borderRadius: 6, border: '1px solid #eee' }}>
-          <strong style={{ display: 'block', marginBottom: 6, fontWeight: '600', fontSize: '14px', color: '#1b1b1bff' }}>Query example</strong>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 10 }}>
-            {queryExamples.map(q => (
-              <button
-                key={q.id}
-                onClick={() => sendToQuerySection(q.query)}
-                style={getButtonStyle({ textAlign: 'left', marginBottom: 4 })}
-              >
-                {q.title}
-              </button>
-            ))}
-          </div>
-          <strong style={{ display: 'block', marginBottom: 6, fontWeight: '600', fontSize: '14px', color: '#1b1b1bff' }}>SPARQL Query</strong>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <textarea
-              value={queryText}
-              onChange={e => setQueryText(e.target.value)}
-              placeholder="Write your SPARQL query here..."
-              style={{
-                width: '90%',
-                minHeight: 200,
-                fontSize: 13,
-                padding: 6,
-                border: '1px solid #ccc',
-                borderRadius: 4,
-                resize: 'vertical'
-              }}
-            />
-            <button onClick={sendQueryToVirtuoso} style={getButtonStyle()}>
-              Run Query!
-            </button>
-          </div>
+          <strong style={{ display: 'block', marginBottom: 6, fontWeight: '600', fontSize: '14px', color: '#1b1b1bff' }}>Query the Knowledge Graph</strong>
+          <p style={{ fontSize: 12, color: '#555', marginBottom: 10 }}>
+            Open the Query Explorer to run SPARQL queries against Tool4Boxology, pick from a library of
+            prepared queries (elementary patterns, Kautz patterns, comparisons between systems...) and see
+            results as a table.
+          </p>
+          <button onClick={() => setShowQueryExplorer(true)} style={getButtonStyle()}>
+            Open Query Explorer
+          </button>
+          <QueryExplorerDialog open={showQueryExplorer} onClose={() => setShowQueryExplorer(false)} />
         </div>
       )}
 
