@@ -154,60 +154,100 @@
           <div class="dialogue-stack">
             <div class="dialogue-line">
               <img class="speaker-avatar" src="images/icons/Ana.png" alt="Dr. Ana avatar" />
-              <div class="speaker-copy"><strong>Dr. Ana:</strong> "I want something simple in my head. Show the system enough tumors I already diagnosed, so it learns what I look for. Then let it check new scans the same way and tell me why, so I can compare its reasoning to mine."</div>
+              <div class="speaker-copy"><strong>Dr. Ana:</strong> "I have already diagnosed hundreds of tumors. I want the system to learn from those examples, analyze new scans, and most importantly explain <em>why</em> it reached a diagnosis so I can compare its reasoning with mine."</div>
             </div>
             <div class="dialogue-line">
               <img class="speaker-avatar" src="images/icons/Marco.png" alt="Marco avatar" />
-              <div class="speaker-copy"><strong>Marco:</strong> "That is really three things. First we define the labels and the data: labels are the meaning we want to capture, and data is the example input we train on. Then we train a model, and later we apply it to a new scan."</div>
+              <div class="speaker-copy"><strong>Marco:</strong> "That sounds like a neural-symbolic system. Part of the workflow learns patterns from your annotated MRI scans, while another part represents medical knowledge and reasoning explicitly. The challenge is combining these two worlds correctly."</div>
             </div>
             <div class="dialogue-line">
               <img class="speaker-avatar" src="images/icons/Ana.png" alt="Dr. Ana avatar" />
-              <div class="speaker-copy"><strong>Dr. Ana:</strong> "Right, but the why matters most to me. I do not just want an answer. I want to see the reasoning so I can check it against my own judgment."</div>
+              <div class="speaker-copy"><strong>Dr. Ana:</strong> "Why is combining them difficult? Can't we simply connect the learning model to the reasoning part?"</div>
             </div>
             <div class="dialogue-line">
               <img class="speaker-avatar" src="images/icons/Marco.png" alt="Marco avatar" />
-              <div class="speaker-copy"><strong>Marco:</strong> "Then we should not train a plain black-box model. We should use a neural-symbolic setup, so the system can learn from examples but still keep the reasoning traceable."</div>
-            </div>
-            <div class="dialogue-line">
-              <img class="speaker-avatar" src="images/icons/Marco.png" alt="Marco avatar" />
-              <div class="speaker-copy"><strong>Marco:</strong> "Tool4Boxology gives us a unified visual language for that workflow. We draw the labeling, training, and deduction blocks, check validation live, and make sure the system stays explainable instead of just predictive."</div>
+              <div class="speaker-copy"><strong>Marco:</strong> "Not quite. They use different representations. The learning components operate on <em>data</em> — MRI images, labels, trained models — while the reasoning components operate on <em>symbols</em>, such as medical concepts, diagnoses, and logical rules. If we mix these representations incorrectly, the workflow becomes inconsistent and difficult to understand."</div>
             </div>
             <div class="dialogue-line">
               <img class="speaker-avatar" src="images/icons/Ana.png" alt="Dr. Ana avatar" />
-              <div class="speaker-copy"><strong>Dr. Ana:</strong> "And if I connect something wrong?"</div>
+              <div class="speaker-copy"><strong>Dr. Ana:</strong> "So how do we keep everything consistent?"</div>
             </div>
             <div class="dialogue-line">
               <img class="speaker-avatar" src="images/icons/Marco.png" alt="Marco avatar" />
-              <div class="speaker-copy"><strong>Marco:</strong> "The tool checks it live. If the label does not match what training expects, or the trained model does not match what deduction needs, it flags it immediately — before either of us writes code."</div>
+              <div class="speaker-copy"><strong>Marco:</strong> "That's where <em>Tool4Boxology</em> helps. It provides one visual language for the entire pipeline. We model every step — from data annotation and model training to symbolic reasoning — in a single diagram. Each component has a well-defined input and output type, so the tool knows what can be connected."</div>
             </div>
           </div>
+        </div>
+      </div>
     </section>
 
     <section class="section" id="overview">
-      <div class="shell grid-2">
-        <article class="content-panel">
-          <span class="section-kicker">What you're looking at</span>
-          <h2>Three composed patterns, one pipeline</h2>
-          <p>Tumor Diagnosis chains three design patterns end to end — the output of each one is the input to the next:</p>
-          <ul>
-            <li><strong>Labeling</strong> — an <code>Expert</code> (Actor) performs <code>Engineering</code> to produce <code>Label for Segments</code> (Symbol). A human expert manually engineers ground-truth labels.</li>
-            <li><strong>Train a Supervised Model</strong> — those labels plus <code>Preprocessed MRT Data</code> (Data) go through <code>Train</code> to produce a <code>Supervised Model</code> (Model).</li>
-            <li><strong>Symptom Detection</strong> — a new <code>MRT Image</code> (Data) and the trained <code>Supervised Model</code> go through <code>Deduce</code> to produce a <code>Diagnosis</code> (Symbol).</li>
-          </ul>
-          <p>That's the point of drawing it in Boxology rather than a generic flowchart: each step is named by its epistemic role — engineering, training, deducing — so the kind of neuro-symbolic integration is explicit and, as the next steps show, checkable.</p>
-        </article>
-        <article class="content-panel">
-          <span class="section-kicker">Reading the shapes</span>
-          <h2>The shape legend</h2>
-          <ul>
-            <li><strong>Triangle</strong> — an Actor (a person or agent), e.g. <code>Expert</code>.</li>
-            <li><strong>Solid rounded rectangle</strong> — a Process, e.g. <code>Engineering</code>, <code>Train</code>, <code>Deduce</code>.</li>
-            <li><strong>Solid rectangle</strong> — Data, e.g. <code>Preprocessed MRT Data</code>, <code>MRT Image</code>.</li>
-            <li><strong>Dashed green rectangle</strong> — a Symbol, e.g. <code>Label for Segments</code>, <code>Diagnosis</code>.</li>
-            <li><strong>Dashed hexagon</strong> — a Model, e.g. <code>Supervised Model</code>.</li>
-            <li><strong>Grey rounded group</strong> — one design pattern: Input(s) → Process → Output.</li>
-          </ul>
-        </article>
+      <div class="shell">
+        <div class="section-head">
+          <span class="section-kicker">Back in the diagram</span>
+          <h2>What Marco and Ana are actually drawing</h2>
+          <p class="section-lead">Here's the concrete Tumor Diagnosis pipeline behind that description — three composed patterns, drawn with the shapes below.</p>
+        </div>
+        <div class="grid-2">
+          <article class="content-panel">
+            <span class="section-kicker">What you're looking at</span>
+            <h2>Three composed patterns, one pipeline</h2>
+            <p>Tumor Diagnosis chains three design patterns end to end — the output of each one is the input to the next:</p>
+            <ul>
+              <li><strong>Labeling</strong> — an <code>Expert</code> (Actor) performs <code>Engineering</code> to produce <code>Label for Segments</code> (Symbol). A human expert manually engineers ground-truth labels.</li>
+              <li><strong>Train a Supervised Model</strong> — those labels plus <code>Preprocessed MRT Data</code> (Data) go through <code>Train</code> to produce a <code>Supervised Model</code> (Model).</li>
+              <li><strong>Symptom Detection</strong> — a new <code>MRT Image</code> (Data) and the trained <code>Supervised Model</code> go through <code>Deduce</code> to produce a <code>Diagnosis</code> (Symbol).</li>
+            </ul>
+            <p>That's the point of drawing it in Boxology rather than a generic flowchart: each step is named by its epistemic role — engineering, training, deducing — so the kind of neuro-symbolic integration is explicit and, as the next steps show, checkable.</p>
+          </article>
+          <article class="content-panel">
+            <span class="section-kicker">Reading the shapes</span>
+            <h2>The shape legend</h2>
+            <ul>
+              <li><strong>Triangle</strong> — an Actor (a person or agent), e.g. <code>Expert</code>.</li>
+              <li><strong>Solid rounded rectangle</strong> — a Process, e.g. <code>Engineering</code>, <code>Train</code>, <code>Deduce</code>.</li>
+              <li><strong>Solid rectangle</strong> — Data, e.g. <code>Preprocessed MRT Data</code>, <code>MRT Image</code>.</li>
+              <li><strong>Dashed green rectangle</strong> — a Symbol, e.g. <code>Label for Segments</code>, <code>Diagnosis</code>.</li>
+              <li><strong>Dashed hexagon</strong> — a Model, e.g. <code>Supervised Model</code>.</li>
+              <li><strong>Grey rounded group</strong> — one design pattern: Input(s) → Process → Output.</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="dialogue-continued">
+      <div class="shell">
+        <div class="section-head">
+          <span class="section-kicker">Back to the conversation</span>
+          <h2>Validating the design — and turning it into a knowledge graph</h2>
+        </div>
+        <div class="dialogue-stack">
+          <div class="dialogue-line">
+            <img class="speaker-avatar" src="images/icons/Ana.png" alt="Dr. Ana avatar" />
+            <div class="speaker-copy"><strong>Dr. Ana:</strong> "What happens if I accidentally connect two incompatible components?"</div>
+          </div>
+          <div class="dialogue-line">
+            <img class="speaker-avatar" src="images/icons/Marco.png" alt="Marco avatar" />
+            <div class="speaker-copy"><strong>Marco:</strong> "The validation runs while we design the workflow. If a component expects image data but receives symbolic knowledge, or if a reasoning block receives the wrong model, Tool4Boxology immediately highlights the problem. We can fix the design before implementing any code."</div>
+          </div>
+          <div class="dialogue-line">
+            <img class="speaker-avatar" src="images/icons/Ana.png" alt="Dr. Ana avatar" />
+            <div class="speaker-copy"><strong>Dr. Ana:</strong> "That already sounds much easier to review than reading code."</div>
+          </div>
+          <div class="dialogue-line">
+            <img class="speaker-avatar" src="images/icons/Marco.png" alt="Marco avatar" />
+            <div class="speaker-copy"><strong>Marco:</strong> "Exactly. And there's another advantage. The visual workflow is automatically transformed into a <em>knowledge graph</em>. That makes the system machine-readable, allows us to compare it with other validated workflows, reuse existing designs, document the pipeline, and even support automated analysis and future extensions."</div>
+          </div>
+          <div class="dialogue-line">
+            <img class="speaker-avatar" src="images/icons/Ana.png" alt="Dr. Ana avatar" />
+            <div class="speaker-copy"><strong>Dr. Ana:</strong> "So instead of drawing a diagram that only humans understand, we're creating a validated design that both people and machines can interpret."</div>
+          </div>
+          <div class="dialogue-line">
+            <img class="speaker-avatar" src="images/icons/Marco.png" alt="Marco avatar" />
+            <div class="speaker-copy"><strong>Marco:</strong> "Exactly. The diagram becomes the specification of the neural-symbolic system — not just documentation. It stays consistent, explainable, reusable, and ready for implementation."</div>
+          </div>
+        </div>
       </div>
     </section>
 
