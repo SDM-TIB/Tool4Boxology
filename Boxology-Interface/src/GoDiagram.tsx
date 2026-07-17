@@ -616,8 +616,73 @@ const GoDiagram: React.FC<GoDiagramProps> = ({
       
       if (patternData) {
         const pattern = JSON.parse(patternData);
+        const patternNodes: any[] = Array.isArray(pattern.nodes) ? pattern.nodes : [];
+
+        // Pattern templates store absolute coordinates (~150-800px). Normalize them to
+        // the pattern's own top-left so it drops under the cursor instead of hundreds of
+        // pixels away, then relocate to open space if it would land on existing content.
+        const xs = patternNodes.map((n) => (typeof n.x === 'number' ? n.x : 0));
+        const ys = patternNodes.map((n) => (typeof n.y === 'number' ? n.y : 0));
+        const minX = xs.length ? Math.min(...xs) : 0;
+        const minY = ys.length ? Math.min(...ys) : 0;
+        const spanX = (xs.length ? Math.max(...xs) : 0) - minX;
+        const spanY = (ys.length ? Math.max(...ys) : 0) - minY;
+
+        const NODE_W = 150;
+        const NODE_H = 90;
+        const GAP = 50;
+        const patternW = spanX + NODE_W;
+        const patternH = spanY + NODE_H;
+
+        // Bounds of existing (non-group) content, for overlap detection.
+        const existingRects: go.Rect[] = [];
+        diagram.nodes.each((n) => {
+          if (n.data?.isGroup) return;
+          const b = n.actualBounds;
+          if (b && b.isReal() && b.width > 0) existingRects.push(b.copy());
+        });
+
+        const wouldOverlap = (ax: number, ay: number) => {
+          const r = new go.Rect(ax, ay, patternW, patternH);
+          return existingRects.some((er) => r.intersectsRect(er.copy().inflate(GAP, GAP)));
+        };
+
+        const snap = (v: number) => Math.round(v / 10) * 10;
+
+        // Honor a deliberate drop onto empty canvas so patterns can still be placed by
+        // hand. Otherwise pack the pattern into the next free cell of a tidy left-to-right,
+        // top-to-bottom grid (draw.io layout guidance: consistent row/column gaps, snapped
+        // to the 10px grid) so repeated drops form a compact block, not a messy stack.
+        let anchorX = snap(point.x);
+        let anchorY = snap(point.y);
+
+        if (wouldOverlap(anchorX, anchorY) && existingRects.length > 0) {
+          let left = Infinity, top = Infinity, right = -Infinity, bottom = -Infinity;
+          existingRects.forEach((r) => {
+            left = Math.min(left, r.x); top = Math.min(top, r.y);
+            right = Math.max(right, r.right); bottom = Math.max(bottom, r.bottom);
+          });
+
+          const colStep = snap(patternW + GAP);
+          const rowStep = snap(patternH + GAP);
+          // Wrap a row once it grows past the existing content width (min 3 columns) so
+          // patterns flow into a block rather than one long row or column.
+          const maxRowRight = left + Math.max(right - left, colStep * 3);
+
+          let placed = false;
+          for (let row = 0; row < 500 && !placed; row++) {
+            for (let col = 0; col < 500; col++) {
+              const ax = snap(left + col * colStep);
+              const ay = snap(top + row * rowStep);
+              if (col > 0 && ax + patternW > maxRowRight) break; // wrap to next row
+              if (!wouldOverlap(ax, ay)) { anchorX = ax; anchorY = ay; placed = true; break; }
+            }
+          }
+          if (!placed) { anchorX = snap(left); anchorY = snap(bottom + GAP); }
+        }
+
         diagram.startTransaction('drop pattern');
-        
+
         const clusterKeyMap = new Map<string, string>();
         const nodeKeyMap = new Map<string, string>();
 
@@ -647,7 +712,7 @@ const GoDiagram: React.FC<GoDiagramProps> = ({
             shape: node.shape,
             color: node.color,
             stroke: node.stroke,
-            loc: go.Point.stringify(new go.Point(point.x + node.x, point.y + node.y)),
+            loc: go.Point.stringify(new go.Point(anchorX + ((node.x ?? 0) - minX), anchorY + ((node.y ?? 0) - minY))),
             type: node.type || node.name  // 🔧 FIX: Use pattern's type or default to name
           };
 

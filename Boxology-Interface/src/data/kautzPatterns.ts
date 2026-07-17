@@ -61,7 +61,7 @@ export const kautzPatterns: Pattern[] = [
       },
       {
         id: 'node_17823072000006_s1',
-        name: 'Neural Network',
+        name: 'Model',
         label: 'Neural Network(NN)',
         shape: 'Hexagon',
         color: '#f4ccf4ff',
@@ -149,7 +149,7 @@ export const kautzPatterns: Pattern[] = [
       },
       {
         id: 'node_17823072000006_s2',
-        name: 'Neural Network',
+        name: 'Model',
         label: 'Neural Network(NN)',
         shape: 'Hexagon',
         color: '#f4ccf4ff',
@@ -186,7 +186,7 @@ export const kautzPatterns: Pattern[] = [
     nodes: [
       {
         id: 'node_17823072000001_s3',
-        name: 'Symbolic',
+        name: 'Symbol',
         label: 'Symbolic Input',
         shape: 'Rectangle',
         color: '#ccffccff',
@@ -237,7 +237,7 @@ export const kautzPatterns: Pattern[] = [
       },
       {
         id: 'node_17823072000006_s3',
-        name: 'Neural Network',
+        name: 'Model',
         label: 'Neural Network(NN)',
         shape: 'Hexagon',
         color: '#f4ccf4ff',
@@ -325,7 +325,7 @@ export const kautzPatterns: Pattern[] = [
       },
       {
         id: 'node_17823072000006_s4',
-        name: 'Neural Network',
+        name: 'Model',
         label: 'Neural Network(NN)',
         shape: 'Hexagon',
         color: '#f4ccf4ff',
@@ -545,14 +545,13 @@ export const kautzPatterns: Pattern[] = [
     nodes: [
       { id: "node_17823071852981_p4", name: "Symbol", label: "Rules", shape: "Rectangle", color: '#ccffccff', stroke: '#218721ff', x: 174, y: 183, type: "Rules" },
       { id: "node_17823071852982_p4", name: "Model", label: "NN Model", shape: "Hexagon", color: "#f4ccf4ff", stroke: "#8B4F8B", x: 247, y: 56.000030517578125, type: "NeuralNetwork" },
-      { id: "node_17823071852983_p4", name: "Transform", label: "transform:embed", shape: "RoundedRectangle", color: '#fbf1b0ff', stroke: '#B8A600"', x: 324, y: 183, type: "Transform", parameter1: 15 },
+      { id: "node_17823071852983_p4", name: "Transform", label: "transform:embed", shape: "RoundedRectangle", color: '#fbf1b0ff', stroke: '#B8A600', x: 324, y: 183, type: "Transform", parameter1: 15 },
       { id: "node_1782307198834_p4", name: "Model", label: "Enhanced NN Model", shape: "Hexagon", color: "#f4ccf4ff", stroke: "#8B4F8B", x: 395.5, y: 55, type: "NeuralNetwork", parameter1: 1 },
     ],
  links: [
 {from:"node_17823071852981_p4",to:"node_17823071852983_p4"},
 {from:"node_17823071852982_p4",to:"node_17823071852983_p4"},
-{from:"node_17823071852983_p4",to:"node_1782307198834_p4"},
-{from:"node_1782307198834_p4",to:"node_17823071852983_p4"}
+{from:"node_17823071852983_p4",to:"node_1782307198834_p4"}
 ]},
 
 //Kautz category6: Neuro [Symbolic] [DataInput/DataOutput]

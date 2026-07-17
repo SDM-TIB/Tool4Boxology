@@ -801,6 +801,9 @@ const validPatterns = [
   { name: "infer_model (data → model → model)", edges: [["Model", "Deduce"], ["Data", "Deduce"], ["Deduce", "Model"]] },
   { name: "infer_data (data → model → data)", edges: [["Model", "Deduce"], ["Data", "Deduce"], ["Deduce", "Data"]] },
   { name: "infer_data (symbol → model → data)", edges: [["Model", "Deduce"], ["Symbol", "Deduce"], ["Deduce", "Data"]] },
+  { name: "infer_symbol from two seperated model", edges: [["Model", "Deduce"], ["Model", "Deduce"], ["Deduce", "Symbol"]] },  
+  { name: "infer_data from two seperated model", edges: [["Model", "Deduce"], ["Model", "Deduce"], ["Deduce", "Data"]] },
+
 ];
 
 // Kautz composed neuro-symbolic patterns (kept in sync with src/data/kautzPatterns.ts).
@@ -973,6 +976,42 @@ const kautzPatternsData = [
       { from: 'node_17823077258913', to: 'node_17823077258924' },
     ],
   },
+
+  // Kautz category 3: Neuro + Symbolic (co:deduce) — neural + symbolic models
+  // cooperate in one deduction. Same component shape as category 2/6 by name.
+  { id: 'neuro+symbolic', name: 'Neuro + Symbolic [DataInput/DataOutput]',
+    nodes: [ { id: 'k3a_in', name: 'Data' }, { id: 'k3a_nn', name: 'Model' }, { id: 'k3a_ded', name: 'Deduce' }, { id: 'k3a_out', name: 'Data' }, { id: 'k3a_ss', name: 'Model' } ],
+    links: [ { from: 'k3a_in', to: 'k3a_ded' }, { from: 'k3a_nn', to: 'k3a_ded' }, { from: 'k3a_ded', to: 'k3a_out' }, { from: 'k3a_ss', to: 'k3a_ded' } ] },
+  { id: 'neuro+symbolic', name: 'Neuro + Symbolic [DataInput/SymbolicOutput]',
+    nodes: [ { id: 'k3b_in', name: 'Data' }, { id: 'k3b_nn', name: 'Model' }, { id: 'k3b_ded', name: 'Deduce' }, { id: 'k3b_out', name: 'Symbol' }, { id: 'k3b_ss', name: 'Model' } ],
+    links: [ { from: 'k3b_in', to: 'k3b_ded' }, { from: 'k3b_nn', to: 'k3b_ded' }, { from: 'k3b_ded', to: 'k3b_out' }, { from: 'k3b_ss', to: 'k3b_ded' } ] },
+  { id: 'neuro+symbolic', name: 'Neuro + Symbolic [SymbolicInput/SymbolicOutput]',
+    nodes: [ { id: 'k3c_in', name: 'Symbol' }, { id: 'k3c_nn', name: 'Model' }, { id: 'k3c_ded', name: 'Deduce' }, { id: 'k3c_out', name: 'Symbol' }, { id: 'k3c_ss', name: 'Model' } ],
+    links: [ { from: 'k3c_in', to: 'k3c_ded' }, { from: 'k3c_nn', to: 'k3c_ded' }, { from: 'k3c_ded', to: 'k3c_out' }, { from: 'k3c_ss', to: 'k3c_ded' } ] },
+  { id: 'neuro+symbolic', name: 'Neuro + Symbolic [SymbolicInput/DataOutput]',
+    nodes: [ { id: 'k3d_in', name: 'Symbol' }, { id: 'k3d_nn', name: 'Model' }, { id: 'k3d_ded', name: 'Deduce' }, { id: 'k3d_out', name: 'Data' }, { id: 'k3d_ss', name: 'Model' } ],
+    links: [ { from: 'k3d_in', to: 'k3d_ded' }, { from: 'k3d_nn', to: 'k3d_ded' }, { from: 'k3d_ded', to: 'k3d_out' }, { from: 'k3d_ss', to: 'k3d_ded' } ] },
+
+  // Kautz category 5: Neuro {Symbolic} (transform:embed) — symbolic rules are
+  // embedded into a neural model, producing an enhanced neural model.
+  { id: 'neuro {symbolic}', name: 'Neuro {Symbolic}',
+    nodes: [ { id: 'k5_rules', name: 'Symbol' }, { id: 'k5_nn', name: 'Model' }, { id: 'k5_tf', name: 'Transform' }, { id: 'k5_enh', name: 'Model' } ],
+    links: [ { from: 'k5_rules', to: 'k5_tf' }, { from: 'k5_nn', to: 'k5_tf' }, { from: 'k5_tf', to: 'k5_enh' } ] },
+
+  // Kautz category 6: Neuro [Symbolic] (nn:deduce) — a symbolic model is invoked
+  // as a subroutine inside a neural deduction. Same component shape as category 2/3.
+  { id: 'Neuro [Symbolic]', name: 'Neuro [Symbolic] [DataInput/DataOutput]',
+    nodes: [ { id: 'k6a_in', name: 'Data' }, { id: 'k6a_nn', name: 'Model' }, { id: 'k6a_ded', name: 'Deduce' }, { id: 'k6a_out', name: 'Data' }, { id: 'k6a_sm', name: 'Model' } ],
+    links: [ { from: 'k6a_in', to: 'k6a_ded' }, { from: 'k6a_nn', to: 'k6a_ded' }, { from: 'k6a_ded', to: 'k6a_out' }, { from: 'k6a_sm', to: 'k6a_ded' } ] },
+  { id: 'Neuro [Symbolic]', name: 'Neuro [Symbolic] [DataInput/SymbolicOutput]',
+    nodes: [ { id: 'k6b_in', name: 'Data' }, { id: 'k6b_nn', name: 'Model' }, { id: 'k6b_ded', name: 'Deduce' }, { id: 'k6b_out', name: 'Symbol' }, { id: 'k6b_sm', name: 'Model' } ],
+    links: [ { from: 'k6b_in', to: 'k6b_ded' }, { from: 'k6b_nn', to: 'k6b_ded' }, { from: 'k6b_ded', to: 'k6b_out' }, { from: 'k6b_sm', to: 'k6b_ded' } ] },
+  { id: 'Neuro [Symbolic]', name: 'Neuro [Symbolic] [SymbolicInput/SymbolicOutput]',
+    nodes: [ { id: 'k6c_in', name: 'Symbol' }, { id: 'k6c_nn', name: 'Model' }, { id: 'k6c_ded', name: 'Deduce' }, { id: 'k6c_out', name: 'Symbol' }, { id: 'k6c_sm', name: 'Model' } ],
+    links: [ { from: 'k6c_in', to: 'k6c_ded' }, { from: 'k6c_nn', to: 'k6c_ded' }, { from: 'k6c_ded', to: 'k6c_out' }, { from: 'k6c_sm', to: 'k6c_ded' } ] },
+  { id: 'Neuro [Symbolic]', name: 'Neuro [Symbolic] [SymbolicInput/DataOutput]',
+    nodes: [ { id: 'k6d_in', name: 'Symbol' }, { id: 'k6d_nn', name: 'Model' }, { id: 'k6d_ded', name: 'Deduce' }, { id: 'k6d_out', name: 'Data' }, { id: 'k6d_sm', name: 'Model' } ],
+    links: [ { from: 'k6d_in', to: 'k6d_ded' }, { from: 'k6d_nn', to: 'k6d_ded' }, { from: 'k6d_ded', to: 'k6d_out' }, { from: 'k6d_sm', to: 'k6d_ded' } ] },
 ];
 
 // A few kautzPatterns.ts node "name" values don't literally match an ontology

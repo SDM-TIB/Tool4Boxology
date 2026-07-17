@@ -56,6 +56,8 @@ const allPatterns: { name: string; edges: [string, string][] }[] = [
   { name: "infer_model (data → model → model)", edges: [["Model", "Deduce"], ["Data", "Deduce"], ["Deduce", "Model"]] },
   { name: "infer_data (data → model → data)", edges: [["Model", "Deduce"], ["Data", "Deduce"], ["Deduce", "Data"]] },
   { name: "infer_data (symbol → model → data)", edges: [["Model", "Deduce"], ["Symbol", "Deduce"], ["Deduce", "Data"]] },
+  { name: "infer_symbol from two seperated model", edges: [["Model", "Deduce"], ["Model", "Deduce"], ["Deduce", "Symbol"]] },  
+  { name: "infer_data from two seperated model", edges: [["Model", "Deduce"], ["Model", "Deduce"], ["Deduce", "Data"]] },
   { name: "embed Transform", edges: [["Symbol", "Embed"], ["Data", "Embed"], ["Embed", "Model"]] },
 
   { name: "data-symbol Transform", edges: [["Symbol", "Transform"], ["Data", "Transform"], ["Transform", "Data"]] },
@@ -278,14 +280,19 @@ function validateSemanticPattern(pattern: SemanticDesignPattern): { valid: boole
     }
   });
 
-  // Deduce requires model + one evidence input (symbol or data).
+  // Deduce requires a Model plus at least one more input as evidence: a Symbol, a Data,
+  // or a second Model (e.g. a neural and a symbolic model cooperating in one deduction,
+  // such as ss:/co:/nn:deduce).
   if (proc === "Deduce") {
-    const inputTypes = new Set(pattern.input.map(i => i.semanticName));
-    if (!inputTypes.has("Model")) {
+    const inputNames = pattern.input.map(i => i.semanticName);
+    const modelCount = inputNames.filter(n => n === "Model").length;
+    if (modelCount === 0) {
       issues.push("Deduce requires Model as an input");
     }
-    if (!inputTypes.has("Symbol") && !inputTypes.has("Data")) {
-      issues.push("Deduce requires Symbol or Data as evidence input");
+    const hasEvidence =
+      inputNames.includes("Symbol") || inputNames.includes("Data") || modelCount >= 2;
+    if (!hasEvidence) {
+      issues.push("Deduce requires Symbol, Data, or a second Model as evidence input");
     }
   }
 
