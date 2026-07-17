@@ -4,24 +4,26 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Architecture | Tool4Boxology</title>
+  <meta name="description" content="How Tool4Boxology transforms a Boxology diagram into validated JSON, RDF knowledge graph data, SHACL-style checks, and SPARQL answers." />
   <link rel="icon" type="image/png" href="images/logos/logo.png" />
   <link rel="stylesheet" href="assets/css/home.css" />
 </head>
 <body class="home-shell">
   <header class="topbar">
-    <div class="topbar-inner">
+    <div class="shell topbar-inner">
       <a class="brand" href="index.html" aria-label="Tool4Boxology home">
         <span class="brand-mark"><img src="images/logos/logo.png" alt="Tool4Boxology logo" /></span>
         <span class="brand-copy">
           <strong>Tool4Boxology</strong>
-          <span>Architecture</span>
+          <span>System architecture</span>
         </span>
       </a>
       <nav class="nav" aria-label="Primary">
-        <a href="index.html#start">Start</a>
+        <a href="index.html">Home</a>
         <a href="tutorial.html">Tutorial</a>
-        <a href="index.html#features">Features</a>
-        <a href="abstract.html">Graphical abstract</a>
+        <a href="elements.html">Elements</a>
+        <a href="abstract.html">Abstract</a>
+        <a class="active" href="architecture.html">Architecture</a>
       </nav>
     </div>
   </header>
@@ -29,34 +31,75 @@
   <main class="page-body">
     <section class="page-hero">
       <div class="shell page-header">
-        <span class="eyebrow">System view</span>
+        <span class="eyebrow">Implementation view</span>
         <h1>Architecture</h1>
-        <p>
-          The Tool4Boxology knowledge graph is the machine-readable representation of Boxology designs created in the editor.
-          It is defined, populated, and validated through a declarative pipeline that keeps the design semantically consistent and ready for downstream querying and analysis.
-        </p>
+        <p>The Tool4Boxology architecture connects the visual editor, syntactic validation, JSON transformation, knowledge graph generation, semantic validation, SPARQL querying, and visual exploration.</p>
       </div>
       <div class="shell page-image">
-        <img src="images/content/Architecture.png" alt="Tool4Boxology architecture diagram" />
+        <img src="images/content/Architecture.png" alt="Tool4Boxology architecture diagram from editor to validation, JSON, RDF knowledge graph, SHACL validation, and SPARQL answers" />
+      </div>
+    </section>
+
+    <section class="section white">
+      <div class="shell">
+        <div class="section-head">
+          <span class="section-kicker">Pipeline</span>
+          <h2>One design travels through four technical stages.</h2>
+        </div>
+        <div class="pathway">
+          <div class="path-step">
+            <strong>Editor</strong>
+            <span>React and GoJS provide the diagramming canvas, palette, toolbar, grouping, import, and export actions.</span>
+          </div>
+          <div class="path-step">
+            <strong>Validation</strong>
+            <span>The diagram is checked as a Boxology design pattern before it is treated as reusable data.</span>
+          </div>
+          <div class="path-step">
+            <strong>KG creation</strong>
+            <span>Validated JSON is transformed into RDF with the Tool4Boxology vocabulary and mappings.</span>
+          </div>
+          <div class="path-step">
+            <strong>Query and explore</strong>
+            <span>SPARQL and the KG viewer support analysis, documentation, comparison, and reuse.</span>
+          </div>
+        </div>
       </div>
     </section>
 
     <section class="section">
-      <div class="shell grid-2">
+      <div class="shell grid-3">
         <article class="content-panel">
-          <span class="section-kicker">Why this matters</span>
-          <h2>A single path from editor output to reusable knowledge graph.</h2>
-          <p>Each stage is meant to be inspectable so researchers can validate and reuse the design without losing the semantic structure.</p>
+          <span class="section-kicker">For users</span>
+          <h2>The pipeline is hidden behind clear actions.</h2>
+          <p>Most users only need to draw, validate, create KG, and query. The architecture keeps those actions connected to reliable transformations.</p>
         </article>
         <article class="content-panel">
-          <span class="section-kicker">Follow-up</span>
-          <h2>Use the editor to create your own architecture.</h2>
-          <p>Open the homepage or launch the editor directly to start building, then compare the result with this reference view.</p>
-          <div class="mini-links">
-            <a class="mini-link" href="https://tool4boxology.service.tib.eu/" target="_blank" rel="noreferrer">Open editor</a>
-            <a class="mini-link" href="tutorial.html">Worked example: Tumor Diagnosis</a>
-            <a class="mini-link" href="abstract.html">Graphical abstract</a>
-          </div>
+          <span class="section-kicker">For developers</span>
+          <h2>The outputs stay inspectable.</h2>
+          <p>JSON, RDF/Turtle, DOT, PNG, SPARQL results, and generated documentation make the system easier to test and integrate.</p>
+        </article>
+        <article class="content-panel">
+          <span class="section-kicker">For researchers</span>
+          <h2>The semantics remain traceable.</h2>
+          <p>Design patterns are not flattened into pictures. Their typed components and relationships remain available for graph analysis.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section white">
+      <div class="shell grid-2">
+        <article class="support-panel">
+          <span class="section-kicker">Try it</span>
+          <h2>Run the workflow in the hosted editor.</h2>
+          <p>Start with the online editor, then validate, create KG, and open the SPARQL panel.</p>
+          <div class="mini-links"><a class="mini-link primary" href="https://tool4boxology.service.tib.eu/" target="_blank" rel="noreferrer">Open editor</a></div>
+        </article>
+        <article class="support-panel">
+          <span class="section-kicker">Learn the notation</span>
+          <h2>Review the Boxology elements.</h2>
+          <p>The element guide is the shortest reference for choosing the right shape type.</p>
+          <div class="mini-links"><a class="mini-link" href="elements.html">Open elements</a></div>
         </article>
       </div>
     </section>

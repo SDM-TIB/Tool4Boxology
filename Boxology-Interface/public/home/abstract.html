@@ -4,12 +4,13 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Graphical Abstract | Tool4Boxology</title>
+  <meta name="description" content="The Tool4Boxology graphical abstract: Boxology design, knowledge representation, and knowledge graph exploration layers." />
   <link rel="icon" type="image/png" href="images/logos/logo.png" />
   <link rel="stylesheet" href="assets/css/home.css" />
 </head>
 <body class="home-shell">
   <header class="topbar">
-    <div class="topbar-inner">
+    <div class="shell topbar-inner">
       <a class="brand" href="index.html" aria-label="Tool4Boxology home">
         <span class="brand-mark"><img src="images/logos/logo.png" alt="Tool4Boxology logo" /></span>
         <span class="brand-copy">
@@ -18,9 +19,10 @@
         </span>
       </a>
       <nav class="nav" aria-label="Primary">
-        <a href="index.html#start">Start</a>
+        <a href="index.html">Home</a>
         <a href="tutorial.html">Tutorial</a>
-        <a href="index.html#features">Features</a>
+        <a href="elements.html">Elements</a>
+        <a class="active" href="abstract.html">Abstract</a>
         <a href="architecture.html">Architecture</a>
       </nav>
     </div>
@@ -31,32 +33,46 @@
       <div class="shell page-header">
         <span class="eyebrow">Visual summary</span>
         <h1>Graphical abstract</h1>
-        <p>
-          A layered framework for constructing and analyzing neuro-symbolic systems that integrate symbolic and neural components.
-          The design layer ensures syntactic correctness, the knowledge representation layer transforms validated designs into knowledge graphs, and the exploration layer enables querying and analysis.
-        </p>
+        <p>The abstract shows Tool4Boxology as three connected layers: a human-readable Boxology design layer, a machine-readable knowledge representation layer, and an exploration layer for analysis and querying.</p>
       </div>
       <div class="shell page-image">
-        <img src="images/content/Tool4Boxology-GraphicalAbstract.png" alt="Tool4Boxology graphical abstract" />
+        <img src="images/content/Tool4Boxology-GraphicalAbstract.png" alt="Tool4Boxology graphical abstract with design, knowledge representation, and exploration layers" />
+      </div>
+    </section>
+
+    <section class="section white">
+      <div class="shell grid-3">
+        <article class="content-panel">
+          <span class="section-kicker">1. Design</span>
+          <h2>Make the architecture explicit.</h2>
+          <p>The diagram captures symbolic and neural components in a common Boxology notation, so humans can read and discuss the system.</p>
+        </article>
+        <article class="content-panel">
+          <span class="section-kicker">2. Represent</span>
+          <h2>Turn validated designs into graph data.</h2>
+          <p>The design becomes a knowledge graph that preserves patterns, components, processes, inputs, and outputs.</p>
+        </article>
+        <article class="content-panel">
+          <span class="section-kicker">3. Explore</span>
+          <h2>Query, analyze, and reuse.</h2>
+          <p>SPARQL and the KG viewer make the architecture machine-readable and easier to compare across systems.</p>
+        </article>
       </div>
     </section>
 
     <section class="section">
       <div class="shell grid-2">
-        <article class="content-panel">
-          <span class="section-kicker">What it shows</span>
-          <h2>Three layers that move from design to analysis.</h2>
-          <p>Use this page as the shortest explanation of the system: design, transform, and query.</p>
+        <article class="support-panel">
+          <span class="section-kicker">Learn by doing</span>
+          <h2>Walk through the Tumor Diagnosis example.</h2>
+          <p>The tutorial turns the abstract layers into a concrete workflow.</p>
+          <div class="mini-links"><a class="mini-link primary" href="tutorial.html">Open tutorial</a></div>
         </article>
-        <article class="content-panel">
-          <span class="section-kicker">Next step</span>
-          <h2>Open the editor and build your own version.</h2>
-          <p>Start from the homepage or go directly to the editor to reproduce the workflow with your own diagrams.</p>
-          <div class="mini-links">
-            <a class="mini-link" href="https://tool4boxology.service.tib.eu/" target="_blank" rel="noreferrer">Open editor</a>
-            <a class="mini-link" href="tutorial.html">Worked example: Tumor Diagnosis</a>
-            <a class="mini-link" href="architecture.html">Architecture page</a>
-          </div>
+        <article class="support-panel">
+          <span class="section-kicker">Implementation view</span>
+          <h2>See the architecture behind the layers.</h2>
+          <p>The architecture page shows the transformation and validation pipeline underneath the interface.</p>
+          <div class="mini-links"><a class="mini-link" href="architecture.html">Open architecture</a></div>
         </article>
       </div>
     </section>
