@@ -431,8 +431,88 @@ export const kautzPatterns: Pattern[] = [
 {from:"node_17823071852983_p4",to:"node_17823071852994_p4"},
 {from:"node_1782307198834_p4",to:"node_17823071852983_p4"}
 ]},
+////////////
 
-//Kautz category3: Neuro: Symbolic> Neuro
+//Kautz category3: Neuro + Symbolic [DataInput/DataOutput]
+
+{
+    id: 'neuro+symbolic',
+    name: 'Neuro + Symbolic [DataInput/DataOutput]',
+    description: ' A neuralmodel produces outputs that are consumed by a symbolic solver or reasoning component.',
+    nodes: [
+      { id: "node_17823071852981_p1", name: "Data", label: "Data", shape: "Rectangle", color: "#b7eaffff", stroke: "#1E5F8B", x: 174, y: 183, type: "Data" },
+      { id: "node_17823071852982_p1", name: "Model", label: "Neural Network (NN)", shape: "Hexagon", color: "#f4ccf4ff", stroke: "#8B4F8B", x: 247, y: 56.000030517578125, type: "NeuralNetwork" },
+      { id: "node_17823071852983_p1", name: "Deduce", label: "co:deduce", shape: "RoundedRectangle", color: "#FFC4C4", stroke: "#4c003bff", x: 324, y: 183, type: "Deduce", parameter1: 15 },
+      { id: "node_17823071852994_p1", name: "Data", label: "Data", shape: "Rectangle", color: "#b7eaffff", stroke: "#1E5F8B", x: 474, y: 183, type: "Data" },
+      { id: "node_1782307198834_p1", name: "Model", label: "Symbolic Solver (SS)", shape: "Hexagon", color: "#f4ccf4ff", stroke: "#8B4F8B", x: 395.5, y: 55, type: "Model", parameter1: 1 }
+],
+ links: [
+{from:"node_17823071852981_p1",to:"node_17823071852983_p1"},
+{from:"node_17823071852982_p1",to:"node_17823071852983_p1"},
+{from:"node_17823071852983_p1",to:"node_17823071852994_p1"},
+{from:"node_1782307198834_p1",to:"node_17823071852983_p1"}
+]},
+
+//Kautz category3: Neuro + Symbolic [DataInput/SymbolicOutput]
+
+{
+    id: 'neuro+symbolic',
+    name: 'Neuro + Symbolic [DataInput/SymbolicOutput]',
+    description: ' A neuralmodel produces outputs that are consumed by a symbolic solver or reasoning component.',
+    nodes: [
+      { id: "node_17823071852981_p2", name: "Data", label: "Data", shape: "Rectangle", color: "#b7eaffff", stroke: "#1E5F8B", x: 174, y: 183, type: "Data" },
+      { id: "node_17823071852982_p2", name: "Model", label: "Neural Network (NN)", shape: "Hexagon", color: "#f4ccf4ff", stroke: "#8B4F8B", x: 247, y: 56.000030517578125, type: "NeuralNetwork" },
+      { id: "node_17823071852983_p2", name: "Deduce", label: "co:deduce", shape: "RoundedRectangle", color: "#FFC4C4", stroke: "#4c003bff", x: 324, y: 183, type: "Deduce", parameter1: 15 },
+      { id: "node_17823071852994_p2", name: "Symbol", label: "Symbol", shape: "Rectangle", color: '#ccffccff', stroke: '#218721ff', x: 474, y: 183, type: "Symbol" },
+      { id: "node_1782307198834_p2", name: "Model", label: "Symbolic Solver (SS)", shape: "Hexagon", color: "#f4ccf4ff", stroke: "#8B4F8B", x: 395.5, y: 55, type: "Model", parameter1: 1 }
+],
+ links: [
+{from:"node_17823071852981_p2",to:"node_17823071852983_p2"},
+{from:"node_17823071852982_p2",to:"node_17823071852983_p2"},
+{from:"node_17823071852983_p2",to:"node_17823071852994_p2"},
+{from:"node_1782307198834_p2",to:"node_17823071852983_p2"}
+]},
+
+//Kautz category3: Neuro + Symbolic [SymbolicInput/SymbolicOutput]
+
+{    id: 'neuro+symbolic',
+    name: 'Neuro + Symbolic [SymbolicInput/SymbolicOutput]',
+    description: ' A neuralmodel produces outputs that are consumed by a symbolic solver or reasoning component.',
+    nodes: [
+      { id: "node_17823071852981_p3", name: "Symbol", label: "Symbol", shape: "Rectangle", color: '#ccffccff', stroke: '#218721ff', x: 174, y: 183, type: "Data" },
+      { id: "node_17823071852982_p3", name: "Model", label: "Neural Network (NN)", shape: "Hexagon", color: "#f4ccf4ff", stroke: "#8B4F8B", x: 247, y: 56.000030517578125, type: "NeuralNetwork" },
+      { id: "node_17823071852983_p3", name: "Deduce", label: "co:deduce", shape: "RoundedRectangle", color: "#FFC4C4", stroke: "#4c003bff", x: 324, y: 183, type: "Deduce", parameter1: 15 },
+      { id: "node_17823071852994_p3", name: "Symbol", label: "Symbol", shape: "Rectangle", color: '#ccffccff', stroke: '#218721ff', x: 474, y: 183, type: "Symbol" },
+      { id: "node_1782307198834_p3", name: "Model", label: "Symbolic Solver (SS)", shape: "Hexagon", color: "#f4ccf4ff", stroke: "#8B4F8B", x: 395.5, y: 55, type: "Model", parameter1: 1 }
+],
+ links: [
+{from:"node_17823071852981_p3",to:"node_17823071852983_p3"},
+{from:"node_17823071852982_p3",to:"node_17823071852983_p3"},
+{from:"node_17823071852983_p3",to:"node_17823071852994_p3"},
+{from:"node_1782307198834_p3",to:"node_17823071852983_p3"}
+]},
+
+//Kautz category3: Neuro + Symbolic [SymbolicInput/DataOutput]
+
+{
+    id: 'neuro+symbolic',
+    name: 'Neuro + Symbolic [SymbolicInput/DataOutput]',
+    description: ' A neural model produces outputs that are consumed by a symbolic solver or reasoning component.',
+    nodes: [
+      { id: "node_17823071852981_p4", name: "Symbol", label: "Symbol", shape: "Rectangle", color: '#ccffccff', stroke: '#218721ff', x: 174, y: 183, type: "Data" },
+      { id: "node_17823071852982_p4", name: "Model", label: "Neural Network (NN)", shape: "Hexagon", color: "#f4ccf4ff", stroke: "#8B4F8B", x: 247, y: 56.000030517578125, type: "NeuralNetwork" },
+      { id: "node_17823071852983_p4", name: "Deduce", label: "co:deduce", shape: "RoundedRectangle", color: "#FFC4C4", stroke: "#4c003bff", x: 324, y: 183, type: "Deduce", parameter1: 15 },
+      { id: "node_17823071852994_p4", name: "Data", label: "Data", shape: "Rectangle", color: "#b7eaffff", stroke: "#1E5F8B", x: 474, y: 183, type: "Data" },
+      { id: "node_1782307198834_p4", name: "Model", label: "Symbolic Solver (SS)", shape: "Hexagon", color: "#f4ccf4ff", stroke: "#8B4F8B", x: 395.5, y: 55, type: "Model", parameter1: 1 },
+    ],
+ links: [
+{from:"node_17823071852981_p4",to:"node_17823071852983_p4"},
+{from:"node_17823071852982_p4",to:"node_17823071852983_p4"},
+{from:"node_17823071852983_p4",to:"node_17823071852994_p4"},
+{from:"node_1782307198834_p4",to:"node_17823071852983_p4"}
+]},
+
+//Kautz category4: Neuro: Symbolic> Neuro
 {
     id: 'neuro:symbolic>neuro',
     name: 'Neuro: Symbolic>Neuro',
@@ -453,6 +533,106 @@ export const kautzPatterns: Pattern[] = [
 {from:"node_17823077258901",to:"node_17823077258913"},
 {from:"node_17823077123844",to:"node_17823077258913"},
 {from:"node_17823077258913",to:"node_17823077258924"}
+]},
+
+
+//Kautz category5: Neuro {Symbolic}}
+
+{
+    id: 'neuro {symbolic}',
+    name: 'Neuro {Symbolic} ',
+    description: ' Symbolic rules are encoded into the internal structure of a neural model',
+    nodes: [
+      { id: "node_17823071852981_p4", name: "Symbol", label: "Rules", shape: "Rectangle", color: '#ccffccff', stroke: '#218721ff', x: 174, y: 183, type: "Rules" },
+      { id: "node_17823071852982_p4", name: "Model", label: "NN Model", shape: "Hexagon", color: "#f4ccf4ff", stroke: "#8B4F8B", x: 247, y: 56.000030517578125, type: "NeuralNetwork" },
+      { id: "node_17823071852983_p4", name: "Transform", label: "transform:embed", shape: "RoundedRectangle", color: '#fbf1b0ff', stroke: '#B8A600"', x: 324, y: 183, type: "Transform", parameter1: 15 },
+      { id: "node_1782307198834_p4", name: "Model", label: "Enhanced NN Model", shape: "Hexagon", color: "#f4ccf4ff", stroke: "#8B4F8B", x: 395.5, y: 55, type: "NeuralNetwork", parameter1: 1 },
+    ],
+ links: [
+{from:"node_17823071852981_p4",to:"node_17823071852983_p4"},
+{from:"node_17823071852982_p4",to:"node_17823071852983_p4"},
+{from:"node_17823071852983_p4",to:"node_1782307198834_p4"},
+{from:"node_1782307198834_p4",to:"node_17823071852983_p4"}
+]},
+
+//Kautz category6: Neuro [Symbolic] [DataInput/DataOutput]
+
+{
+    id: 'Neuro [Symbolic]',
+    name: 'Neuro [Symbolic] [DataInput/DataOutput]',
+    description: '  A symbolic reasoner is embedded inside, or invoked, as a subroutine by, a neural architecture.',
+    nodes: [
+      { id: "node_17823071852981_p1", name: "Data", label: "Data", shape: "Rectangle", color: "#b7eaffff", stroke: "#1E5F8B", x: 174, y: 183, type: "Data" },
+      { id: "node_17823071852982_p1", name: "Model", label: "Neural Network (NN)", shape: "Hexagon", color: "#f4ccf4ff", stroke: "#8B4F8B", x: 247, y: 56.000030517578125, type: "NeuralNetwork" },
+      { id: "node_17823071852983_p1", name: "Deduce", label: "nn:deduce", shape: "RoundedRectangle", color: "#FFC4C4", stroke: "#4c003bff", x: 324, y: 183, type: "Deduce", parameter1: 15 },
+      { id: "node_17823071852994_p1", name: "Data", label: "Data", shape: "Rectangle", color: "#b7eaffff", stroke: "#1E5F8B", x: 474, y: 183, type: "Data" },
+      { id: "node_1782307198834_p1", name: "Model", label: "Symbolic Model (SM)", shape: "Hexagon", color: "#f4ccf4ff", stroke: "#8B4F8B", x: 395.5, y: 55, type: "SymbolicLearningModel", parameter1: 1 }
+],
+ links: [
+{from:"node_17823071852981_p1",to:"node_17823071852983_p1"},
+{from:"node_17823071852982_p1",to:"node_17823071852983_p1"},
+{from:"node_17823071852983_p1",to:"node_17823071852994_p1"},
+{from:"node_1782307198834_p1",to:"node_17823071852983_p1"}
+]},
+
+//Kautz category6: Neuro [Symbolic] [DataInput/SymbolicOutput]
+
+{
+    id: 'Neuro [Symbolic]',
+    name: 'Neuro [Symbolic] [DataInput/SymbolicOutput]',
+    description: '  A symbolic reasoner is embedded inside, or invoked, as a subroutine by, a neural architecture.',
+    nodes: [
+      { id: "node_17823071852981_p2", name: "Data", label: "Data", shape: "Rectangle", color: "#b7eaffff", stroke: "#1E5F8B", x: 174, y: 183, type: "Data" },
+      { id: "node_17823071852982_p2", name: "Model", label: "Neural Network (NN)", shape: "Hexagon", color: "#f4ccf4ff", stroke: "#8B4F8B", x: 247, y: 56.000030517578125, type: "NeuralNetwork" },
+      { id: "node_17823071852983_p2", name: "Deduce", label: "nn:deduce", shape: "RoundedRectangle", color: "#FFC4C4", stroke: "#4c003bff", x: 324, y: 183, type: "Deduce", parameter1: 15 },
+      { id: "node_17823071852994_p2", name: "Symbol", label: "Symbol", shape: "Rectangle", color: '#ccffccff', stroke: '#218721ff', x: 474, y: 183, type: "Symbol" },
+      { id: "node_1782307198834_p2", name: "Model", label: "Symbolic Model (SM)", shape: "Hexagon", color: "#f4ccf4ff", stroke: "#8B4F8B", x: 395.5, y: 55, type: "SymbolicLearningModel", parameter1: 1 }
+],
+ links: [
+{from:"node_17823071852981_p2",to:"node_17823071852983_p2"},
+{from:"node_17823071852982_p2",to:"node_17823071852983_p2"},
+{from:"node_17823071852983_p2",to:"node_17823071852994_p2"},
+{from:"node_1782307198834_p2",to:"node_17823071852983_p2"}
+]},
+
+//Kautz category6: Neuro [Symbolic] [SymbolicInput/SymbolicOutput]
+
+{
+    id: 'Neuro [Symbolic]',
+    name: 'Neuro [Symbolic] [SymbolicInput/SymbolicOutput]',
+    description: '  A symbolic reasoner is embedded inside, or invoked, as a subroutine by, a neural architecture.',
+    nodes: [
+      { id: "node_17823071852981_p3", name: "Symbol", label: "Symbol", shape: "Rectangle", color: '#ccffccff', stroke: '#218721ff', x: 174, y: 183, type: "Data" },
+      { id: "node_17823071852982_p3", name: "Model", label: "Neural Network (NN)", shape: "Hexagon", color: "#f4ccf4ff", stroke: "#8B4F8B", x: 247, y: 56.000030517578125, type: "NeuralNetwork" },
+      { id: "node_17823071852983_p3", name: "Deduce", label: "nn:deduce", shape: "RoundedRectangle", color: "#FFC4C4", stroke: "#4c003bff", x: 324, y: 183, type: "Deduce", parameter1: 15 },
+      { id: "node_17823071852994_p3", name: "Symbol", label: "Symbol", shape: "Rectangle", color: '#ccffccff', stroke: '#218721ff', x: 474, y: 183, type: "Symbol" },
+      { id: "node_1782307198834_p3", name: "Model", label: "Symbolic Model (SM)", shape: "Hexagon", color: "#f4ccf4ff", stroke: "#8B4F8B", x: 395.5, y: 55, type: "SymbolicLearningModel", parameter1: 1 }
+],
+ links: [
+{from:"node_17823071852981_p3",to:"node_17823071852983_p3"},
+{from:"node_17823071852982_p3",to:"node_17823071852983_p3"},
+{from:"node_17823071852983_p3",to:"node_17823071852994_p3"},
+{from:"node_1782307198834_p3",to:"node_17823071852983_p3"}
+]},
+
+//Kautz category6: Neuro [Symbolic] [SymbolicInput/SymbolicOutput]
+
+{
+    id: 'Neuro [Symbolic]',
+    name: 'Neuro [Symbolic] [SymbolicInput/SymbolicOutput]',
+    description: '  A symbolic reasoner is embedded inside, or invoked, as a subroutine by, a neural architecture.',
+    nodes: [
+      { id: "node_17823071852981_p4", name: "Symbol", label: "Symbol", shape: "Rectangle", color: '#ccffccff', stroke: '#218721ff', x: 174, y: 183, type: "Data" },
+      { id: "node_17823071852982_p4", name: "Model", label: "Neural Network (NN)", shape: "Hexagon", color: "#f4ccf4ff", stroke: "#8B4F8B", x: 247, y: 56.000030517578125, type: "NeuralNetwork" },
+      { id: "node_17823071852983_p4", name: "Deduce", label: "nn:deduce", shape: "RoundedRectangle", color: "#FFC4C4", stroke: "#4c003bff", x: 324, y: 183, type: "Deduce", parameter1: 15 },
+      { id: "node_17823071852994_p4", name: "Data", label: "Data", shape: "Rectangle", color: "#b7eaffff", stroke: "#1E5F8B", x: 474, y:183, type: "Data" },
+      { id: "node_1782307198834_p4", name: "Model", label: "Symbolic Model (SM)", shape: "Hexagon", color: "#f4ccf4ff", stroke: "#8B4F8B", x: 395.5, y: 55, type: "SymbolicLearningModel", parameter1: 1 },
+    ],
+ links: [
+{from:"node_17823071852981_p4",to:"node_17823071852983_p4"},
+{from:"node_17823071852982_p4",to:"node_17823071852983_p4"},
+{from:"node_17823071852983_p4",to:"node_17823071852994_p4"},
+{from:"node_1782307198834_p4",to:"node_17823071852983_p4"}
 ]},
 
 

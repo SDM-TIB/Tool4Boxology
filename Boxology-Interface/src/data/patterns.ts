@@ -61,6 +61,8 @@ export interface Pattern {
   links: PatternLink[];
   clusters?: PatternCluster[];
   thumbnail?: string;
+  /** Kautz boxology category (1-6). Optional; if absent it is derived from the pattern id. */
+  category?: number;
 }
 
 // Elementary patterns based on allPatterns from GoJSBoxologyValidation

@@ -13,6 +13,32 @@ interface ShapeGroupMap {
   [group: string]: ShapeDefinition[];
 }
 
+// The six Generic Kautz boxology categories. Each Kautz pattern belongs to exactly
+// one, encoded today by its pattern id (all category-1 patterns share id 'symbolic>neuro',
+// etc.). New patterns can instead set an explicit `category` field on the pattern.
+const kautzCategories: { num: number; label: string }[] = [
+  { num: 1, label: 'Symbolic → Neuro' },
+  { num: 2, label: 'Neuro → Symbolic' },
+  { num: 3, label: 'Neuro + Symbolic' },
+  { num: 4, label: 'Neuro: Symbolic → Neuro' },
+  { num: 5, label: 'Neuro {Symbolic}' },
+  { num: 6, label: 'Neuro [Symbolic]' },
+];
+
+const kautzIdToCategory: Record<string, number> = {
+  'symbolic>neuro': 1,
+  'neuro>symbolic': 2,
+  'neuro+symbolic': 3,
+  'neuro:symbolic>neuro': 4,
+  'neuro {symbolic}': 5,
+  'Neuro [Symbolic]': 6,
+};
+
+// Resolve a Kautz pattern's category: explicit field first, then id-based fallback.
+function getKautzCategory(pattern: Pattern): number {
+  return pattern.category ?? kautzIdToCategory[pattern.id] ?? 0;
+}
+
 // Flatten e.g. shapeTypesTree.Data = { Number, Dataset, Tensor, Text, Image, ... }
 // into a lowercase name list, so searching a subtype (e.g. "Image") also finds
 // the shape that owns it (e.g. "Data").
@@ -67,6 +93,29 @@ export default function LeftSidebar({
   const [elementaryPatternsCollapsedState, setElementaryPatternsCollapsed] = useState(true);
   const [compositePatternsCollapsedState, setCompositePatternsCollapsed] = useState(true);
   const [kautzCollapsedState, setKautzCollapsed] = useState(true);
+  const [kautzCategoriesCollapsed, setKautzCategoriesCollapsed] = useState<Set<number>>(
+    new Set(kautzCategories.map((c) => c.num)) // all Kautz categories collapsed initially
+  );
+  const toggleKautzCategory = (num: number) => {
+    setKautzCategoriesCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(num)) next.delete(num);
+      else next.add(num);
+      return next;
+    });
+  };
+
+  // Group Kautz patterns by their category (1-6) for the sub-menu.
+  const kautzByCategory = useMemo(() => {
+    const map = new Map<number, Pattern[]>();
+    for (const pattern of kautzPatterns) {
+      const cat = getKautzCategory(pattern);
+      if (!map.has(cat)) map.set(cat, []);
+      map.get(cat)!.push(pattern);
+    }
+    return map;
+  }, []);
+
   const toggleCategory = (category: string) => {
     const newCollapsed = new Set(collapsedCategories);
     if (newCollapsed.has(category)) {
@@ -601,56 +650,103 @@ export default function LeftSidebar({
                     </span>
                   </div>
                   {!kautzCollapsedState && (
-                    <div style={{
-                      display: 'grid',
-                      gap: '8px',
-                      padding: '12px',
-                      background: '#fff',
-                      border: '1px solid #e0e0e0',
-                      borderRadius: '6px',
-                      boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
-                    }}>
-                      {kautzPatterns.map((pattern: Pattern) => (
-                        <div
-                          key={pattern.id}
-                          draggable
-                          onDragStart={(e) => {
-                            e.dataTransfer.setData('application/pattern', JSON.stringify(pattern));
-                          }}
-                          style={{
-                            cursor: 'pointer',
-                            border: '1px solid #0F4C75',
-                            borderRadius: '6px',
-                            padding: '8px',
-                            background: '#D6ECFA',
-                            fontWeight: '500',
-                            textAlign: 'center',
-                            width: '230px',
-                            minHeight: '30px',
-                            transition: 'all 0.2s ease'
-                          }}
-                          onMouseOver={(e) => {
-                            e.currentTarget.style.background = '#C3E4FA';
-                            e.currentTarget.style.transform = 'scale(1.05)';
-                            e.currentTarget.style.boxShadow = '0 4px 8px rgba(15, 76, 117, 0.3)';
-                          }}
-                          onMouseOut={(e) => {
-                            e.currentTarget.style.background = '#D6ECFA';
-                            e.currentTarget.style.transform = 'scale(1)';
-                            e.currentTarget.style.boxShadow = 'none';
-                          }}
-                          title={pattern.description || pattern.name}
-                        >
-                          <div style={{
-                            fontSize: '12px',
-                            fontWeight: '600',
-                            textAlign: 'center',
-                            color: '#0F4C75'
-                          }}>
-                            {pattern.name}
+                    <div style={{ display: 'grid', gap: '8px', marginTop: '8px' }}>
+                      {kautzCategories.map((cat) => {
+                        const patterns = kautzByCategory.get(cat.num) || [];
+                        if (patterns.length === 0) return null;
+                        const collapsed = kautzCategoriesCollapsed.has(cat.num);
+                        return (
+                          <div key={cat.num}>
+                            <div
+                              onClick={() => toggleKautzCategory(cat.num)}
+                              style={{ ...getSectionHeaderStyle(collapsed, 'sub'), gap: '8px' }}
+                            >
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  width: '18px',
+                                  height: '18px',
+                                  borderRadius: '50%',
+                                  background: 'rgba(255,255,255,0.85)',
+                                  color: '#0F4C75',
+                                  fontSize: '11px',
+                                  fontWeight: 700,
+                                  flex: 'none'
+                                }}>
+                                  {cat.num}
+                                </span>
+                                <span>{cat.label}</span>
+                                <span style={{ fontSize: '11px', opacity: 0.75, fontWeight: 500 }}>
+                                  ({patterns.length})
+                                </span>
+                              </span>
+                              <span style={{
+                                marginLeft: 'auto',
+                                fontSize: '14px',
+                                transform: collapsed ? 'rotate(0deg)' : 'rotate(90deg)',
+                                transition: 'transform 0.2s'
+                              }}>
+                                ▶
+                              </span>
+                            </div>
+                            {!collapsed && (
+                              <div style={{
+                                display: 'grid',
+                                gap: '8px',
+                                padding: '12px',
+                                background: '#fff',
+                                border: '1px solid #e0e0e0',
+                                borderRadius: '6px',
+                                boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
+                              }}>
+                                {patterns.map((pattern: Pattern, i) => (
+                                  <div
+                                    key={`${cat.num}-${pattern.id}-${i}`}
+                                    draggable
+                                    onDragStart={(e) => {
+                                      e.dataTransfer.setData('application/pattern', JSON.stringify(pattern));
+                                    }}
+                                    style={{
+                                      cursor: 'pointer',
+                                      border: '1px solid #0F4C75',
+                                      borderRadius: '6px',
+                                      padding: '8px',
+                                      background: '#D6ECFA',
+                                      fontWeight: '500',
+                                      textAlign: 'center',
+                                      width: '230px',
+                                      minHeight: '30px',
+                                      transition: 'all 0.2s ease'
+                                    }}
+                                    onMouseOver={(e) => {
+                                      e.currentTarget.style.background = '#C3E4FA';
+                                      e.currentTarget.style.transform = 'scale(1.05)';
+                                      e.currentTarget.style.boxShadow = '0 4px 8px rgba(15, 76, 117, 0.3)';
+                                    }}
+                                    onMouseOut={(e) => {
+                                      e.currentTarget.style.background = '#D6ECFA';
+                                      e.currentTarget.style.transform = 'scale(1)';
+                                      e.currentTarget.style.boxShadow = 'none';
+                                    }}
+                                    title={pattern.description || pattern.name}
+                                  >
+                                    <div style={{
+                                      fontSize: '12px',
+                                      fontWeight: '600',
+                                      textAlign: 'center',
+                                      color: '#0F4C75'
+                                    }}>
+                                      {pattern.name}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
