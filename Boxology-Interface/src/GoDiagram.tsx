@@ -97,10 +97,21 @@ function showTypeSelector(e: go.InputEvent, node: go.Node) {
   const diagram = node.diagram;
   if (!diagram) return;
 
-  // Use node.data.type or node.data.name to get the correct subtree
-  const rootType = node.data.name; // or whatever property is your root type, e.g. "model"
-  let typeTree: Record<string, any> | null = shapeTypesTree[rootType] || null;
-  if (!typeTree) return; // fallback to full tree if not found
+  // Resolve the canonical root key from the tree in a case-insensitive way
+  const desired = String(node.data.name || node.data.type || '').toLowerCase();
+  let rootKey: string | null = null;
+  for (const k of Object.keys(shapeTypesTree)) {
+    if (k.toLowerCase() === desired) {
+      rootKey = k;
+      break;
+    }
+  }
+  // fallback: if node.data.name is already a key, use it; otherwise use node.data.name as-is
+  if (!rootKey && shapeTypesTree[String(node.data.name)]) rootKey = String(node.data.name);
+  if (!rootKey) rootKey = String(node.data.name || node.data.type || '') || null;
+
+  const typeTree: Record<string, any> | null = rootKey ? (shapeTypesTree[rootKey] || null) : null;
+  // If no subtree found, still continue and present a single root option so user can set type to the root
 
   // Positioning
   const diagramDiv = diagram.div;
@@ -124,7 +135,35 @@ function showTypeSelector(e: go.InputEvent, node: go.Node) {
   dropdownContainer.style.overflow = "visible";
   dropdownContainer.style.fontFamily = "system-ui, -apple-system, sans-serif";
 
-  buildTypeMenu(diagram, node, typeTree, dropdownContainer);
+  // Add a root option at the top so the parent type (e.g. "Model" / "Symbol") can always be selected
+  if (rootKey) {
+    const rootOption = document.createElement("div");
+    rootOption.textContent = rootKey;
+    rootOption.style.padding = "8px 12px";
+    rootOption.style.cursor = "pointer";
+    rootOption.style.fontSize = "12px";
+    rootOption.style.fontWeight = (node.data.type === rootKey) ? "700" : "600";
+    rootOption.style.background = (node.data.type === rootKey) ? "#e6f7ff" : "white";
+    rootOption.onclick = (event) => {
+      event.stopPropagation();
+      diagram.model.startTransaction("change type");
+      // prefer setDataProperty if available
+      if (diagram.model.setDataProperty) diagram.model.setDataProperty(node.data, "type", rootKey);
+      else diagram.model.set(node.data, "type", rootKey);
+      diagram.model.commitTransaction("change type");
+      let el: HTMLElement | null = dropdownContainer;
+      while (el && el.parentElement) {
+        el.remove();
+        el = el.parentElement;
+      }
+    };
+    dropdownContainer.appendChild(rootOption);
+  }
+
+  // Render subtree options (child types) below the root option, if any
+  if (typeTree && Object.keys(typeTree).length > 0) {
+    buildTypeMenu(diagram, node, typeTree, dropdownContainer);
+  }
 
   // Close on click outside or escape
   const closeHandler = (event: MouseEvent | KeyboardEvent) => {
