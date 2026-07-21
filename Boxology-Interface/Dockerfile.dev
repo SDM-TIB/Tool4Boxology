@@ -5,8 +5,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# npm bug workaround: ensure latest npm and clean install
-RUN npm install -g npm@latest && rm -rf node_modules package-lock.json && npm install
+# Keep npm compatible with the Node 20 image and install from the lockfile
+RUN npm install -g npm@10 && npm ci
 
 # Copy source code
 COPY . .

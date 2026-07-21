@@ -21,6 +21,7 @@
       <nav class="nav" aria-label="Primary">
         <a class="active" href="index.html">Home</a>
         <a href="#workflow">Workflow</a>
+        <a href="#ai-generator">AI generator</a>
         <a href="#features">Features</a>
         <a href="#story">In practice</a>
         <a href="tutorial.html">Tutorial</a>
@@ -141,6 +142,30 @@
         <div class="screen-frame" style="margin-top: 18px;">
           <img src="images/content/WorkFlow.png" alt="Six-step Tool4Boxology workflow from adding shapes to querying the knowledge graph" />
         </div>
+      </div>
+    </section>
+
+    <section class="section white" id="ai-generator">
+      <div class="shell grid-2">
+        <article class="content-panel">
+          <span class="section-kicker">AI-assisted modeling</span>
+          <h2>Generate a Boxology file from a system description.</h2>
+          <p>Paste a natural-language explanation of a neuro-symbolic system into the editor. Hosted Hugging Face inference converts it into a Tool4Boxology <code>.boxology</code> file that you can download, open, inspect, and refine.</p>
+          <div class="mini-links">
+            <a class="mini-link primary" href="/?boxologyGenerator=1">Open generator in editor</a>
+            <a class="mini-link" href="/ai-boxology-skill.md" download>Download AI skill prompt</a>
+          </div>
+        </article>
+        <article class="content-panel">
+          <span class="section-kicker">For other AI tools</span>
+          <h2>Reuse the prompt as a skill.</h2>
+          <p>The downloadable skill explains the required GraphLinksModel JSON, Boxology component types, visual styles, groups, links, and quality checks so different AI models can produce files compatible with this editor.</p>
+          <ul>
+            <li>Use it as a system message for hosted models.</li>
+            <li>Ask for strict JSON only when generating a file.</li>
+            <li>Save the returned JSON as <code>.boxology</code>.</li>
+          </ul>
+        </article>
       </div>
     </section>
 

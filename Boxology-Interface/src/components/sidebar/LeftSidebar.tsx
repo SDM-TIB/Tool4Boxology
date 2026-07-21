@@ -147,6 +147,14 @@ export default function LeftSidebar({
     setSearchTerm('');
   };
 
+  const handleSearchChange = (value: string) => {
+    if (/^https?:\/\/api\.[^\s]+\/?$/i.test(value.trim())) {
+      setSearchTerm('');
+      return;
+    }
+    setSearchTerm(value);
+  };
+
   const renderShape = (shape: ShapeDefinition) => {
     return (
       <div
@@ -256,7 +264,10 @@ export default function LeftSidebar({
             type="text"
             placeholder="Search shapes..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            name="boxology-shape-search"
+            autoComplete="off"
+            spellCheck={false}
             style={{
               width: '100%',
               padding: '8px 12px 8px 1px',

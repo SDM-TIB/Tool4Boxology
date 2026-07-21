@@ -42,6 +42,7 @@ type ToolbarProps = {
   onCreateKG?: () => void;
   onUploadKG?: (files: FileList) => void;
   onOpenKGViewer?: () => void;
+  onOpenBoxologyGenerator?: () => void;
   kgJson?: any; // <-- Add this prop
 }
 
@@ -65,6 +66,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
   onCreateKG,
   onUploadKG,
   onOpenKGViewer,
+  onOpenBoxologyGenerator,
   kgJson
 }) => {
   const [showExportMenu, setShowExportMenu] = React.useState(false);
@@ -338,6 +340,17 @@ LIMIT 100`;
               onMouseOut={hoverOff}
             >
               📘 How To Use?
+            </button>
+            <button
+              onClick={() => {
+                setShowHelpMenu(false);
+                onOpenBoxologyGenerator?.();
+              }}
+              style={helpItemStyle}
+              onMouseOver={hoverOn}
+              onMouseOut={hoverOff}
+            >
+              AI Boxology Generator
             </button>
           </div>
         )}
