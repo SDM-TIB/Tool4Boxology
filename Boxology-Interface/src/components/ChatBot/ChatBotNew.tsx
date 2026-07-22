@@ -24,6 +24,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import SendIcon from '@mui/icons-material/Send';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import { colors } from '../../styles/theme';
+import { API_BASE } from '../../config';
 import './ChatBot.css';
 
 type BoxologyGraphLinksModel = {
@@ -184,7 +185,7 @@ export const ChatBotNew: React.FC<ChatBotProps> = ({ open, onClose, onOpenBoxolo
     setSetupError('');
 
     try {
-      const response = await fetch('/api/llm/validate', {
+      const response = await fetch(`${API_BASE}/api/llm/validate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -257,7 +258,7 @@ export const ChatBotNew: React.FC<ChatBotProps> = ({ open, onClose, onOpenBoxolo
         .filter((m) => m.type !== 'error' && !m.artifact)
         .map((m) => ({ role: m.type === 'user' ? 'user' : 'assistant', content: m.content }));
 
-      const response = await fetch('/api/llm/chat', {
+      const response = await fetch(`${API_BASE}/api/llm/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

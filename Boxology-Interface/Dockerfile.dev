@@ -6,7 +6,8 @@ WORKDIR /app
 COPY package*.json ./
 
 # Keep npm compatible with the Node 20 image and install from the lockfile
-RUN npm install -g npm@10 && npm ci
+# RUN npm install -g npm@10 && npm ci
+RUN npm install -g npm@10 && npm ci && rm -rf node_modules package-lock.json && npm install
 
 # Copy source code
 COPY . .
