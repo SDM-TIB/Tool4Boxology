@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Fab } from '@mui/material';
-import ChatIcon from '@mui/icons-material/Chat';
-import { colors } from '../../styles/theme';
+import aiAssistIcon from '../../assets/T4B-AI-Assist.png';
 import ChatBotNew from './ChatBotNew';
 
 type BoxologyGraphLinksModel = {
@@ -33,25 +32,30 @@ export const ChatBotButton: React.FC<ChatBotButtonProps> = ({ onOpenBoxology }) 
   return (
     <>
       <Fab
-        color="primary"
         aria-label="chat"
         onClick={openChat}
         sx={{
           position: 'fixed',
           bottom: 24,
           right: chatOpen ? { xs: 24, sm: 504, md: 544, lg: 584 } : 24,
-          backgroundColor: colors.primary.darker,
+          width: 80,
+          height: 80,
+          padding: 0,
+          overflow: 'hidden',
+          backgroundColor: '#ffffff',
+          backgroundImage: `url(${aiAssistIcon})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          border: '2px solid #eab54d',
           '&:hover': {
-            backgroundColor: colors.primary.darker,
-            opacity: 0.9,
+            backgroundColor: '#ffffff',
+            transform: 'scale(1.06)',
           },
           zIndex: 1299,
-          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-          transition: 'right 180ms ease',
+          boxShadow: '0 4px 16px rgba(15, 47, 74, 0.35)',
+          transition: 'right 180ms ease, transform 150ms ease',
         }}
-      >
-        <ChatIcon />
-      </Fab>
+      />
 
       <ChatBotNew open={chatOpen} onClose={() => setChatOpen(false)} onOpenBoxology={onOpenBoxology} />
     </>

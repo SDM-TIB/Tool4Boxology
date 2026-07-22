@@ -5,7 +5,41 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 from SPARQLWrapper import SPARQLWrapper, JSON
-import sys, os, socket, importlib, traceback, json
+import sys, os, socket, importlib, traceback, json, hashlib, re
+
+# Turns a raw upstream error body (which may be an HTML block/error page from a CDN/WAF
+# such as Cloudflare) into a short, readable message instead of dumping raw HTML to the UI.
+_TITLE_RE = re.compile(r"<title[^>]*>(.*?)</title>", re.IGNORECASE | re.DOTALL)
+
+def is_cloudflare_block(text: str) -> bool:
+    lowered = (text or "").lower()
+    return "cloudflare" in lowered and (
+        "access denied" in lowered or "blocked" in lowered or "attention required" in lowered
+    )
+
+def _looks_like_html(text: str) -> bool:
+    stripped = (text or "").strip().lower()
+    return stripped.startswith("<!doctype html") or stripped.startswith("<html") or "<title>" in stripped
+
+def clean_upstream_error(text: str, fallback: str) -> str:
+    stripped = (text or "").strip()
+    if not stripped:
+        return fallback
+
+    if _looks_like_html(stripped):
+        match = _TITLE_RE.search(stripped)
+        title = re.sub(r"\s+", " ", match.group(1)).strip() if match else ""
+        if title:
+            if is_cloudflare_block(stripped):
+                return (
+                    f"{title}. The provider's backend blocked this request "
+                    "(a Cloudflare/network restriction), not this app. Try again, switch to a "
+                    "different model, or try another provider."
+                )
+            return title
+        return f"{fallback} (the provider returned an HTML error page instead of JSON)"
+
+    return stripped
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
@@ -381,15 +415,10 @@ async def _unhandled_exception_handler(request, exc: Exception):
     return JSONResponse(status_code=500, content={"detail": f"{type(exc).__name__}: {exc}"})
 
 def _hf_error_detail(error_body: str, fallback: str) -> str:
-    if "api.cerebras.ai" in error_body and "Cloudflare" in error_body:
-        return (
-            "Hugging Face routed this request through Cerebras, but Cerebras/Cloudflare blocked "
-            "the backend. Use the non-fastest Hugging Face model or try another provider."
-        )
     try:
         data = json.loads(error_body)
     except json.JSONDecodeError:
-        return error_body or fallback
+        return clean_upstream_error(error_body, fallback)
 
     if isinstance(data, dict):
         message = data.get("error") or data.get("message") or data.get("detail")
@@ -526,13 +555,61 @@ def _extract_hf_response_text(data: dict) -> str:
         ),
     )
 
+def _hf_base_model_id(model_id: str) -> str:
+    return model_id.rsplit(":", 1)[0] if ":" in model_id else model_id
+
+def _hf_is_reasoning_model(model_id: str) -> bool:
+    """gpt-oss models spend hidden chain-of-thought tokens before the final answer.
+
+    With the default reasoning effort they can burn the whole max_tokens budget on
+    thinking and return no visible content at all (finish_reason=length, empty message).
+    Asking for low reasoning effort leaves more of the budget for the actual answer.
+    """
+    return "gpt-oss" in _hf_base_model_id(model_id).lower()
+
+HF_MAX_TOKENS_CEILING = int(os.getenv("HF_MAX_TOKENS_CEILING", "8192"))
+
+_hf_provider_cache: dict[str, list[str]] = {}
+
+def _hf_live_providers(base_model_id: str, hf_token: str) -> list[str]:
+    """Ask Hugging Face which inference providers actually serve this model.
+
+    Used to hop to a different backend when the one HF auto-routed to gets blocked
+    (e.g. a provider's Cloudflare/WAF rejects requests from this server's network).
+    """
+    if base_model_id in _hf_provider_cache:
+        return _hf_provider_cache[base_model_id]
+
+    providers: list[str] = []
+    try:
+        request = Request(
+            f"https://huggingface.co/api/models/{base_model_id}?expand[]=inferenceProviderMapping",
+            headers={"Authorization": f"Bearer {hf_token}"},
+            method="GET",
+        )
+        with urlopen(request, timeout=15) as response:
+            data = json.loads(response.read().decode("utf-8"))
+        mapping = data.get("inferenceProviderMapping") or {}
+        providers = [
+            name for name, info in mapping.items()
+            if not isinstance(info, dict) or info.get("status") in (None, "live")
+        ]
+    except Exception as e:
+        print(f"[LLM] Could not fetch Hugging Face provider list for {base_model_id}: {e}")
+
+    _hf_provider_cache[base_model_id] = providers
+    return providers
+
 def _chat_with_hugging_face(
     model_id: str,
     hf_token: str,
     messages: list,
     max_tokens: int,
     temperature: float = 0.7,
+    _tried_model_ids: frozenset = frozenset(),
+    _retried_for_length: bool = False,
 ):
+    tried_model_ids = _tried_model_ids | {model_id}
     payload = {
         "model": model_id,
         "messages": messages,
@@ -540,6 +617,8 @@ def _chat_with_hugging_face(
         "temperature": temperature,
         "stream": False,
     }
+    if _hf_is_reasoning_model(model_id):
+        payload["reasoning_effort"] = "low"
     request = Request(
         HF_CHAT_COMPLETIONS_URL,
         data=json.dumps(payload).encode("utf-8"),
@@ -556,22 +635,54 @@ def _chat_with_hugging_face(
             data = json.loads(response.read().decode("utf-8"))
     except HTTPError as e:
         error_body = e.read().decode("utf-8", errors="replace")
-        if e.code == 403 and model_id.endswith(":fastest") and "api.cerebras.ai" in error_body:
-            fallback_model_id = model_id.rsplit(":", 1)[0]
-            print(f"[LLM] Cerebras blocked {model_id}; retrying Hugging Face model {fallback_model_id}")
-            return _chat_with_hugging_face(
-                fallback_model_id,
-                hf_token,
-                messages,
-                max_tokens,
-                temperature=temperature,
+        if is_cloudflare_block(error_body):
+            base_model_id = _hf_base_model_id(model_id)
+            next_model_id = next(
+                (
+                    f"{base_model_id}:{provider}"
+                    for provider in _hf_live_providers(base_model_id, hf_token)
+                    if f"{base_model_id}:{provider}" not in tried_model_ids
+                ),
+                None,
             )
+            if next_model_id:
+                print(f"[LLM] {model_id} blocked upstream (Cloudflare); retrying via {next_model_id}")
+                return _chat_with_hugging_face(
+                    next_model_id,
+                    hf_token,
+                    messages,
+                    max_tokens,
+                    temperature=temperature,
+                    _tried_model_ids=tried_model_ids,
+                    _retried_for_length=_retried_for_length,
+                )
         detail = _hf_error_detail(error_body, f"Hugging Face API error: {e.code}")
+        if is_cloudflare_block(error_body) and len(tried_model_ids) > 1:
+            detail += f" (tried {len(tried_model_ids)} Hugging Face inference providers, all blocked)"
         print(f"[LLM] Hugging Face API error {e.code}: {detail}")
         raise HTTPException(status_code=e.code, detail=detail)
     except (URLError, TimeoutError) as e:
         print(f"[LLM] Hugging Face connection error: {str(e)}")
         raise HTTPException(status_code=503, detail=f"Hugging Face connection error: {str(e)}")
+
+    choice = ((data or {}).get("choices") or [{}])[0]
+    content_text = _message_content_to_text((choice.get("message") or {}).get("content"))
+    if not content_text and choice.get("finish_reason") == "length" and not _retried_for_length:
+        boosted_max_tokens = min(max_tokens * 2, HF_MAX_TOKENS_CEILING)
+        if boosted_max_tokens > max_tokens:
+            print(
+                f"[LLM] {model_id} spent the whole token budget on reasoning with no final answer; "
+                f"retrying with max_tokens={boosted_max_tokens}"
+            )
+            return _chat_with_hugging_face(
+                model_id,
+                hf_token,
+                messages,
+                boosted_max_tokens,
+                temperature=temperature,
+                _tried_model_ids=tried_model_ids,
+                _retried_for_length=True,
+            )
 
     response_text = _extract_hf_response_text(data)
 
@@ -638,7 +749,8 @@ def _normalize_boxology_model(data: dict, description: str) -> dict:
 
     data["class"] = "GraphLinksModel"
     model_data = data.get("modelData") if isinstance(data.get("modelData"), dict) else {}
-    model_data.setdefault("boxologyId", f"ai-boxology-{abs(hash(description)) % 1000000}")
+    description_hash = int(hashlib.md5(description.encode("utf-8")).hexdigest(), 16)
+    model_data.setdefault("boxologyId", f"ai-boxology-{description_hash % 1000000}")
     model_data.setdefault("boxologyLabel", "AI Generated Boxology")
     model_data.setdefault("boxologyDescription", description[:500])
     data["modelData"] = model_data

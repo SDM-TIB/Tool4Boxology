@@ -47,6 +47,30 @@ Avoid `comment` unless the user explicitly asks for notes.
 
 Useful `type` values from `shapeTypesTree`: `Dataset`, `Image`, `Tensor`, `Text`, `Audio`, `Video`, `Table`, `TimeSeries`, `Number`, `Label`, `Trace`, `Rules`, `KG`, `Human`, `Robot`, `NeuralModel`, `NeuralNetwork`, `CNN`, `RNN`, `Transformer`, `GNN`, `LLM`, `SemanticModel`, `OWLOntology`, `RDFModel`, `RuleBasedModel`, `StatisticalModel`, `ClassificationModel`, `ClusteringModel`, `HybridModel`, `Transform`, `Train`, `Deduce`, `Engineer`.
 
+`type` is a closed vocabulary per root, not free text — pick one of these, never invent a new one:
+
+- `Data`: `Number`, `Dataset`, `Tensor`, `Text`, `Image`, `Audio`, `Video`, `TimeSeries`, `Table`
+- `Symbol`: `Trace`, `Label`, `Rules`, `KG`, `DB`
+- `Actor`: `Human`, `Robot`
+- `Model`: the `shapeTypesTree` model branch (`NeuralModel`, `NeuralNetwork`, `CNN`, `RNN`, `LSTM`, `GRU`, `Transformer` and its variants, `GNN`/`GCN`/`GAT`, `LLM`, `SemanticModel`, `OWLOntology`, `RDFModel`, `RuleBasedModel`, `StatisticalModel`, `RegressionModel`, `ClassificationModel`, `ClusteringModel`, `FuzzyModel`, `InductiveModel` and its branch, `HybridModel`)
+- `Transform`: `transform`, `embed`, `Normalize`, `aggregate`
+- `Train`: `training`, `Symbolic Learning`, `Statistical Learning`, `Deep Learning`, `Reinforcement Learning`
+- `Deduce`: `deduce`, `classification`, `prediction` — detection/forecasting/reasoning/diagnosis/clustering-as-a-step all normalize to `prediction` unless it's specifically a discrete-label task, then use `classification`
+- `Engineer`: `engineering`
+
+If nothing fits, fall back to the root's own name as `type` and keep the exact wording in `label` instead.
+
+## Process Synonym Mapping
+
+The ontology has finer process subclasses (`Infer`, `Induce`, `Embed`, `Generate`) than the tool exposes as drawable shapes. Only `Transform`, `Train`, `Deduce`, `Engineer` are real shapes. Map anything else to the closest one and keep the domain word in `label`, never in `name`:
+
+- **-> `Deduce`**: predict/prediction, classify/classification, detect/detection, forecast, infer/inference, induce/induction, reason/reasoning, diagnose/diagnosis. (`Infer`/`Induce` are not separate shapes.)
+- **-> `Train`**: fit/fitting, fine-tune, optimize/optimization, learn/learning.
+- **-> `Transform`**: preprocess, normalize/normalization, augment, clean, align/alignment, extract features, convert/conversion, resize, embed/embedding. (`Embed` is not a separate shape; it's `Transform` with `type: embed`.)
+- **-> `Engineer`**: annotate/annotation, label/labeling (the action, not the `Symbol` artifact), author/authoring, curate, design a rule set/ontology/map.
+
+Never invent a process root outside these four, and never rename a process node to its domain task (a prediction step is `name: Deduce`, not `name: Predict`).
+
 ## Elementary Grammar
 
 Each cluster should normally contain one process node and its input/output artifacts.
@@ -61,7 +85,7 @@ Hard rules:
 - Every process has at least one input and exactly one output target (`Data`, `Symbol`, or `Model`).
 - `Train` outputs `Model`.
 - `Deduce` requires a `Model` input plus evidence (`Data`, `Symbol`, or a second `Model`).
-- Do not connect process-to-process directly. Insert the artifact between them, e.g. `Train -> Model -> Deduce`.
+- Two process nodes must never link directly to each other, in either direction. Insert the artifact between them, e.g. `Train -> Model -> Deduce`, never `Train -> Deduce`. A link is always artifact-to-process or process-to-artifact.
 - Process nodes should include `parameter1: 45`.
 
 ## Clustering
@@ -106,6 +130,7 @@ These are labels or design intentions; the root `name` remains `Deduce`, `Model`
 - If raw data goes directly to training/inference, add a `Transform` preprocessing stage when appropriate.
 - If rules, maps, ontologies, or parking-space maps are mentioned, model them as `Symbol`, not `Data`.
 - If the same model/rules/map is reused, make one shared artifact node.
+- If the operation is predict/classify/detect/forecast/cluster/infer/induce/annotate/normalize, do not name the process after the task; use `Deduce`, `Deduce`, `Deduce`, `Deduce`, `Deduce`, `Deduce`, `Deduce`, `Engineer`, `Transform` respectively, with the task word kept in `label` (and `type` where it's in that root's allowed list).
 
 ## Checklist
 

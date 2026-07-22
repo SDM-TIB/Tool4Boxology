@@ -2,12 +2,48 @@
 
 import os
 import json
+import re
+import time
 from pathlib import Path
 from fastapi import HTTPException
 from fastapi.responses import FileResponse
 import requests
 import anthropic
 import openai
+
+# Turns a raw upstream error body (which may be an HTML block/error page from a CDN/WAF
+# such as Cloudflare) into a short, readable message instead of dumping raw HTML to the UI.
+_TITLE_RE = re.compile(r"<title[^>]*>(.*?)</title>", re.IGNORECASE | re.DOTALL)
+
+def _is_cloudflare_block(text: str) -> bool:
+    lowered = (text or "").lower()
+    return "cloudflare" in lowered and (
+        "access denied" in lowered or "blocked" in lowered or "attention required" in lowered
+    )
+
+def _looks_like_html(text: str) -> bool:
+    stripped = (text or "").strip().lower()
+    return stripped.startswith("<!doctype html") or stripped.startswith("<html") or "<title>" in stripped
+
+def clean_upstream_error(text: str, fallback: str) -> str:
+    stripped = (text or "").strip()
+    if not stripped:
+        return fallback
+
+    if _looks_like_html(stripped):
+        match = _TITLE_RE.search(stripped)
+        title = re.sub(r"\s+", " ", match.group(1)).strip() if match else ""
+        if title:
+            if _is_cloudflare_block(stripped):
+                return (
+                    f"{title}. The provider's backend blocked this request "
+                    "(a Cloudflare/network restriction), not this app. Try again, switch to a "
+                    "different model, or try another provider."
+                )
+            return title
+        return f"{fallback} (the provider returned an HTML error page instead of JSON)"
+
+    return stripped
 
 # Get the skill file path
 SKILL_FILE_PATH = Path(__file__).parent.parent / "public" / "download" / "boxology-ai-skill-restored.md"
@@ -24,6 +60,22 @@ def _network_hint(e: Exception) -> str:
 
 def _generation_temperature(system_prompt: str = None) -> float:
     return 0 if system_prompt and "Tool4Boxology" in system_prompt else 0.7
+
+_GEMINI_RETRY_DELAY_RE = re.compile(r"retry_delay\s*\{\s*seconds:\s*(\d+)")
+
+def _gemini_retry_seconds(text: str) -> int | None:
+    match = _GEMINI_RETRY_DELAY_RE.search(text or "")
+    return int(match.group(1)) if match else None
+
+def _clean_gemini_error(status_code, text: str, fallback: str) -> str:
+    if status_code == 429:
+        retry_seconds = _gemini_retry_seconds(text)
+        retry_hint = f" Retry in ~{retry_seconds}s." if retry_seconds is not None else ""
+        return (
+            "Gemini rate limit/quota exceeded for this API key's tier."
+            f"{retry_hint} Reduce request frequency, upgrade the plan, or switch models/providers."
+        )
+    return clean_upstream_error(text, fallback)
 
 def get_skill_content() -> str:
     """Read the Boxology AI Skill from file"""
@@ -57,19 +109,24 @@ def chat_with_openai(
             for msg in messages
         ])
 
-        response = client.chat.completions.create(
-            model=model_id,
-            messages=all_messages,
-            max_tokens=max_tokens,
-            temperature=_generation_temperature(system_prompt)
-        )
+        create_kwargs = {
+            "model": model_id,
+            "messages": all_messages,
+            "max_tokens": max_tokens,
+            "temperature": _generation_temperature(system_prompt),
+        }
+        if system_prompt and "Tool4Boxology" in system_prompt:
+            create_kwargs["response_format"] = {"type": "json_object"}
+
+        response = client.chat.completions.create(**create_kwargs)
 
         return response.choices[0].message.content or ""
     except HTTPException:
         raise
     except Exception as e:
         status_code = getattr(e, "status_code", 502) or 502
-        detail = getattr(e, "message", None) or _network_hint(e)
+        raw_detail = getattr(e, "message", None) or _network_hint(e)
+        detail = clean_upstream_error(raw_detail, f"OpenAI API error: {status_code}")
         if status_code in (401, 403):
             detail = f"OpenAI rejected the API key: {detail}"
         raise HTTPException(status_code=status_code, detail=f"OpenAI error: {detail}")
@@ -104,7 +161,8 @@ def chat_with_claude(
         raise
     except Exception as e:
         status_code = getattr(e, "status_code", 502) or 502
-        detail = getattr(e, "message", None) or _network_hint(e)
+        raw_detail = getattr(e, "message", None) or _network_hint(e)
+        detail = clean_upstream_error(raw_detail, f"Anthropic API error: {status_code}")
         if status_code in (401, 403):
             detail = f"Anthropic rejected the API key: {detail}"
         raise HTTPException(status_code=status_code, detail=f"Claude error: {detail}")
@@ -114,7 +172,8 @@ def chat_with_gemini(
     model_id: str,
     messages: list,
     max_tokens: int = 4096,
-    system_prompt: str = None
+    system_prompt: str = None,
+    _retried_after_rate_limit: bool = False,
 ) -> str:
     """Chat with Google Gemini models"""
     try:
@@ -131,12 +190,16 @@ def chat_with_gemini(
             else:
                 chat_messages.append({"role": "model", "parts": [msg["content"]]})
 
+        generation_kwargs = {
+            "max_output_tokens": max_tokens,
+            "temperature": _generation_temperature(system_prompt),
+        }
+        if system_prompt and "Tool4Boxology" in system_prompt:
+            generation_kwargs["response_mime_type"] = "application/json"
+
         response = model.generate_content(
             contents=chat_messages,
-            generation_config=genai.types.GenerationConfig(
-                max_output_tokens=max_tokens,
-                temperature=_generation_temperature(system_prompt)
-            ),
+            generation_config=genai.types.GenerationConfig(**generation_kwargs),
             request_options={"timeout": 60.0}
         )
 
@@ -145,7 +208,19 @@ def chat_with_gemini(
         raise
     except Exception as e:
         status_code = getattr(e, "code", None) or getattr(e, "status_code", 502) or 502
-        detail = _network_hint(e)
+        raw_detail = _network_hint(e)
+
+        if status_code == 429 and not _retried_after_rate_limit:
+            retry_seconds = _gemini_retry_seconds(raw_detail)
+            if retry_seconds is not None and retry_seconds <= 20:
+                print(f"[LLM] Gemini rate-limited; waiting {retry_seconds}s and retrying once")
+                time.sleep(retry_seconds)
+                return chat_with_gemini(
+                    api_key, model_id, messages, max_tokens, system_prompt,
+                    _retried_after_rate_limit=True,
+                )
+
+        detail = _clean_gemini_error(status_code, raw_detail, f"Gemini API error: {status_code}")
         if status_code in (401, 403):
             detail = f"Gemini rejected the API key: {detail}"
         raise HTTPException(status_code=status_code, detail=f"Gemini error: {detail}")
@@ -185,14 +260,17 @@ def chat_with_huggingface(
         response = requests.post(url, json=payload, headers=headers, timeout=120)
 
         if response.status_code != 200:
-            raise Exception(f"HF API error: {response.text}")
+            detail = clean_upstream_error(response.text, f"HF API error: {response.status_code}")
+            raise HTTPException(status_code=response.status_code, detail=f"Hugging Face error: {detail}")
 
         result = response.json()
         if isinstance(result, list) and len(result) > 0:
             return result[0].get("generated_text", "No response")
         return str(result)
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Hugging Face error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Hugging Face error: {clean_upstream_error(str(e), 'unexpected failure')}")
 
 async def chat_multi_provider(
     provider: str,
