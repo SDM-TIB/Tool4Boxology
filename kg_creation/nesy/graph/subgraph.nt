@@ -1,0 +1,42 @@
+<http://neurosymbolic.org/69_Kierner> <http://neurosymbolic.org/equivalentPattern> <http://neurosymbolic.org/f15fdfa6-c469-47c8-b1f8-5c25c87251ac_Kierner>.
+<http://neurosymbolic.org/69_Kautz> <http://neurosymbolic.org/equivalentPattern> <http://neurosymbolic.org/f15fdfa6-c469-47c8-b1f8-5c25c87251ac_Kautz>.
+<http://tool4boxology.org/f15fdfa6-c469-47c8-b1f8-5c25c87251ac> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://tool4boxology.org/Boxology>.
+<http://neurosymbolic.org/f15fdfa6-c469-47c8-b1f8-5c25c87251ac_Kautz> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://neurosymbolic.org/KautzTaxonomy>.
+<http://neurosymbolic.org/f15fdfa6-c469-47c8-b1f8-5c25c87251ac_Kautz> <http://www.w3.org/2000/01/rdf-schema#label> "T4B-69".
+<http://neurosymbolic.org/f15fdfa6-c469-47c8-b1f8-5c25c87251ac_Kautz> <http://neurosymbolic.org/equivalentPattern> <http://tool4boxology.org/f15fdfa6-c469-47c8-b1f8-5c25c87251ac>.
+<http://neurosymbolic.org/f15fdfa6-c469-47c8-b1f8-5c25c87251ac_Kierner> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://neurosymbolic.org/KiernerTaxonomy>.
+<http://neurosymbolic.org/f15fdfa6-c469-47c8-b1f8-5c25c87251ac_Kierner> <http://www.w3.org/2000/01/rdf-schema#label> "T4B-69".
+<http://neurosymbolic.org/f15fdfa6-c469-47c8-b1f8-5c25c87251ac_Kierner> <http://neurosymbolic.org/equivalentPattern> <http://neurosymbolic.org/f15fdfa6-c469-47c8-b1f8-5c25c87251ac_Kautz>.
+<http://neurosymbolic.org/f15fdfa6-c469-47c8-b1f8-5c25c87251ac_Bekkum> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://neurosymbolic.org/BekkumTaxonomy>.
+<http://neurosymbolic.org/f15fdfa6-c469-47c8-b1f8-5c25c87251ac_Bekkum> <http://www.w3.org/2000/01/rdf-schema#label> "T4B-69".
+<http://neurosymbolic.org/f15fdfa6-c469-47c8-b1f8-5c25c87251ac_Bekkum> <http://neurosymbolic.org/equivalentPattern> <http://neurosymbolic.org/f15fdfa6-c469-47c8-b1f8-5c25c87251ac_Kierner>.
+<http://neurosymbolic.org/group_1763991163241> <http://neurosymbolic.org/SubPatternOf> <http://neurosymbolic.org/f15fdfa6-c469-47c8-b1f8-5c25c87251ac_Bekkum>.
+<http://neurosymbolic.org/group_1763991209727> <http://neurosymbolic.org/SubPatternOf> <http://neurosymbolic.org/f15fdfa6-c469-47c8-b1f8-5c25c87251ac_Bekkum>.
+<http://neurosymbolic.org/group_1763991244001> <http://neurosymbolic.org/SubPatternOf> <http://neurosymbolic.org/f15fdfa6-c469-47c8-b1f8-5c25c87251ac_Bekkum>.
+<http://neurosymbolic.org/group_1763991295727> <http://neurosymbolic.org/SubPatternOf> <http://neurosymbolic.org/f15fdfa6-c469-47c8-b1f8-5c25c87251ac_Bekkum>.
+<http://neurosymbolic.org/group_1763991327260> <http://neurosymbolic.org/SubPatternOf> <http://neurosymbolic.org/f15fdfa6-c469-47c8-b1f8-5c25c87251ac_Bekkum>.
+<http://neurosymbolic.org/group_1763991391708> <http://neurosymbolic.org/SubPatternOf> <http://neurosymbolic.org/f15fdfa6-c469-47c8-b1f8-5c25c87251ac_Bekkum>.
+<http://neurosymbolic.org/group_1763991163241> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://neurosymbolic.org/ElementaryPattern>.
+<http://neurosymbolic.org/group_1763991163241> <http://www.w3.org/2000/01/rdf-schema#label> "1d Pre-processing".
+<http://neurosymbolic.org/group_1763991163241> <http://neurosymbolic.org/equivalentPattern> <http://tool4boxology.org/group_1763991163241>.
+<http://neurosymbolic.org/group_1763991163241> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://neurosymbolic.org/DataTransformData>.
+<http://neurosymbolic.org/group_1763991209727> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://neurosymbolic.org/ElementaryPattern>.
+<http://neurosymbolic.org/group_1763991209727> <http://www.w3.org/2000/01/rdf-schema#label> "1d Variable Selection".
+<http://neurosymbolic.org/group_1763991209727> <http://neurosymbolic.org/equivalentPattern> <http://tool4boxology.org/group_1763991209727>.
+<http://neurosymbolic.org/group_1763991209727> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://neurosymbolic.org/DataTransformData>.
+<http://neurosymbolic.org/group_1763991244001> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://neurosymbolic.org/ElementaryPattern>.
+<http://neurosymbolic.org/group_1763991244001> <http://www.w3.org/2000/01/rdf-schema#label> "1d Crisp Values".
+<http://neurosymbolic.org/group_1763991244001> <http://neurosymbolic.org/equivalentPattern> <http://tool4boxology.org/group_1763991244001>.
+<http://neurosymbolic.org/group_1763991244001> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://neurosymbolic.org/DataTransformData>.
+<http://neurosymbolic.org/group_1763991295727> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://neurosymbolic.org/ElementaryPattern>.
+<http://neurosymbolic.org/group_1763991295727> <http://www.w3.org/2000/01/rdf-schema#label> "1a MLP Train".
+<http://neurosymbolic.org/group_1763991295727> <http://neurosymbolic.org/equivalentPattern> <http://tool4boxology.org/group_1763991295727>.
+<http://neurosymbolic.org/group_1763991295727> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://neurosymbolic.org/DataTrainModel>.
+<http://neurosymbolic.org/group_1763991327260> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://neurosymbolic.org/ElementaryPattern>.
+<http://neurosymbolic.org/group_1763991327260> <http://www.w3.org/2000/01/rdf-schema#label> "1a Fuzzy Regression".
+<http://neurosymbolic.org/group_1763991327260> <http://neurosymbolic.org/equivalentPattern> <http://tool4boxology.org/group_1763991327260>.
+<http://neurosymbolic.org/group_1763991327260> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://neurosymbolic.org/DataTrainModel>.
+<http://neurosymbolic.org/group_1763991391708> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://neurosymbolic.org/ElementaryPattern>.
+<http://neurosymbolic.org/group_1763991391708> <http://www.w3.org/2000/01/rdf-schema#label> "2a Prediction Making".
+<http://neurosymbolic.org/group_1763991391708> <http://neurosymbolic.org/equivalentPattern> <http://tool4boxology.org/group_1763991391708>.
+<http://neurosymbolic.org/group_1763991391708> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://neurosymbolic.org/DataModelDeduceSymbol>.

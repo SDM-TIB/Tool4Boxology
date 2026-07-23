@@ -1,0 +1,241 @@
+{
+  "metadata": {
+    "exportId": "4b283e31",
+    "userId": "user_4scljmz7",
+    "exportDate": "2026-06-08T22:14:35.241Z"
+  },
+  "boxologies": [
+    {
+      "id": "51a910d2-740d-44f2-b891-33b70f19efc0",
+      "label": "T4B-1",
+      "DesignPattern": [
+        {
+          "id": "group_1761577992184",
+          "name": "DataTransformData",
+          "label": "1d Tokenize",
+          "input": [
+            {
+              "id": "node_1761577848218",
+              "name": "Text",
+              "label": "Text Symptoms Cleaned"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_1761577938926",
+              "name": "Data",
+              "label": "Text Tokens"
+            }
+          ],
+          "process": {
+            "id": "node_1761577932578",
+            "name": "Transform",
+            "label": "Transform"
+          }
+        },
+        {
+          "id": "group_1761578140314",
+          "name": "DataTransformData",
+          "label": "1d Transform to Feature Vectors",
+          "input": [
+            {
+              "id": "node_1761577938926",
+              "name": "Data",
+              "label": "Text Tokens"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_1761578024234",
+              "name": "Data",
+              "label": "Text Feature Vectors Symptoms"
+            }
+          ],
+          "process": {
+            "id": "node_1761578018325",
+            "name": "Transform",
+            "label": "Transform"
+          }
+        },
+        {
+          "id": "group_1761578439989",
+          "name": "DataTrainModel",
+          "label": "2a Possible Diagnosis (per case)",
+          "input": [
+            {
+              "id": "node_1761578024234",
+              "name": "Data",
+              "label": "Text Feature Vectors Symptoms"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_1761578300915",
+              "name": "SemanticModel",
+              "label": "Semantic Support Vector Machine"
+            }
+          ],
+          "process": {
+            "id": "node_1761578295027",
+            "name": "Train",
+            "label": "Train"
+          }
+        },
+        {
+          "id": "group_1761578620707",
+          "name": "DataTransformData",
+          "label": "1d Fuzzy Rules without Weights",
+          "input": [
+            {
+              "id": "node_1761578523147",
+              "name": "Text",
+              "label": "Text Structures Representation"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_1761578688300",
+              "name": "Text",
+              "label": "Text Fuzzy Rules"
+            }
+          ],
+          "process": {
+            "id": "node_1761578527556",
+            "name": "Transform",
+            "label": "Transform"
+          }
+        },
+        {
+          "id": "group_1761578885454",
+          "name": "DataTrainModel",
+          "label": "1a Fuzzy Rules",
+          "input": [
+            {
+              "id": "node_1761578688300",
+              "name": "Text",
+              "label": "Text Fuzzy Rules"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_1761578740121",
+              "name": "SemanticModel",
+              "label": "Semantic Fuzzy Rules with weights"
+            }
+          ],
+          "process": {
+            "id": "node_1761578712780",
+            "name": "Train",
+            "label": "Train"
+          }
+        },
+        {
+          "id": "group_1761579945199",
+          "name": "DataModelDeduceSymbol",
+          "label": "2a Classification",
+          "input": [
+            {
+              "id": "node_1761578891105",
+              "name": "Data",
+              "label": "Possible Diagnosis with Likelihood"
+            },
+            {
+              "id": "node_1761578300915",
+              "name": "SemanticModel",
+              "label": "Semantic Support Vector Machine"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_1761579893067",
+              "name": "Symbol",
+              "label": "Text Possible Diagnosis ranked by Likelihood"
+            }
+          ],
+          "process": {
+            "id": "node_1761578995769",
+            "name": "Deduce",
+            "label": "Deduce"
+          }
+        },
+        {
+          "id": "group_1761643679506",
+          "name": "DataModelDeduceData",
+          "label": "2a Possible Diagnosis (per case)",
+          "input": [
+            {
+              "id": "node_1761578024234",
+              "name": "Data",
+              "label": "Text Feature Vectors Symptoms"
+            },
+            {
+              "id": "node_1761578740121",
+              "name": "SemanticModel",
+              "label": "Semantic Fuzzy Rules with weights"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_1761578891105",
+              "name": "Data",
+              "label": "Possible Diagnosis with Likelihood"
+            }
+          ],
+          "process": {
+            "id": "node_1761578823589",
+            "name": "Deduce",
+            "label": "Deduce"
+          }
+        },
+        {
+          "id": "group_1764694940696",
+          "name": "DataTransformData",
+          "label": "1d Structure Medical Knowledge",
+          "input": [
+            {
+              "id": "node_321764694944325",
+              "name": "Text",
+              "label": "Text Medical Knowledge"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_1761578523147",
+              "name": "Text",
+              "label": "Text Structures Representation"
+            }
+          ],
+          "process": {
+            "id": "node_331764694944325",
+            "name": "Transform",
+            "label": "Transform"
+          }
+        },
+        {
+          "id": "group_1780317653593",
+          "name": "DataTransformData",
+          "label": "1d Extract Relevant Information",
+          "input": [
+            {
+              "id": "node_1761577797210",
+              "name": "Dataset",
+              "label": "Text Symptoms"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_1761577848218",
+              "name": "Text",
+              "label": "Text Symptoms Cleaned"
+            }
+          ],
+          "process": {
+            "id": "node_1761577839141",
+            "name": "Transform",
+            "label": "Transform"
+          }
+        }
+      ]
+    }
+  ]
+}

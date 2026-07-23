@@ -1,0 +1,170 @@
+@prefix rr: <http://www.w3.org/ns/r2rml#> .
+@prefix rml: <http://semweb.mmlab.be/ns/rml#> .
+@prefix ql: <http://semweb.mmlab.be/ns/ql#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rev: <http://purl.org/stuff/rev#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix nesy: <http://neurosymbolic.org/> .
+@prefix t4b: <http://tool4boxology.org/> .
+@base <http://tib.de/SDM-RDFizer/mapping#> .
+
+
+<IndexKienerMap>	
+	rml:logicalSource [ rml:source "IndexArch_with_KautzCategory.csv";
+						rml:referenceFormulation ql:CSV;
+						];
+	rr:subjectMap [
+		rr:template "http://neurosymbolic.org/{Index}_Kierner";
+	];
+	rr:predicateObjectMap [
+    	rr:predicate nesy:equivalentPattern;
+    	rr:objectMap [
+      		rr:parentTriplesMap <DesingPatternKiernerMap>;
+      		rr:joinCondition [
+       			rr:child "Boxology";
+        		rr:parent "label";
+     		];
+   		];
+    ].
+
+<IndexKautzMap>	
+	rml:logicalSource [ rml:source "IndexArch_with_KautzCategory.csv";
+						rml:referenceFormulation ql:CSV;
+						];
+	rr:subjectMap [
+		rr:template "http://neurosymbolic.org/{Index}_Kautz";
+	];
+	rr:predicateObjectMap [
+    	rr:predicate nesy:equivalentPattern;
+    	rr:objectMap [
+      		rr:parentTriplesMap <DesingPatternKautzMap>;
+      		rr:joinCondition [
+       			rr:child "Boxology";
+        		rr:parent "label";
+     		];
+   		];
+    ].
+
+<BoxologyMap>	
+	rml:logicalSource [ rml:source "boxology.json";
+						rml:referenceFormulation ql:JSONPath;
+						rml:iterator "$.boxologies[*]"
+						];
+	rr:subjectMap [
+		rr:template "http://tool4boxology.org/{id}";
+		rr:class t4b:Boxology
+	].
+
+<DesingPatternKautzMap>	
+	rml:logicalSource [ rml:source "boxology.json";
+						rml:referenceFormulation ql:JSONPath;
+						rml:iterator "$.boxologies[*]"
+						];
+	rr:subjectMap [
+		rr:template "http://neurosymbolic.org/{id}_Kautz";
+		rr:class nesy:KautzTaxonomy;
+	];
+	rr:predicateObjectMap [
+		rr:predicate rdfs:label;
+		rr:objectMap [
+			rml:reference "label"
+		]
+	];
+	rr:predicateObjectMap [
+		rr:predicate nesy:equivalentPattern;
+		rr:objectMap [
+			rr:template "http://tool4boxology.org/{id}";
+		]
+	].
+
+<DesingPatternKiernerMap>	
+	rml:logicalSource [ rml:source "boxology.json";
+						rml:referenceFormulation ql:JSONPath;
+						rml:iterator "$.boxologies[*]"
+						];
+	rr:subjectMap [
+		rr:template "http://neurosymbolic.org/{id}_Kierner";
+		rr:class nesy:KiernerTaxonomy;
+	];
+	rr:predicateObjectMap [
+		rr:predicate rdfs:label;
+		rr:objectMap [
+			rml:reference "label"
+		]
+	];
+	rr:predicateObjectMap [
+		rr:predicate nesy:equivalentPattern;
+		rr:objectMap [
+			rr:template "http://neurosymbolic.org/{id}_Kautz";
+		]
+	].
+
+
+<DesingPatternBekkumMap>	
+	rml:logicalSource [ rml:source "boxology.json";
+						rml:referenceFormulation ql:JSONPath;
+						rml:iterator "$.boxologies[*]"
+						];
+	rr:subjectMap [
+		rr:template "http://neurosymbolic.org/{id}_Bekkum";
+		rr:class nesy:BekkumTaxonomy;
+	];
+	rr:predicateObjectMap [
+		rr:predicate rdfs:label;
+		rr:objectMap [
+			rml:reference "label"
+		]
+	];
+	rr:predicateObjectMap [
+		rr:predicate nesy:equivalentPattern;
+		rr:objectMap [
+			rr:template "http://neurosymbolic.org/{id}_Kierner";
+		]
+	].
+
+<SubDesingPatternMap>	
+	rml:logicalSource [ rml:source "boxology.json";
+						rml:referenceFormulation ql:JSONPath;
+						rml:iterator "$"
+						];
+	rr:subjectMap [
+		rr:template "http://neurosymbolic.org/{boxologies[*].DesignPattern[*].id}";
+	];
+	rr:predicateObjectMap [
+		rr:predicate nesy:SubPatternOf;
+		rr:objectMap [ 
+			rr:template "http://neurosymbolic.org/{boxologies[*].id}_Bekkum";
+		]
+	].
+
+
+<PatternMap>
+	rml:logicalSource [ rml:source "boxology.json";
+						rml:referenceFormulation ql:JSONPath;
+						rml:iterator "$.boxologies[*].DesignPattern[*]"
+						];
+	rr:subjectMap [
+		rr:template "http://neurosymbolic.org/{id}";
+		rr:class nesy:ElementaryPattern
+	];
+	rr:predicateObjectMap [
+		rr:predicate rdfs:label;
+		rr:objectMap [
+			rml:reference "label"
+		]
+	];
+	rr:predicateObjectMap [
+		rr:predicate nesy:equivalentPattern;
+		rr:objectMap [
+			rr:template "http://tool4boxology.org/{id}";
+		]
+	];
+	rr:predicateObjectMap [
+		rr:predicate rdf:type;
+		rr:objectMap [
+			rr:template "http://neurosymbolic.org/{name}"
+		]
+	].

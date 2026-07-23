@@ -1,0 +1,188 @@
+{
+  "metadata": {
+    "exportId": "820ddb44",
+    "userId": "user_4scljmz7",
+    "exportDate": "2026-06-09T09:37:00.296Z"
+  },
+  "boxologies": [
+    {
+      "id": "325f354a-f9ee-4735-a96a-75e38d2e533c",
+      "label": "T4B-2",
+      "DesignPattern": [
+        {
+          "id": "group_1761644452143",
+          "name": "DataTransformData",
+          "label": "1d Feature Extraction",
+          "input": [
+            {
+              "id": "node_1761643999214_n3",
+              "name": "Image",
+              "label": "Image Normalize fMRI Scans"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_1761644012720_n3",
+              "name": "Number",
+              "label": "Numeric Features of Brain Activity Patterns"
+            }
+          ],
+          "process": {
+            "id": "node_1761644012719_n2",
+            "name": "Transform",
+            "label": "Transform"
+          }
+        },
+        {
+          "id": "group_1761644485067",
+          "name": "DataTransformData",
+          "label": "1d SMOTE",
+          "input": [
+            {
+              "id": "node_1761644012720_n3",
+              "name": "Number",
+              "label": "Numeric Features of Brain Activity Patterns"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_1761644028505_n3",
+              "name": "Number",
+              "label": "Numeric Balanced Set"
+            }
+          ],
+          "process": {
+            "id": "node_1761644028503_n2",
+            "name": "Transform",
+            "label": "Transform"
+          }
+        },
+        {
+          "id": "group_1761644507019",
+          "name": "DataTransformData",
+          "label": "1d Feature Selection with CCSO",
+          "input": [
+            {
+              "id": "node_1761644028505_n3",
+              "name": "Number",
+              "label": "Numeric Balanced Set"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_1761644034125_n3",
+              "name": "Number",
+              "label": "Numeric Features Pain Levels"
+            }
+          ],
+          "process": {
+            "id": "node_1761644034124_n2",
+            "name": "Transform",
+            "label": "Transform"
+          }
+        },
+        {
+          "id": "group_1761644734742",
+          "name": "DataTrainModel",
+          "label": "1a Create Fuzzy Rules",
+          "input": [
+            {
+              "id": "node_1761644034125_n3",
+              "name": "Number",
+              "label": "Numeric Features Pain Levels"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_1761644533452",
+              "name": "SemanticModel",
+              "label": "CCSO-SOFLP"
+            }
+          ],
+          "process": {
+            "id": "node_1761644526050",
+            "name": "Train",
+            "label": "Train"
+          }
+        },
+        {
+          "id": "group_1761645086169",
+          "name": "DataModelDeduceData",
+          "label": "2d Multi-classification for Pain levels",
+          "input": [
+            {
+              "id": "node_1761644533452",
+              "name": "SemanticModel",
+              "label": "CCSO-SOFLP"
+            },
+            {
+              "id": "node_1761644772461",
+              "name": "Image",
+              "label": "Data Unages fMRI Images"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_1761644799434_n3",
+              "name": "Data",
+              "label": "Pain Levels"
+            }
+          ],
+          "process": {
+            "id": "node_1761644760937",
+            "name": "Deduce",
+            "label": "Deduce"
+          }
+        },
+        {
+          "id": "group_1761645119598",
+          "name": "DataTransformSymbol",
+          "label": "1d Interpret Results with SOFLP",
+          "input": [
+            {
+              "id": "node_1761644799434_n3",
+              "name": "Data",
+              "label": "Pain Levels"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_1761644974765",
+              "name": "Symbol",
+              "label": "Pain Levels"
+            }
+          ],
+          "process": {
+            "id": "node_1761644965182",
+            "name": "Transform",
+            "label": "Transform"
+          }
+        },
+        {
+          "id": "group_1780997798695",
+          "name": "DataTransformData",
+          "label": "1d Pre-Processing",
+          "input": [
+            {
+              "id": "node_1761643999207_n1",
+              "name": "Image",
+              "label": "Image Raw fMRI Scans"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_1761643999214_n3",
+              "name": "Image",
+              "label": "Image Normalize fMRI Scans"
+            }
+          ],
+          "process": {
+            "id": "node_1761643999213_n2",
+            "name": "Transform",
+            "label": "Transform"
+          }
+        }
+      ]
+    }
+  ]
+}

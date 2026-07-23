@@ -1,0 +1,7 @@
+Type of architecture;KautzCategory
+REML;NeuroEmbeddedSymbolic
+MLRB;NeuroToSymbolic
+RBML;NeuroBracketSymbolic
+RMLT;NeuroSymbolicToNeuro
+RMLT;SymbolicToNeuro
+PERML;NeuroPlusSymbolic

@@ -1,0 +1,169 @@
+{
+  "metadata": {
+    "exportId": "82a0458b",
+    "userId": "user_4scljmz7",
+    "exportDate": "2026-06-09T17:01:27.454Z"
+  },
+  "boxologies": [
+    {
+      "id": "f15fdfa6-c469-47c8-b1f8-5c25c87251ac",
+      "label": "T4B-69",
+      "DesignPattern": [
+        {
+          "id": "group_1763991163241",
+          "name": "DataTransformData",
+          "label": "1d Pre-processing",
+          "input": [
+            {
+              "id": "node_17639910020861",
+              "name": "Data",
+              "label": "Raw Patient Data"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17639910020983",
+              "name": "Data",
+              "label": "Processed Data"
+            }
+          ],
+          "process": {
+            "id": "node_17639910020972",
+            "name": "Transform",
+            "label": "Transform"
+          }
+        },
+        {
+          "id": "group_1763991209727",
+          "name": "DataTransformData",
+          "label": "1d Variable Selection",
+          "input": [
+            {
+              "id": "node_17639910020983",
+              "name": "Data",
+              "label": "Processed Data"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17639910104593",
+              "name": "Data",
+              "label": "Selected Variables"
+            }
+          ],
+          "process": {
+            "id": "node_17639910104582",
+            "name": "Transform",
+            "label": "Transform"
+          }
+        },
+        {
+          "id": "group_1763991244001",
+          "name": "DataTransformData",
+          "label": "1d Crisp Values",
+          "input": [
+            {
+              "id": "node_17639910020983",
+              "name": "Data",
+              "label": "Processed Data"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17639910054063",
+              "name": "Data",
+              "label": "Crisp Values"
+            }
+          ],
+          "process": {
+            "id": "node_17639910054042",
+            "name": "Transform",
+            "label": "Transform"
+          }
+        },
+        {
+          "id": "group_1763991295727",
+          "name": "DataTrainModel",
+          "label": "1a MLP Train",
+          "input": [
+            {
+              "id": "node_17639910104593",
+              "name": "Data",
+              "label": "Selected Variables"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17639910433283",
+              "name": "Model",
+              "label": "ML MLP"
+            }
+          ],
+          "process": {
+            "id": "node_17639910433282",
+            "name": "Train",
+            "label": "Train"
+          }
+        },
+        {
+          "id": "group_1763991327260",
+          "name": "DataTrainModel",
+          "label": "1a Fuzzy Regression",
+          "input": [
+            {
+              "id": "node_17639910054063",
+              "name": "Data",
+              "label": "Crisp Values"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17639910390013",
+              "name": "Model",
+              "label": "Semantic Fuzzy Regression"
+            }
+          ],
+          "process": {
+            "id": "node_17639910390002",
+            "name": "Train",
+            "label": "Traning"
+          }
+        },
+        {
+          "id": "group_1763991391708",
+          "name": "DataModelDeduceSymbol",
+          "label": "2a Prediction Making",
+          "input": [
+            {
+              "id": "node_17639911024291",
+              "name": "Data",
+              "label": "New Patient Data"
+            },
+            {
+              "id": "node_17639910433283",
+              "name": "Model",
+              "label": "ML MLP"
+            },
+            {
+              "id": "node_17639910390013",
+              "name": "Model",
+              "label": "Semantic Fuzzy Regression"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17639911024334",
+              "name": "Symbol",
+              "label": "Predicted Triglyceride Levels"
+            }
+          ],
+          "process": {
+            "id": "node_17639911024323",
+            "name": "Deduce",
+            "label": "Deduce"
+          }
+        }
+      ]
+    }
+  ]
+}
