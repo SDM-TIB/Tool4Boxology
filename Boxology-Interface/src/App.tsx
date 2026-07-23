@@ -23,7 +23,6 @@ import { useToast } from './components/Toast/ToastProvider';
 import { useDialogs } from './hooks/useDialogs';
 import AboutDialog from './components/dialogs/AboutDialog';
 import ChatBotButton from './components/ChatBot/ChatBotButton';
-import BoxologyGeneratorDialog from './components/dialogs/BoxologyGeneratorDialog';
 import { colors } from './styles/theme';
 
 
@@ -37,16 +36,16 @@ function App() {
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
   const [customGroups, setCustomGroups] = useState<{ [key: string]: any[] }>({});
   const [kgJson, setKgJson] = useState<any>(null); // <-- Add this line
-  const [boxologyGeneratorOpen, setBoxologyGeneratorOpen] = useState(false);
+  const [aiAssistOpen, setAiAssistOpen] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('boxologyGenerator') === '1') {
-      setBoxologyGeneratorOpen(true);
-      params.delete('boxologyGenerator');
-      const query = params.toString();
-      window.history.replaceState(null, '', `${window.location.pathname}${query ? `?${query}` : ''}${window.location.hash}`);
+    if (params.get('aiAssist') === '1') {
+      setAiAssistOpen(true);
+      params.delete('aiAssist');
     }
+    const query = params.toString();
+    window.history.replaceState(null, '', `${window.location.pathname}${query ? `?${query}` : ''}${window.location.hash}`);
   }, []);
 
 
@@ -1426,7 +1425,6 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
         onCreateKG={handleCreateKG}
         onUploadKG={handleUploadKG}
         onOpenKGViewer={handleOpenKGViewer}
-        onOpenBoxologyGenerator={() => setBoxologyGeneratorOpen(true)}
         kgJson={kgJson}
       />
 
@@ -1682,12 +1680,7 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
       />
 
       {/* Floating ChatBot Button */}
-      <ChatBotButton onOpenBoxology={handleOpenGeneratedBoxology} />
-
-      <BoxologyGeneratorDialog
-        open={boxologyGeneratorOpen}
-        onClose={() => setBoxologyGeneratorOpen(false)}
-      />
+      <ChatBotButton onOpenBoxology={handleOpenGeneratedBoxology} openInitially={aiAssistOpen} />
 
       {isCreatingKG && (
         <div style={{
