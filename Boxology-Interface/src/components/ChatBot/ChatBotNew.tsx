@@ -194,7 +194,22 @@ export const ChatBotNew: React.FC<ChatBotProps> = ({ open, onClose, onOpenBoxolo
           api_key: trimmed,
         }),
       });
-      const result = await response.json();
+      const responseText = await response.text();
+      if (!responseText) {
+        throw new Error(
+          `Backend returned HTTP ${response.status} with an empty response. Check the Vite /api proxy target and backend logs.`,
+        );
+      }
+
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch {
+        throw new Error(
+          `Backend returned HTTP ${response.status} with a non-JSON response.`,
+        );
+      }
+
       if (!response.ok || !result.valid) {
         setApiKey('');
         setSetupError(result.error || `Could not validate ${currentProvider.tokenLabel}`);

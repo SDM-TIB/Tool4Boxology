@@ -80,6 +80,32 @@ Each cluster should normally contain one process node and its input/output artif
 - `Actor` plus optional `Data/Symbol/Model -> Engineer -> Data/Symbol/Model`
 - `Model` plus `Data/Symbol/Model evidence -> Deduce -> Data/Symbol/Model`
 
+### Enforced Connectivity Grammar (`validNext`)
+
+The editor checks every link against this fixed adjacency table and **deletes any link that is not in it**. Only emit a link `A -> B` when `B` appears after `A` below:
+
+| From | May link to |
+| --- | --- |
+| `Actor` | `Engineer`, `Transform`, `Deduce`, `Actor` |
+| `Symbol` | `Transform`, `Train`, `Engineer`, `Deduce`, `Symbol` |
+| `Data` | `Transform`, `Train`, `Engineer`, `Deduce`, `Data` |
+| `Model` | `Transform`, `Train`, `Engineer`, `Deduce`, `Model` |
+| `Transform` | `Data`, `Symbol`, `Model`, `Transform` |
+| `Train` | `Model`, `Train` |
+| `Engineer` | `Data`, `Symbol`, `Model`, `Engineer` |
+| `Deduce` | `Data`, `Symbol`, `Model`, `Deduce` |
+
+A link between two process nodes (`Transform`, `Train`, `Deduce`, `Engineer`) is never valid in either direction. Every link is artifact -> process or process -> artifact.
+
+### Elementary Pattern Library (`allPatterns`)
+
+Every process node's inputs+output must match one of these exact shapes — the same fixed library the editor's "insert pattern" menu offers users. Never invent a combination outside this library; pick the closest one and adjust labels/types, not the structure.
+
+- **`Train`** (always outputs `Model`): `{Symbol}`, `{Data}`, `{Model, Data}`, `{Model, Symbol}` `-> Train ->` `Model`
+- **`Transform`** (output is `Data`, `Symbol`, or `Model`): `{Symbol} -> Data`, `{Data} -> Data`, `{Data} -> Symbol`, `{Symbol} -> Symbol`, `{Model} -> Model`, `{Symbol, Data} -> Data`, `{Symbol, Data} -> Model` (an embedding step, `type: embed`)
+- **`Engineer`** (`Actor` required; output is `Data`, `Symbol`, or `Model`): `{Actor}`, `{Actor, Data}`, `{Actor, Symbol}`, `{Actor, Model}` `-> Engineer ->` any one of `Data`/`Symbol`/`Model`
+- **`Deduce`** (`Model` required plus one evidence input; output is exactly one of `Data`/`Symbol`/`Model`): `{Model, Symbol}`, `{Model, Data}`, `{Model, Model}` (two cooperating models, e.g. `co:deduce`) `-> Deduce ->` any one of `Data`/`Symbol`/`Model`
+
 Hard rules:
 
 - Every process has at least one input and exactly one output target (`Data`, `Symbol`, or `Model`).
@@ -140,6 +166,8 @@ These are labels or design intentions; the root `name` remains `Deduce`, `Model`
 - All non-shared nodes are clustered.
 - No process node is shared.
 - All links reference existing keys.
+- Every link matches a row in the Enforced Connectivity Grammar (`validNext`) table.
+- Every process's input/output shape matches an entry in the Elementary Pattern Library (`allPatterns`).
 - Every process has inputs and exactly one output.
 - `Deduce` has model plus evidence.
 - Labels are concise and domain-specific.

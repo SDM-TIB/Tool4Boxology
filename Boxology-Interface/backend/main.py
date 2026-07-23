@@ -146,7 +146,24 @@ Use these visual styles:
 - Deduce: shape RoundedRectangle, color #ffcdcd, stroke #4c003bff
 - Engineer: shape RoundedRectangle, color #f6d6cf, stroke #b85068
 
-Model the system as connected input-process-output clusters. Create one ClusterGroup per meaningful stage, such as preprocessing, training, inference, explanation, or validation. Each non-group node should belong to a group unless it is intentionally shared across clusters. Use sharedGroups for nodes reused by multiple stages. Links must reference existing node keys. Keep labels concise and domain-specific. Before returning, verify the JSON syntax carefully: every object property and every array item must be separated by commas."""
+Enforced connectivity grammar (validNext): the editor checks every link against this fixed adjacency table and deletes any link that is not in it. Only emit a link A -> B in linkDataArray when B is listed after A below:
+- Actor -> Engineer, Transform, Deduce
+- Symbol -> Transform, Train, Engineer, Deduce
+- Data -> Transform, Train, Engineer, Deduce
+- Model -> Transform, Train, Engineer, Deduce
+- Transform -> Data, Symbol, Model
+- Train -> Model
+- Engineer -> Data, Symbol, Model
+- Deduce -> Data, Symbol, Model
+A link between two process nodes (Transform, Train, Deduce, Engineer) is never valid in either direction. Every link is artifact -> process or process -> artifact.
+
+Elementary pattern library (allPatterns): every process node's inputs+output must match one of these exact shapes, the same fixed library the editor's "insert pattern" menu offers users. Do not invent a combination that is not listed; pick the closest one and adjust labels/types, not the structure.
+- Train (always outputs Model): {Symbol}, {Data}, {Model,Data}, {Model,Symbol} -> Train -> Model
+- Transform (output Data, Symbol, or Model): {Symbol}->Data, {Data}->Data, {Data}->Symbol, {Symbol}->Symbol, {Model}->Model, {Symbol,Data}->Data, {Symbol,Data}->Model (embedding step, type embed)
+- Engineer (Actor required; output Data, Symbol, or Model): {Actor}, {Actor,Data}, {Actor,Symbol}, {Actor,Model} -> Engineer -> any one of Data, Symbol, Model
+- Deduce (Model required plus one evidence input; output exactly one of Data/Symbol/Model): {Model,Symbol}, {Model,Data}, {Model,Model} (two cooperating models) -> Deduce -> any one of Data, Symbol, Model
+
+Model the system as connected input-process-output clusters. Create one ClusterGroup per meaningful stage, such as preprocessing, training, inference, explanation, or validation. Each non-group node should belong to a group unless it is intentionally shared across clusters. Use sharedGroups for nodes reused by multiple stages. Links must reference existing node keys and satisfy the connectivity grammar and pattern library above. Keep labels concise and domain-specific. Before returning, verify the JSON syntax carefully: every object property and every array item must be separated by commas."""
 
 BOXOLOGY_STYLE_BY_NAME = {
     "Data": {"shape": "Rectangle", "color": "#c4e8ffff", "stroke": "#1E5F8B"},
@@ -346,7 +363,7 @@ def _simplify_boxology_text(value) -> str:
     return " ".join(str(value or "").replace("_", " ").replace("-", " ").lower().split())
 
 
-def _normalize_boxology_type(root: str, value, label="") -> str:
+def _normalize_boxology_type(root: str, value, label: str | None = "") -> str:
     allowed = BOXOLOGY_ALLOWED_TYPES_BY_ROOT.get(root, {root})
     raw = str(value or "").strip()
 
@@ -369,23 +386,28 @@ def _normalize_boxology_type(root: str, value, label="") -> str:
 
 
 def _infer_boxology_root(node: dict) -> str:
-    explicit_name = _canonical_boxology_root(node.get("name"))
-    explicit_type = _canonical_boxology_root(node.get("type"))
+    # Trust an already-valid explicit name/shape over a keyword guess from the label:
+    # a "Training Data" artifact node (name="Data") must not be reclassified as the
+    # "Train" process just because its label contains the word "training", or two
+    # process nodes end up chained directly (Train -> Train), which the connectivity
+    # grammar forbids.
     shape_root = _shape_boxology_root(node.get("shape"))
+    if shape_root:
+        return shape_root
+
+    explicit_name = _canonical_boxology_root(node.get("name"))
+    if explicit_name:
+        return explicit_name
+
+    explicit_type = _canonical_boxology_root(node.get("type"))
+    if explicit_type:
+        return explicit_type
+
     key = str(node.get("key") or "")
     label = str(node.get("label") or "")
     combined_root = _canonical_boxology_root(" ".join([key, label, str(node.get("type") or "")]))
-
-    if shape_root:
-        return shape_root
-    if explicit_name and explicit_name != "Data":
-        return explicit_name
-    if explicit_type and explicit_type != "Data":
-        return explicit_type
     if combined_root:
         return combined_root
-    if explicit_name:
-        return explicit_name
     return "Data"
 
 
@@ -748,7 +770,8 @@ def _normalize_boxology_model(data: dict, description: str) -> dict:
         raise HTTPException(status_code=502, detail="Boxology JSON must include linkDataArray")
 
     data["class"] = "GraphLinksModel"
-    model_data = data.get("modelData") if isinstance(data.get("modelData"), dict) else {}
+    raw_model_data = data.get("modelData")
+    model_data = raw_model_data if isinstance(raw_model_data, dict) else {}
     description_hash = int(hashlib.md5(description.encode("utf-8")).hexdigest(), 16)
     model_data.setdefault("boxologyId", f"ai-boxology-{description_hash % 1000000}")
     model_data.setdefault("boxologyLabel", "AI Generated Boxology")

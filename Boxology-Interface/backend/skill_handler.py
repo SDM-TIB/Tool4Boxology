@@ -58,7 +58,7 @@ def _network_hint(e: Exception) -> str:
         )
     return str(e)
 
-def _generation_temperature(system_prompt: str = None) -> float:
+def _generation_temperature(system_prompt: str | None = None) -> float:
     return 0 if system_prompt and "Tool4Boxology" in system_prompt else 0.7
 
 _GEMINI_RETRY_DELAY_RE = re.compile(r"retry_delay\s*\{\s*seconds:\s*(\d+)")
@@ -93,7 +93,7 @@ def chat_with_openai(
     model_id: str,
     messages: list,
     max_tokens: int = 4096,
-    system_prompt: str = None
+    system_prompt: str | None = None
 ) -> str:
     """Chat with OpenAI GPT models"""
     try:
@@ -136,7 +136,7 @@ def chat_with_claude(
     model_id: str,
     messages: list,
     max_tokens: int = 4096,
-    system_prompt: str = None
+    system_prompt: str | None = None
 ) -> str:
     """Chat with Anthropic Claude models"""
     try:
@@ -172,7 +172,7 @@ def chat_with_gemini(
     model_id: str,
     messages: list,
     max_tokens: int = 4096,
-    system_prompt: str = None,
+    system_prompt: str | None = None,
     _retried_after_rate_limit: bool = False,
 ) -> str:
     """Chat with Google Gemini models"""
@@ -230,7 +230,7 @@ def chat_with_huggingface(
     model_id: str,
     messages: list,
     max_tokens: int = 4096,
-    system_prompt: str = None
+    system_prompt: str | None = None
 ) -> str:
     """Chat with Hugging Face Inference API"""
     try:
@@ -278,7 +278,7 @@ async def chat_multi_provider(
     model_id: str,
     messages: list,
     max_tokens: int = 4096,
-    system_prompt: str = None
+    system_prompt: str | None = None
 ) -> str:
     """Route chat request to appropriate provider"""
 

@@ -4,9 +4,9 @@ import { validateKautzDiagram } from './KautzBoxologyValidation.ts';
 // --- Pattern and connection rules ---
 
 const validNext: Record<string, string[]> = {
-	"Actor": ["Engineer", "Actor", "Transform","Deduce"],
+	"Actor": ["Engineer", "Transform","Deduce"],
 	//"artifacts": ["artifacts","symbol", "data","Deduce","Engineer", "Transform:embed", "generate", "Transform", "generate", "Train"],
-  "Symbol": ["Deduce", "Train", "Generate","Engineer", "Transform", "Symbol", "artifacts"],
+  "Symbol": ["Deduce", "Train", "Generate","Engineer", "Transform", "artifacts"],
   "Data": ["Deduce", "Train", "Generate","Engineer", "Transform", "Data", "embed", "artifacts"],
   "Deduce": ["Symbol", "Model", "Deduce", "Data", "artifacts", "SemanticModel", "StatisticalModel"],
   "Model": ["Deduce", "Model", "Generate", "Train","Engineer", "StatisticalModel", "SemanticModel", "embed", "Transform"],
@@ -311,7 +311,7 @@ function summarizePatterns(patterns: SemanticDesignPattern[]): string {
 
   let summary = "";
   if (valid.length > 0) {
-    summary += "✅ Valid pattern(s) detected:\n\n";
+    summary += "✅ Valid Bekkum Pattern(s) detected:\n\n";
     valid.forEach(p => {
       const inNames = p.input.map(i => i.semanticName).join(", ");
       const outNames = p.output.map(o => o.semanticName).join(", ");

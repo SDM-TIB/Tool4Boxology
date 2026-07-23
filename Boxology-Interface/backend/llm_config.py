@@ -41,11 +41,22 @@ Visual styles:
 - Deduce RoundedRectangle #ffcdcd #4c003bff
 - Engineer RoundedRectangle #f6d6cf #b85068
 
-Valid elementary process patterns:
-- Data/Symbol/Model -> Transform -> Data/Symbol/Model
-- Data/Symbol/Model -> Train -> Model
-- Actor plus optional Data/Symbol/Model -> Engineer -> Data/Symbol/Model
-- Model plus Data/Symbol/Model evidence -> Deduce -> exactly one Data/Symbol/Model
+Enforced connectivity grammar (validNext). The editor checks every link against this fixed adjacency table and deletes any link that is not in it. Only emit a link A -> B in linkDataArray when B is listed after A below:
+- Actor -> Engineer, Transform, Deduce
+- Symbol -> Transform, Train, Engineer, Deduce
+- Data -> Transform, Train, Engineer, Deduce
+- Model -> Transform, Train, Engineer, Deduce
+- Transform -> Data, Symbol, Model
+- Train -> Model, Train
+- Engineer -> Data, Symbol, Model
+- Deduce -> Data, Symbol, Model
+A link between two process nodes (Transform, Train, Deduce, Engineer) is never valid in either direction; every link is artifact -> process or process -> artifact.
+
+Elementary pattern library (allPatterns). Every process node's inputs+output must match one of these exact shapes, the same fixed library the editor's "insert pattern" menu offers users. Never invent an input/output combination outside this library; pick the closest one and adjust labels/types, not the structure.
+- Train (always outputs Model): {Symbol} -> Train -> Model; {Data} -> Train -> Model; {Model, Data} -> Train -> Model; {Model, Symbol} -> Train -> Model.
+- Transform (output is Data, Symbol, or Model): {Symbol} -> Transform -> Data; {Data} -> Transform -> Data; {Data} -> Transform -> Symbol; {Symbol} -> Transform -> Symbol; {Model} -> Transform -> Model; {Symbol, Data} -> Transform -> Data; {Symbol, Data} -> Transform -> Model (an embedding step, type embed).
+- Engineer (Actor is required; output is Data, Symbol, or Model): {Actor} -> Engineer -> Model/Symbol/Data; {Actor, Data} -> Engineer -> Data/Model/Symbol; {Actor, Symbol} -> Engineer -> Symbol/Model/Data; {Actor, Model} -> Engineer -> Model/Data/Symbol.
+- Deduce (Model is required plus one evidence input; output is exactly one of Data/Symbol/Model): {Model, Symbol} -> Deduce -> Symbol/Model/Data; {Model, Data} -> Deduce -> Symbol/Model/Data; {Model, Model} (two cooperating models, e.g. co:deduce) -> Deduce -> Symbol/Data.
 
 Hard validation rules:
 - Every process node is one of Transform, Train, Deduce, Engineer and has parameter1: 45.
@@ -120,7 +131,24 @@ Planning rules:
 - Process nodes are never shared.
 - If an artifact is reused by multiple clusters, list all cluster keys in its clusters array.
 - Use group keys, not group labels, in all references.
-- Return a complete plan with links. Never return an empty links array unless the user explicitly asked for isolated components."""
+- Return a complete plan with links. Never return an empty links array unless the user explicitly asked for isolated components.
+
+Enforced connectivity grammar (validNext). Every link you plan is later checked against this fixed adjacency table by the editor, which deletes anything not in it. A link A -> B is only valid when B is listed after A:
+- Actor -> Engineer, Transform, Deduce
+- Symbol -> Transform, Train, Engineer, Deduce
+- Data -> Transform, Train, Engineer, Deduce
+- Model -> Transform, Train, Engineer, Deduce
+- Transform -> Data, Symbol, Model
+- Train -> Model
+- Engineer -> Data, Symbol, Model
+- Deduce -> Data, Symbol, Model
+Never plan a link between two process nodes; always artifact -> process or process -> artifact.
+
+Elementary pattern library (allPatterns). Each process in your plan must match one of these exact input(s) -> output shapes, the same fixed library the editor's "insert pattern" menu offers users:
+- Train (outputs Model): {Symbol}, {Data}, {Model,Data}, {Model,Symbol} -> Train -> Model.
+- Transform (outputs Data, Symbol, or Model): {Symbol}->Data, {Data}->Data, {Data}->Symbol, {Symbol}->Symbol, {Model}->Model, {Symbol,Data}->Data, {Symbol,Data}->Model (embedding).
+- Engineer (Actor required; outputs Data, Symbol, or Model): {Actor}, {Actor,Data}, {Actor,Symbol}, {Actor,Model} -> Engineer -> one of Data/Symbol/Model.
+- Deduce (Model required plus one evidence input; outputs exactly one of Data/Symbol/Model): {Model,Symbol}, {Model,Data}, {Model,Model} -> Deduce -> one of Data/Symbol/Model."""
 
 PROVIDERS = {
     "openai": {
@@ -195,7 +223,7 @@ def get_planning_prompt() -> str:
     return BOXOLOGY_PLANNING_SKILL
 
 
-def get_provider_config(provider: str) -> Dict:
+def get_provider_config(provider: str) -> Dict | None:
     return PROVIDERS.get(provider)
 
 
