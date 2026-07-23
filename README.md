@@ -1,323 +1,283 @@
-![Logo](images/Logo-tool4boxology.png)
+![Tool4Boxology logo](images/Logo-tool4boxology.png)
 
 # 🧰 Tool4Boxology — Hybrid AI Design Toolkit
+
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17711495.svg)](https://doi.org/10.5281/zenodo.17711495)
-[![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](LICENSE-CC-BY-4.0)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 ![Version](https://img.shields.io/badge/version-v1.0.0-blueviolet)
-![Python](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11-blue)
-![React](https://img.shields.io/badge/library-react-61DAFB)
+![React](https://img.shields.io/badge/React-19-61DAFB)
 ![GoJS](https://img.shields.io/badge/built%20with-GoJS-blue)
-![TypeScript](https://img.shields.io/badge/language-typescript-3178c6)
-![Docker Compose](https://img.shields.io/badge/DevOps-docker--compose-2496ED)
+![TypeScript](https://img.shields.io/badge/language-TypeScript-3178C6)
+![Docker Compose](https://img.shields.io/badge/DevOps-Docker%20Compose-2496ED)
 
-## 🔗 Live Interface
+Tool4Boxology is a toolkit for designing, validating, generating, and exporting
+hybrid and neuro-symbolic AI system architectures using the Boxology
+methodology.
 
-[![Live Demo](https://img.shields.io/badge/Live-Demo-green)](https://tool4boxology.service.tib.eu/)
+[![Live demo](https://img.shields.io/badge/Live-Demo-green)](https://tool4boxology.service.tib.eu/)
 
-**Tool4Boxology** is a toolkit for designing, validating, and exporting **hybrid AI system architectures** using the Boxology methodology.
+The recommended entry point is the `Boxology-Interface` web application. It
+combines a React and GoJS diagram editor, Boxology and Kautz pattern validation,
+knowledge-graph generation, Virtuoso integration, and an AI-assisted
+natural-language-to-Boxology workflow.
 
-It provides:
+## What's new
 
-- A **web-based interface** (React + GoJS) for diagramming & validation  
-- **Knowledge Graph (KG) generation** from diagrams  
-- **Virtuoso integration** for SPARQL queries  
-- A **Draw.io Docker image** with preloaded Boxology plugin & libraries  
+- **Boxology AI Assistant:** describe a system in natural language and generate
+  a valid `.boxology` GoJS `GraphLinksModel`, then open it directly in the
+  editor or download it.
+- **Multiple LLM providers:** the assistant supports OpenAI, Google Gemini,
+  Anthropic Claude, and Hugging Face. Provider credentials are validated before
+  a chat starts.
+- **Optional Boxology generation skill:** the assistant can use a structured
+  planning and generation prompt that enforces canonical components, process
+  rules, clustering, shared artifacts, layout, and valid links.
+- **Expanded Kautz patterns:** the palette and validators cover the six Kautz
+  neuro-symbolic categories, including composed patterns and specialized
+  `co:deduce`, `ss:deduce`, `nn:deduce`, and `transform:embed` processes.
+- **Clearer validation feedback:** selection and whole-diagram checks now report
+  elementary Boxology and Kautz results together, including invalid links,
+  process cardinality, and missing model/evidence inputs.
+- **Improved component typing:** newly created and edited components retain
+  canonical root names while domain-specific meaning is represented by their
+  label and type.
+- **Runtime/API fixes:** frontend-to-backend routing works consistently in local
+  and Docker development, including the AI Assistant endpoints.
 
+## Main features
 
-Inspired by:  
-**Frank van Harmelen et al., "Modular Design Patterns for Hybrid Learning and Reasoning Systems" (Web Semantics, 2023).**
+- Drag-and-drop `Data`, `Symbol`, `Actor`, `Model`, `Transform`, `Train`,
+  `Deduce`, and `Engineer` components
+- Semantic links, stage clusters, shared artifacts, and stable component IDs
+- Real-time elementary Boxology and Kautz pattern validation
+- Natural-language diagram generation with the Boxology AI Assistant
+- Knowledge-graph generation and RDF/Turtle export
+- Virtuoso upload, browsing, and SPARQL access
+- JSON, styled JSON/`.boxology`, RDF/Turtle, DOT, and PNG export
+- Reloadable diagrams with their visual layout and styling preserved
+- Optional Draw.io distribution with Boxology libraries preinstalled
 
----
+## Repository structure
 
-## 📌 Recommended Entry Point
+| Path | Purpose |
+|---|---|
+| `Boxology-Interface/` | Main React, TypeScript, GoJS, and FastAPI application |
+| `Boxology-Docker/` | Dockerized Draw.io with the Boxology plugin and libraries |
+| `Boxology-Plugin/` | Standalone Draw.io plugin and Boxology shape libraries |
+| `kg_creation/` | RML mappings, RDF generation, RDFizer integration, and SPARQL utilities |
+| `KG/` | Knowledge-graph assets |
+| `Ontology/` | Boxology ontology resources |
+| `ElementaryPattern/` | Reusable elementary patterns in DOT format |
+| `NeSy-Example/` | Neuro-symbolic system examples |
+| `report/` | Project documentation and development material |
 
-> **Start with the `Boxology-Interface` web app.**  
-> It's the main way to design, validate, and export Boxology diagrams and knowledge graphs.
+## Getting started
 
-- Visual editor (React + GoJS)  
-- Real-time validation of Boxology patterns  
-- Active KG generation + Virtuoso integration  
-- Multiple export formats (JSON, Styled JSON, DOT, PNG, RDF/Turtle)
+### Prerequisites
 
-The `Boxology-Docker` submodule (Draw.io image) is **optional** and provides a Draw.io instance with the Boxology plugin and libraries already installed—useful if you prefer Draw.io or want a lightweight environment for pattern design.
+- Node.js 18 or newer and npm 9 or newer
+- Python 3.8 or newer
+- Docker and Docker Compose for the complete local stack
 
----
+### Docker Compose (recommended)
 
-## 📂 Repository Structure
+From the repository root:
 
-| Folder / Module         | Description |
-|-------------------------|-------------|
-| **Boxology-Interface**  | Web-based visual editor (React + TypeScript + GoJS) with validation, KG generation, and Virtuoso integration. |
-| **Boxology-Docker**     | Custom Draw.io Docker image with pre-installed Boxology plugin, libraries, and sidebar images. |
-| **Boxology-plugin**     | Standalone Draw.io plugin and Boxology shape libraries for manual use in Draw.io. |
-| **kg_creation**         | Knowledge graph creation logic, RML mappings, RDFizer/SDM-RDFizer integration, and SPARQL utils. |
-| **ElementaryPattern**   | Elementary patterns in DOT format for modular visualization and reuse. |
-| **Report**              | Project documentation, notes, and development history. |
-
----
-
-# 🚀 Getting Started
-
-There are **two main ways** to use Tool4Boxology:
-
-1. **Boxology-Interface (recommended)** – full web editor + KG pipeline  
-2. **Boxology-Docker (Draw.io)** – Draw.io with Boxology plugin preloaded
-
----
-
-# 1️⃣ Using the Boxology-Interface (Recommended)
-
-This interface is the core visual editor. It supports:
-
-- 📦 Drag-and-drop components  
-- 🔗 Semantic connectors  
-- 🎯 Clustering  
-- 🆔 Stable IDs  
-- 🧠 KG generation  
-- 🔍 Virtuoso integration  
-- 💾 JSON, Styled JSON, RDF, DOT, PNG export  
-- 🧩 Real-time validation  
-
----
-
-## ✨ Interface Features
-
-### Diagram & Modeling
-- Drag-and-drop Boxology components  
-- Semantically meaningful edges  
-- Containers & clustering  
-- Visual customization  
-
-### Knowledge Graph Features
-- Real-time KG generation  
-- Stable component IDs  
-- Two JSON export types  
-- RDF/Turtle export  
-
-### Virtuoso Integration
-- Auto-upload RDF  
-- One-click SPARQL navigation  
-- KG browsing  
-
----
-
-## 🧰 Built With
-
-- React  
-- TypeScript  
-- Vite  
-- GoJS  
-- Material-UI  
-- FastAPI  
-- Virtuoso  
-- Graphviz  
-- RDFLib  
-
----
-
-# 💻 How to Start the Interface
-
-### 🔧 Prerequisites
-
-- Node.js ≥ 16  
-- Python ≥ 3.8  
-- Docker + Docker Compose (for full pipeline)
-
----
-
-## 🚀 **Option A — Docker Compose (Full Pipeline, Recommended)**
-
-From Boxology-Interface root:
-
-```bash
-docker-compose up -d
-```
-
-Open: http://localhost:5173
-
----
-
-## 🚀 **Option B — Manual Startup**
-
-### 1. Virtuoso
-```bash
-docker run -d --name virtuoso -p 8890:8890 -p 1111:1111 -e DBA_PASSWORD=dba -e SPARQL_UPDATE=true -v virtuoso_data:/opt/virtuoso-opensource/database openlink/virtuoso-opensource-7:latest
-
-```
-
-### 2. Backend
 ```bash
 cd Boxology-Interface
-cd backend
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+docker compose up -d --build
 ```
 
-### 3. Frontend
+This starts:
+
+| Service | URL |
+|---|---|
+| Web interface | <http://localhost:5173> |
+| FastAPI backend | <http://localhost:8000> |
+| API documentation | <http://localhost:8000/docs> |
+| Virtuoso SPARQL endpoint | <http://localhost:8890/sparql> |
+| Virtuoso Conductor | <http://localhost:8890/conductor> |
+
+To follow the services:
+
+```bash
+docker compose logs -f
+```
+
+To stop them:
+
+```bash
+docker compose down
+```
+
+### Manual development
+
+Start Virtuoso:
+
+```bash
+docker run -d --name boxology_kg -p 8890:8890 kemele/virtuoso:7-stable
+```
+
+Create a Python environment and start the backend from
+`Boxology-Interface/`:
+
+```bash
+python -m venv .venv
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+pip install -r backend/requirements.txt
+python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir backend --reload-dir src
+```
+
+In a second terminal:
+
 ```bash
 cd Boxology-Interface
 npm install
 npm run dev
 ```
 
-Open: http://localhost:5173
+Open <http://localhost:5173>.
 
-### 3. Use the Interface
-Open the GoJS-based visual editor from the Boxology-interface folder. Instructions are included in its README.
+## Using the Boxology AI Assistant
 
----
+1. Open the web interface and select **AI Assistant**.
+2. Choose OpenAI, Google Gemini, Anthropic Claude, or Hugging Face.
+3. Select a model, paste the provider API key or access token, and validate it.
+4. Keep **Boxology skill** enabled to generate a structured diagram, or disable
+   it for general chat.
+5. Describe the architecture. A generated `.boxology` artifact can be opened in
+   the editor or downloaded.
 
-## 📂 Boxology-Interface – Folder Structure
+The current UI exposes these model families:
 
-```
-Boxology-Interface
-├── src/
-│   ├── components/
-│   ├── utils/
-│   ├── pages/
-│   ├── hooks/
-│   ├── styles/
-│   └── main.tsx
-├── backend/
-│   └── kg_generator/
-├── public/
-├── vite.config.ts
-└── tsconfig.json
-```
+| Provider | Models |
+|---|---|
+| OpenAI | GPT-4.1, GPT-4.1 Mini, GPT-4o Mini |
+| Google Gemini | Gemini 3.5 Flash, Gemini 3.1 Flash Lite |
+| Anthropic Claude | Claude Sonnet 5, Claude Opus 4.8, Claude Haiku 4.5 |
+| Hugging Face | GPT-OSS 120B, GPT-OSS 120B (Fastest) |
 
----
+Provider credentials are entered at runtime; no provider key is required to
+build or start Tool4Boxology. Availability and account access for individual
+models are controlled by the respective provider.
 
-## 🎯 Interface Workflow Example
+## Validation
 
-1. Build architecture  
-2. Cluster components  
-3. Validate  
-4. Generate KG  
-5. Export JSON/RDF  
-6. Upload to Virtuoso  
-7. Run SPARQL queries  
-8. Export DOT/PNG  
+Tool4Boxology checks both elementary process rules and composed Kautz
+neuro-symbolic patterns.
 
----
+Elementary validation includes:
 
-## 📘 Example
+- every process has an input and exactly one artifact output;
+- `Train` outputs a `Model`;
+- `Deduce` receives a model plus data, a symbol, or a second model as evidence;
+- process nodes are not connected directly to other process nodes; and
+- link endpoints and component types are compatible.
 
-> _A sample hybrid AI pipeline using Tool4Boxology._
+Kautz validation recognizes:
 
-![Example Diagram](images/DiagramExample2.png)
+1. Symbolic → Neuro
+2. Neuro → Symbolic
+3. Neuro + Symbolic
+4. Neuro: Symbolic → Neuro
+5. Neuro {Symbolic}
+6. Neuro [Symbolic]
 
-> ✅ Check for validation!
+Validation can be run for the current selection or the complete diagram. The KG
+viewer also includes a **Validate Kautz** action.
 
-![Example Diagram](images/ValidationExample2.png)
+## Typical workflow
 
+1. Create a system manually or generate a first draft with the AI Assistant.
+2. Organize processes into meaningful clusters and reuse shared artifacts.
+3. Validate elementary and Kautz patterns.
+4. Export a styled `.boxology` file for later editing.
+5. Generate RDF/Turtle and upload the knowledge graph to Virtuoso.
+6. Query the architecture with SPARQL or export it as DOT or PNG.
 
----
+## Example
 
-# 2️⃣ Using the Boxology-Docker (Draw.io with Plugin)
+> A sample hybrid AI pipeline created with Tool4Boxology.
 
-The Boxology-Docker module provides a Draw.io image extended from `fjudith/drawio` with:
+![Example Tool4Boxology diagram](images/DiagramExample2.png)
 
-- Pre-installed Boxology plugin  
-- Pre-loaded Boxology shape libraries  
-- Sidebar images  
-- No manual upload required  
+> Validation feedback for a diagram.
 
----
+![Example validation result](images/ValidationExample2.png)
 
-## 📦 Boxology-Docker – Getting Started
+## Optional Draw.io distribution
 
-### 1. Build + Run
+`Boxology-Docker` provides a Draw.io image with the validation plugin, pattern
+libraries, shape libraries, annotations, and sidebar previews preinstalled.
+
 ```bash
-cd Tool4Boxology/Boxology-Docker
-
+cd Boxology-Docker
 docker build -t boxology-drawio .
-docker run -p 8080:8080 boxology-drawio
+docker run --name boxology-drawio -p 8080:8080 boxology-drawio
 ```
 
-Open:  
-👉 http://localhost:8080
+Open <http://localhost:8080>. See
+[`Boxology-Docker/README.md`](Boxology-Docker/README.md) for module-specific
+details.
 
-### 2. docker-compose (If available)
-```bash
-docker-compose up
-```
+## Technology
 
----
+- React 19, TypeScript, Vite, Material UI
+- GoJS
+- FastAPI and Uvicorn
+- Virtuoso and SPARQL
+- Graphviz and RDF tooling
+- Docker Compose
 
-## 🧩 What's Inside the Docker Image?
+## License
 
-- BoxologyValidation.js plugin  
-- PatternLib.xml  
-- ShapeLib.xml  
-- AnnotationLib.xml  
-- Sidebar preview icons  
-- Custom entrypoint script  
+- Diagrams, documentation, and educational assets: [CC BY 4.0](LICENSE-CC-BY-4.0)
+- Software and extended modules: [Apache License 2.0](LICENSE)
 
----
+GoJS is used for diagram rendering. Check the
+[GoJS licensing terms](https://gojs.net/latest/license.html) when deploying the
+editor.
 
-## 🔍 Boxology-Docker – File Structure
-
-| Path | Description |
-|------|-------------|
-| Dockerfile | Builds Boxology-enabled Draw.io |
-| docker-entrypoint.sh | Configures and runs Tomcat/Draw.io |
-| js/plugins/ | Plugin logic |
-| lib/ | XML libraries |
-| images/ | Sidebar icons |
-
-
----
-# 📜 License
--CC BY 4.0 — diagrams, documentation, educational assets
-
--Apache 2.0 — included third-party or extended modules
-
-## 📖 Related Source Paper & Authors
-
-Tool4Boxology is based on the research and methodology described in the source paper (submitted):
-
-**Tool4Boxology:  
-A Semantic Toolbox for Constructing and Analyzing Neuro-Symbolic Architectures**
-
-**Authors:**  
-Johannes E. Bendler<sup>1</sup>, Yashrajsinh Chudasama<sup>2,3</sup>, Mahsa Forghani<sup>2,3</sup>, Enrique Iglesias<sup>2,4</sup>, Disha Purohit<sup>2,3</sup>, Jacquiline Roney<sup>1</sup>, Annette ten Teije<sup>1</sup>, Frank van Harmelen<sup>1</sup>, Maria-Esther Vidal<sup>2,3</sup>
-
-<sup>1</sup> Department of Computer Science, Vrije Universiteit Amsterdam, The Netherlands  
-<sup>2</sup> TIB-Leibniz Information Centre for Science and Technology, Hannover, Germany  
-<sup>3</sup> Leibniz University Hannover, Hannover, Germany  
-<sup>4</sup> L3S Research Center Germany, Hannover, Germany  
-
-**Supervision:**  
-This work is supervised by the above authors and institutions.
-
-**Corresponding author:**  
-📧 mahsa.forghani.tehrani@stud.uni-hannover.de
-Leibniz University Hannover 
-
-## 📄📚 Publication
+## Publication
 
 If you use Tool4Boxology in your research, please cite:
 
-**Tool4Boxology: A Semantic Toolbox for Constructing and Analysing Neuro-Symbolic Architectures**  
-Johannes E. Bendler, Yashrajsinh Chudasama, Mahsa Forghani, Enrique Iglesias, Disha Purohit, Jacquiline Roney, Annette ten Teije, Frank van Harmelen, Maria-Esther Vidal  
-*ESWC 2026* — Springer-Verlag, pp. 191–211.  
-🔗 [https://doi.org/10.1007/978-3-032-25159-6_11](https://doi.org/10.1007/978-3-032-25159-6_11)
+**Tool4Boxology: A Semantic Toolbox for Constructing and Analysing
+Neuro-Symbolic Architectures**<br>
+Johannes E. Bendler, Yashrajsinh Chudasama, Mahsa Forghani, Enrique Iglesias,
+Disha Purohit, Jacquiline Roney, Annette ten Teije, Frank van Harmelen, and
+Maria-Esther Vidal<br>
+*The Semantic Web: 23rd European Semantic Web Conference (ESWC 2026)*,
+Springer-Verlag, pp. 191–211.<br>
+[https://doi.org/10.1007/978-3-032-25159-6_11](https://doi.org/10.1007/978-3-032-25159-6_11)
 
 <details>
 <summary>BibTeX</summary>
 
 ```bibtex
 @inproceedings{10.1007/978-3-032-25159-6_11,
-  author    = {Bendler, Johannes E. and Chudasama, Yashrajsinh and Forghani, Mahsa and Iglesias, Enrique and Purohit, Disha and Roney, Jacquiline and ten Teije, Annette and van Harmelen, Frank and Vidal, Maria-Esther},
-  title     = {Tool4Boxology: A Semantic Toolbox for Constructing and Analysing Neuro-Symbolic Architectures},
-  booktitle = {The Semantic Web: 23rd European Semantic Web Conference, ESWC 2026},
+  author    = {Bendler, Johannes E. and Chudasama, Yashrajsinh and
+               Forghani, Mahsa and Iglesias, Enrique and Purohit, Disha and
+               Roney, Jacquiline and ten Teije, Annette and
+               van Harmelen, Frank and Vidal, Maria-Esther},
+  title     = {Tool4Boxology: A Semantic Toolbox for Constructing and
+               Analysing Neuro-Symbolic Architectures},
+  booktitle = {The Semantic Web: 23rd European Semantic Web Conference,
+               ESWC 2026},
   year      = {2026},
   publisher = {Springer-Verlag},
   address   = {Berlin, Heidelberg},
   pages     = {191--211},
   doi       = {10.1007/978-3-032-25159-6_11}
 }
-` ` `
-</details>
 ```
----
+
+</details>
+
+## Contact
+
+Developed by Mahsa Forghani Tehrani<br>
+Email: mahsa.forghani.tehrani@stud.uni-hannover.de<br>
+Repository: <https://github.com/SDM-TIB/Tool4Boxology>
