@@ -937,7 +937,7 @@ def _fresh_kg_module():
     return kg_module
 
 @app.post("/api/kg")
-def api_create_kg(source: dict):
+async def api_create_kg(source: dict):
     try:
         ids = [b.get("id") for b in source.get("boxologies", [])]
         print(f"[API] incoming boxologies={ids}")
@@ -960,7 +960,7 @@ def api_create_kg(source: dict):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/t4b/sparql")
-def api_t4b_sparql(payload: dict):
+async def api_t4b_sparql(payload: dict):
     query = (payload.get("query") or "").strip()
     if not query:
         raise HTTPException(status_code=400, detail="Missing SPARQL query")
@@ -991,7 +991,7 @@ async def api_health():
 
 
 @app.post("/api/llm/boxology")
-def api_generate_boxology(payload: dict):
+async def api_generate_boxology(payload: dict):
     """
     Generate a Tool4Boxology .boxology model from a natural-language system description
     using hosted Hugging Face inference.
@@ -1303,7 +1303,7 @@ def chat_with_llm(payload: dict):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/llm/validate")
-def validate_llm_credentials(payload: dict):
+async def validate_llm_credentials(payload: dict):
     """Validate LLM provider credentials"""
     try:
         provider = payload.get("provider", "").lower()
