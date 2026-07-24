@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Fab } from '@mui/material';
 import aiAssistIcon from '../../assets/T4B-AI-Assist.png';
 import ChatBotNew from './ChatBotNew';
@@ -17,10 +17,17 @@ type BoxologyGraphLinksModel = {
 
 interface ChatBotButtonProps {
   onOpenBoxology: (model: BoxologyGraphLinksModel, filename?: string) => void;
+  openInitially?: boolean;
 }
 
-export const ChatBotButton: React.FC<ChatBotButtonProps> = ({ onOpenBoxology }) => {
+export const ChatBotButton: React.FC<ChatBotButtonProps> = ({ onOpenBoxology, openInitially = false }) => {
   const [chatOpen, setChatOpen] = useState(false);
+
+  useEffect(() => {
+    if (openInitially) {
+      setChatOpen(true);
+    }
+  }, [openInitially]);
 
   const openChat = () => {
     if (document.activeElement instanceof HTMLElement) {

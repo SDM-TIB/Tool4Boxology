@@ -1,165 +1,231 @@
-# Boxology-Interface
+# Boxology Interface
 
-This module contains a custom **web-based interface** for designing hybrid AI systems using **Boxology** principles. It is built with **React**, **TypeScript**, **Vite**, and **GoJS**, and provides an interactive diagramming environment for creating modular, validated AI system architectures. The interface enables **Knowledge Graph generation** from your diagrams and provides seamless integration with **Virtuoso** for semantic querying and validation.
+Boxology Interface is the web editor for [Tool4Boxology](https://github.com/SDM-TIB/Tool4Boxology). It provides an interactive environment for modeling, validating, and documenting hybrid and neuro-symbolic AI architectures with Boxology components.
 
-⚠️ **Note:** This interface is under **active development**. New features and visual enhancements are being added frequently.
+The application combines a React/GoJS editor with a FastAPI backend and an optional Virtuoso triple store. Diagrams can be converted into knowledge graphs, queried with SPARQL, exported for reuse, or generated from natural-language descriptions with a supported LLM provider.
 
----
+> **Project status:** This interface is under active development. Features and file formats may change.
 
-## ✨ Features
+## Features
 
-- 📦 **Drag-and-drop Boxology components** - Interactive shape library with custom shapes
-- 🔗 **Connect components** with semantically meaningful edges
-- 🎯 **Clustering support** - Group and organize processes in neural-symbolic systems
-- 🧠 **Knowledge Graph Generation** - Automatically generate knowledge graphs from diagrams
-- 🔍 **Virtuoso Integration** - Navigate to SPARQL endpoint for querying generated knowledge graphs
-- 📊 **Organized workspace** - Clean, intuitive interface for complex system design
-- 💾 **Multiple Export Formats** - Export as JSON, DOT (Graphviz), PNG, and styled JSON for reuse
-- 🆔 **Unique Component IDs** - Each Boxology component has a stable ID for KG updates and reusability
-- ✅ **Real-time validation** - Validate your architecture against Boxology patterns
-- 🎨 **Visual customization** - Customize shapes and save styling for future projects
+- Drag-and-drop editor for data, symbols, actors, models, and process nodes
+- Clustered, hierarchical diagrams for organizing architecture stages
+- Connection and elementary-pattern validation
+- Stable component identifiers for reuse and knowledge-graph updates
+- Import and export of editable Boxology/JSON diagrams
+- Export to DOT/Graphviz, PNG, and knowledge-graph-oriented JSON
+- RDF knowledge-graph generation and upload to Virtuoso
+- Built-in SPARQL query explorer
+- Natural-language Boxology generation and assistant chat
+- Support for hosted and local LLM providers
+- Autosave and system-documentation generation
 
-#### **Knowledge Graph Features**
-- **🔄 Active KG Generation**: Real-time knowledge graph creation as you build diagrams
-- **🔗 Virtuoso Integration**: Direct connection to Virtuoso SPARQL endpoint for querying
-- **🚀 Navigate to SPARQL**: One-click navigation to Virtuoso Conductor for interactive querying
-- **🆔 Stable Identifiers**: Each component maintains unique, persistent IDs across updates
-- **📋 Two JSON Export Types**: 
-  - Standard JSON for knowledge graph creation
-  - Styled JSON preserving visual layout for diagram reuse
+## Technology
 
-#### **Data Persistence & Integrity**
-- **Complete KG Preservation**: All semantic relationships preserved in RDF format
-- **Two-Format JSON Support**: 
-  - **KG JSON**: Optimized for knowledge graph generation and Virtuoso upload
-  - **Styled JSON**: Full visual and structural data for loading and editing diagrams later
-- **Stable ID System**: Components maintain unique identifiers enabling KG updates and incremental changes
-- **Virtuoso Synchronization**: Seamless upload and query workflow with triple store
-- **Export Compatibility**: Full support across JSON, RDF/Turtle, DOT, and image formats
+- React 19, TypeScript, and Vite
+- GoJS and `gojs-react`
+- Material UI
+- FastAPI and Uvicorn
+- RDFLib and SPARQLWrapper
+- Virtuoso
 
-### 🎯 Workflow Example
-
-1. **Create Main Architecture**: Design your top-level AI system components
-2. **Define Clustering**: Use containers to group and specify each process in your neural-symbolic system
-3. **Assign Component IDs**: Each Boxology component receives a unique, stable identifier
-4. **Preview & Validate**: Validate your architecture against Boxology patterns in real-time
-5. **Generate KG Actively**: Knowledge graph is generated automatically as you design
-6. **Save for Later**: Export as styled JSON to preserve layout and reload for future editing
-7. **Export for KG Creation**: Export as standard JSON or RDF/Turtle
-8. **Upload to Virtuoso**: Generate and upload knowledge graph to Virtuoso triple store
-9. **Query with SPARQL**: Navigate to Virtuoso interface to query your AI architecture
-10. **Visualize with Graphviz**: Navigate to Graphviz to preview and export as DOT language
-
----
-
-## 🧰 Built With
-
-- [React](https://reactjs.org/) - Frontend framework
-- [Vite](https://vitejs.dev/) - Build tool and development server
-- [TypeScript](https://www.typescriptlang.org/) - Type-safe JavaScript
-- [GoJS](https://gojs.net/) - Interactive diagramming library
-- [Material-UI](https://mui.com/) - React component library
-- [React Router](https://reactrouter.com/) - Client-side routing
-- [FastAPI](https://fastapi.tiangolo.com/) - Backend API framework (Python)
-- [Virtuoso](https://virtuoso.openlinksw.com/) - RDF triple store and SPARQL endpoint
-- [Graphviz](https://graphviz.org/) - Graph visualization tool
-- [RDFLib](https://rdflib.readthedocs.io/) - Python library for RDF processing
-
----
-
-## 🚀 Getting Started
+## Quick start with Docker Compose
 
 ### Prerequisites
-- Node.js (v16 or higher)
-- Python 3.8+
-- Docker and Docker Compose
 
-### Option 1: Manual Setup
+- Docker with Docker Compose
 
-#### 1. Start Virtuoso in Docker
+From this directory, run:
+
 ```bash
-docker run -d -p 8890:8890 --name virtuoso kemele/virtuoso:7-stable
-
+docker compose up --build
 ```
 
-#### 2. Start Backend API
+The services are then available at:
+
+| Service | URL |
+| --- | --- |
+| Interface | <http://localhost:5173> |
+| Backend API | <http://localhost:8000> |
+| Backend health check | <http://localhost:8000/api/health> |
+| Virtuoso SPARQL endpoint | <http://localhost:8890/sparql> |
+| Virtuoso Conductor | <http://localhost:8890/conductor> |
+
+To stop the services:
+
 ```bash
-cd backend
-uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir backend --reload-dir src  
+docker compose down
 ```
 
-#### 3. Start Frontend Interface
+The named `kg_data` volume preserves Virtuoso data between container restarts. Use `docker compose down -v` only when you intentionally want to remove that data.
+
+## Local development
+
+### Prerequisites
+
+- Node.js 18 or newer
+- npm 9 or newer
+- Python 3.11 recommended
+- A Virtuoso instance if knowledge-graph upload or SPARQL querying is required
+
+### 1. Install the frontend dependencies
+
 ```bash
-cd Boxology-Interface
 npm install
+```
+
+### 2. Create a Python environment and install the backend dependencies
+
+On macOS or Linux:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -r backend/requirements.txt
+```
+
+On Windows PowerShell:
+
+```powershell
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r backend/requirements.txt
+```
+
+The default requirements include packages for local model inference and can be large. If local inference is not needed, the Docker backend image provides a lighter setup for hosted providers.
+
+### 3. Start Virtuoso
+
+You can start only the repository's Virtuoso service:
+
+```bash
+docker compose up -d boxology_kg
+```
+
+For a manually started backend, the application resolves Virtuoso at `localhost:8890` by default. Set `SPARQL_HOST` to override the host.
+
+### 4. Start the backend
+
+Run this command from the `Boxology-Interface` directory:
+
+```bash
+python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir backend --reload-dir src
+```
+
+### 5. Start the frontend
+
+In another terminal:
+
+```bash
 npm run dev
 ```
 
-Then open [http://localhost:5173](http://localhost:5173) in your browser.
+Open <http://localhost:5173>.
 
-### Option 2: Docker Compose (Recommended)
+## Configuration
 
-```bash
-# From the root directory
-docker-compose up -d
+Create a `.env.local` file in this directory when the frontend should use a backend other than the default:
+
+```dotenv
+VITE_BACKEND_URL=http://localhost:8000
 ```
 
-This will start:
-- **Frontend**: http://localhost:5173
-- **Backend API**: http://localhost:8000
-- **Virtuoso**: http://localhost:8890/sparql (SPARQL endpoint)
+Relevant backend environment variables include:
 
-#### Access Virtuoso Conductor
-- URL: http://localhost:8890/conductor
-- Username: `dba`
-- Password: `dba`
+| Variable | Purpose | Default |
+| --- | --- | --- |
+| `SPARQL_HOST` | Virtuoso hostname used by a locally run backend | Automatically detected; otherwise `localhost` |
+| `DEFAULT_HF_MODEL_ID` | Default Hugging Face model | `openai/gpt-oss-120b` |
+| `HF_REQUEST_TIMEOUT_SECONDS` | Hugging Face request timeout | `120` |
+| `HF_DEFAULT_MAX_TOKENS` | Default chat response limit | `512` |
+| `HF_BOXOLOGY_MAX_TOKENS` | Boxology generation response limit | `4096` |
+| `HF_MAX_TOKENS_CEILING` | Maximum accepted response limit | `8192` |
 
----
+LLM credentials are entered through the interface and sent to the backend for the requested operation. Do not commit API keys or tokens to the repository.
 
-## 📂 Folder Structure
+## Available scripts
 
-| Folder/File              | Purpose                                           |
-|--------------------------|---------------------------------------------------|
-| `src/`                   | React components and diagram logic                |
-| `src/components/`        | UI components (Toolbar, Sidebars, Dialogs)        |
-| `src/utils/`             | Utility functions for export, validation, KG gen  |
-| `src/utils/exportHelpers.ts` | KG generation and ID management             |
-| `src/pages/`             | Page components (HomePage, ToolPage)              |
-| `backend/`               | FastAPI backend for KG generation and Virtuoso    |
-| `backend/kg_generator/`  | Knowledge graph generation logic                  |
-| `public/`                | Static assets                                     |
-| `docker-compose.yml`     | Docker orchestration configuration                |
-| `vite.config.ts`         | Vite build configuration                          |
-| `tsconfig.json`          | TypeScript settings                               |
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start the Vite development server |
+| `npm run build` | Type-check and create a production build in `dist/` |
+| `npm run preview` | Preview the production build locally |
+| `npm run lint` | Run ESLint |
+| `npm run format` | Format the project with Prettier |
+| `npm run deploy` | Build and publish `dist/` with `gh-pages` |
+| `npm run docker:build` | Build the production frontend image |
+| `npm run docker:run` | Run that image at <http://localhost:3000> |
 
----
+There is currently no automated test suite; `npm test` is a placeholder.
 
-## 🔧 Planned Improvements
+## Project structure
 
-We are working continuously to improve the UI, stability, and knowledge graph capabilities of the Boxology Interface.
+```text
+Boxology-Interface/
+├── backend/                 FastAPI API, LLM integration, and KG endpoints
+├── local-llm/               Local-model support files
+├── nginx/                   Production web-server configuration
+├── public/                  Static site, tutorial, and KG viewer assets
+├── src/
+│   ├── components/          Editor UI, sidebars, toolbar, dialogs, and chat
+│   ├── data/                Shapes and Boxology pattern definitions
+│   ├── Examples/            Example diagrams
+│   ├── hooks/               Shared React hooks
+│   ├── kg_creation/         RDF generation and mappings
+│   ├── plugin/              Diagram setup and validation implementations
+│   ├── styles/              Theme and shared styles
+│   └── utils/               Import, export, validation, autosave, and docs
+├── docker-compose.yml       Development service orchestration
+├── Dockerfile               Production frontend image
+├── Dockerfile.dev           Frontend development image
+└── vite.config.ts           Vite build and development-server configuration
+```
 
----
+## Production frontend build
 
-## 📄 License
+Create a static production build with:
 
-- Code is licensed under the [MIT License](../LICENSE)
-- UI diagrams and Boxology shapes are under [CC BY 4.0 License](../LICENSE-CC-BY-4.0)
+```bash
+npm run build
+```
 
----
+The generated frontend files are written to `dist/`.
 
-## 🧠 Acknowledgments
+The production `Dockerfile` builds the same static frontend and serves it with Nginx:
 
-This project uses [GoJS](https://gojs.net/) for diagram rendering.  
-We currently use the **evaluation version**, which includes a watermark, in compliance with the GoJS [license agreement](https://gojs.net/latest/license.html).
+```bash
+docker build -t boxology-interface .
+docker run --rm -p 3000:80 boxology-interface
+```
 
-For commercial use or removal of the watermark, a license from [Northwoods Software](https://nwoods.com/) is required.
+Then open <http://localhost:3000>.
 
----
+This image contains only the frontend. Diagram editing and local import/export work without the Python service, but AI assistance, knowledge-graph generation, and SPARQL queries require the backend and Virtuoso to be running separately. By default, the browser connects to the backend at <http://localhost:8000>.
 
-## 🙋 Contact & Support
+To run the complete application stack instead, use:
 
-**Developed by:** Mahsa Forghani Tehrani  
-📧 **Email:** mahsa.forghani.tehrani@stud.uni-hannover.de  
-📚 **Documentation:** [GitHub Repository](https://github.com/SDM-TIB/Tool4Boxology.git)
+```bash
+docker compose up --build
+```
 
-For questions, suggestions, or collaboration opportunities regarding knowledge graph generation and semantic AI system design, please don't hesitate to reach out.
+and open <http://localhost:5173>.
+
+## Troubleshooting
+
+- **The assistant cannot reach the backend:** verify <http://localhost:8000/api/health> and check `VITE_BACKEND_URL`.
+- **Knowledge-graph upload or queries fail:** confirm Virtuoso is running at port `8890` and that `SPARQL_HOST` is correct for the backend's environment.
+- **The GoJS evaluation watermark is visible:** the repository uses the GoJS evaluation distribution. A commercial GoJS license is required to remove it.
+- **Docker data seems stale:** restart the services first. Removing the `kg_data` volume deletes stored Virtuoso data.
+
+## License
+
+Repository code is provided under the [Apache License 2.0](../LICENSE). Documentation and Boxology visual material covered separately are provided under [CC BY 4.0](../LICENSE-CC-BY-4.0).
+
+GoJS is a product of Northwoods Software and has its own [license terms](https://gojs.net/latest/license.html).
+
+## Contact
+
+Developed by Mahsa Forghani Tehrani and the Tool4Boxology contributors.
+
+- Email: mahsa.forghani.tehrani@stud.uni-hannover.de
+- Repository: <https://github.com/SDM-TIB/Tool4Boxology>
