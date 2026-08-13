@@ -1,0 +1,267 @@
+@prefix : <http://fedTool4boxology.org/FedTool4BoxologyOntology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://fedTool4boxology.org/FedTool4BoxologyOntology> .
+@prefix t4b: <http://tool4boxology.org/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+@prefix orkgc: <http://orkg.org/class/> .
+@prefix orkgp: <http://orkg.org/predicate/> .
+@prefix pro: <http://purl.org/spar/pro/> .
+@prefix datacite: <http://purl.org/spar/datacite/> .
+@prefix schema: <http://schema.org/> .
+
+<http://fedTool4boxology.org/FedTool4BoxologyOntology> rdf:type owl:Ontology .
+
+
+# Classes
+
+<http://orkg.org/class/Paper> rdf:type owl:Class .
+
+<http://orkg.org/class/Author> rdf:type owl:Class .
+
+<http://orkg.org/class/Contribution> rdf:type owl:Class .
+
+<http://orkg.org/class/ResearchField> rdf:type owl:Class .
+
+<http://orkg.org/class/Observatory> rdf:type owl:Class . # ?
+
+<http://orkg.org/class/Venue> rdf:type owl:Class .
+
+<http://fedTool4boxology.org/Evaluation> rdf:type owl:Class .
+
+<http://www.w3.org/ns/dcat#Dataset> rdf:type owl:Class .
+
+<http://www.w3.org/ns/dcat#Distribution> rdf:type owl:Class .
+
+<http://www.w3.org/2006/vcard/ns#Organization> rdf:type owl:Class .
+
+<http://purl.org/spar/pro/Author> rdf:type owl:Class ;
+                                    owl:sameAS <http://orkg.org/class/Author> .
+
+<@prefix skos: <http://www.w3.org/2004/02/skos/core#Concept> .> rdf:type owl:Class .
+
+<http://fedTool4boxology.org/ORCID> rdf:type owl:Class .
+
+# Datatype Properties for ORKG Papers
+
+# use rdfs:label instead
+#<http://fedTool4boxology.org/title> rdf:type owl:DatatypeProperty ;
+#                                    rdfs:domain <http://orkg.org/class/Paper> ;
+#                                    rdfs:range xsd:string .
+
+<http://orkg.org/predicate/P26> rdf:type owl:DatatypeProperty ; # doi
+                                    rdfs:domain <http://orkg.org/class/Paper> ;
+                                    rdfs:range xsd:string .
+
+<http://orkg.org/predicate/P28> rdf:type owl:DatatypeProperty ; # publication_month
+                                                rdfs:domain <http://orkg.org/class/Paper> ;
+                                                rdfs:range xsd:int .
+
+<http://orkg.org/predicate/P29> rdf:type owl:DatatypeProperty ; # publication_year
+                                                rdfs:domain <http://orkg.org/class/Paper> ;
+                                                rdfs:range xsd:int .                                
+
+<http://orkg.org/predicate/url> rdf:type owl:DatatypeProperty ;
+                                                rdfs:domain <http://orkg.org/class/Paper> ;
+                                                rdfs:range xsd:string .
+
+#<http://fedTool4boxology.org/extraction_method> rdf:type owl:DatatypeProperty ;
+#                                                rdfs:domain <http://orkg.org/class/Paper> ;
+#                                                rdfs:range xsd:string .
+
+#<http://fedTool4boxology.org/sdg> rdf:type owl:DatatypeProperty ;
+#                                    rdfs:domain <http://orkg.org/class/Paper> ;
+#                                    rdfs:range xsd:string .
+
+# use rdfs:label instead
+#<http://fedTool4boxology.org/name> rdf:type owl:DatatypeProperty ;
+#                                    rdfs:domain <http://orkg.org/class/Author> ;
+#                                    rdfs:range xsd:string .
+
+<http://orkg.org/predicate/HAS_ORCID> rdf:type owl:DatatypeProperty ;
+                                    rdfs:domain <http://orkg.org/class/Author> ;
+                                    rdfs:range xsd:string .
+
+#<http://orkg.org/predicate/googleScholarID> rdf:type owl:DatatypeProperty ;
+#                                                rdfs:domain <http://orkg.org/class/Author> ;
+#                                                rdfs:range xsd:string .
+
+#<http://orkg.org/predicate/linkedInID> rdf:type owl:DatatypeProperty ;
+#                                        rdfs:domain <http://orkg.org/class/Author> ;
+#                                        rdfs:range xsd:string .
+
+#<http://orkg.org/predicate/researchGateID> rdf:type owl:DatatypeProperty ;
+#                                            rdfs:domain <http://orkg.org/class/Author> ;
+#                                            rdfs:range xsd:string .
+
+#<http://fedTool4boxology.org/web_of_science> rdf:type owl:DatatypeProperty ;
+#                                            rdfs:domain <http://orkg.org/class/Author> ;
+#                                            rdfs:range xsd:string .
+
+#<http://fedTool4boxology.org/wikidata> rdf:type owl:DatatypeProperty ;
+#                                        rdfs:domain <http://orkg.org/class/Author> ;
+#                                        rdfs:range xsd:string .
+
+<http://orkg.org/predicate/website> rdf:type owl:DatatypeProperty ;
+                                        rdfs:domain <http://orkg.org/class/Author> ;
+                                        rdfs:range xsd:string .
+
+#<http://fedTool4boxology.org/label> rdf:type owl:DatatypeProperty ;
+#                                    rdfs:domain <http://fedTool4boxology.org/Contribution> ;
+#                                    rdfs:range xsd:string .
+
+#<http://fedTool4boxology.org/label> rdf:type owl:DatatypeProperty ;
+#                                    rdfs:domain <http://fedTool4boxology.org/ResearchField> ;
+#                                    rdfs:range xsd:string .
+
+#<http://fedTool4boxology.org/label> rdf:type owl:DatatypeProperty ;
+#                                    rdfs:domain <http://fedTool4boxology.org/Venues> ;
+#                                    rdfs:range xsd:string .
+
+
+# Object Properties for ORKG Papers
+
+<http://orkg.org/predicate/P6> rdf:type owl:ObjectProperty ;
+                                        rdfs:domain <http://orkg.org/class/Paper> ;
+                                        rdfs:range <http://orkg.org/class/Author> .
+
+<http://orkg.org/predicate/P30> rdf:type owl:ObjectProperty ; # research_field
+                                                rdfs:domain <http://orkg.org/class/Paper> ;
+                                                rdfs:range <http://orkg.org/class/ResearchField> . 
+
+<http://orkg.org/predicate/P31> rdf:type owl:ObjectProperty ; # contribution
+                                                rdfs:domain <http://orkg.org/class/Paper> ;
+                                                rdfs:range <http://orkg.org/class/Contribution> .
+
+<http://fedTool4boxology.org/belongsToObservatory> rdf:type owl:ObjectProperty;
+                                                    rdfs:domain <http://orkg.org/class/Paper> ;
+                                                    rdfs:range <http://orkg.org/class/Observatory> . # ?
+
+<http://fedTool4boxology.org/belongsToOrganization> rdf:type owl:ObjectProperty;
+                                                    rdfs:domain <http://orkg.org/class/Paper> ;
+                                                    rdfs:range <http://www.w3.org/2006/vcard/ns#Organization> .
+
+<http://orkg.org/predicate/HAS_VENUE> rdf:type owl:ObjectProperty;
+                                            rdfs:domain <http://orkg.org/class/Paper> ;
+                                            rdfs:range <http://orkg.org/class/Venue> .
+
+
+# Datatype Properties for LDM Datasets
+
+<http://fedTool4boxology.org/doi> rdf:type owl:DatatypeProperty ;
+                                    rdfs:domain <http://www.w3.org/ns/dcat#Dataset> ;
+                                    rdfs:range xsd:string .
+                                    
+<http://purl.org/dc/terms/title> rdf:type owl:DatatypeProperty ;
+                                    rdfs:domain <http://www.w3.org/ns/dcat#Dataset> ;
+                                    rdfs:range xsd:string .
+
+<http://purl.org/dc/terms/description> rdf:type owl:DatatypeProperty ;
+                                    rdfs:domain <http://www.w3.org/ns/dcat#Dataset> ;
+                                    rdfs:range xsd:string .
+
+<http://purl.org/dc/terms/identifier> rdf:type owl:DatatypeProperty ;
+                                    rdfs:domain <http://www.w3.org/ns/dcat#Dataset> ;
+                                    rdfs:range xsd:string .
+
+<http://purl.org/dc/terms/source> rdf:type owl:DatatypeProperty ;
+                                    rdfs:domain <http://www.w3.org/ns/dcat#Dataset> ;
+                                    rdfs:range xsd:string .
+
+<http://schema.org/citation> rdf:type owl:DatatypeProperty ;
+                                    rdfs:domain <http://www.w3.org/ns/dcat#Dataset> ;
+                                    rdfs:range xsd:string .
+
+<http://www.w3.org/ns/dcat#landingPage> rdf:type owl:DatatypeProperty ;
+                                    rdfs:domain <http://www.w3.org/ns/dcat#Dataset> ;
+                                    rdfs:range xsd:string .
+
+<http://purl.org/spar/datacite/isDescribedBy>  rdf:type owl:DatatypeProperty ;
+                                    rdfs:domain <http://www.w3.org/ns/dcat#Dataset> ;
+                                    rdfs:range xsd:string .
+
+#<http://xmlns.com/foaf/0.1/name> rdf:type owl:DatatypeProperty ;
+#                                    rdfs:domain <http://xmlns.com/foaf/0.1/Organization> ;
+#                                    rdfs:range xsd:string .
+
+<http://purl.org/dc/terms/format> rdf:type owl:DatatypeProperty ;
+                                    rdfs:domain <http://www.w3.org/ns/dcat#Distribution> ;
+                                    rdfs:range xsd:string .
+
+<http://www.w3.org/ns/dcat#mediaType> rdf:type owl:DatatypeProperty ;
+                                    rdfs:domain <http://www.w3.org/ns/dcat#Distribution> ;
+                                    rdfs:range xsd:string .
+
+<http://www.w3.org/ns/dcat#byteSize> rdf:type owl:DatatypeProperty ;
+                                    rdfs:domain <http://www.w3.org/ns/dcat#Distribution> ;
+                                    rdfs:range xsd:decimal .
+
+<http://www.w3.org/ns/dcat#accessURL> rdf:type owl:DatatypeProperty ;
+                                    rdfs:domain <http://www.w3.org/ns/dcat#Distribution> ;
+                                    rdfs:range xsd:string .
+
+<http://www.w3.org/ns/dcat#downloadURL> rdf:type owl:DatatypeProperty ;
+                                    rdfs:domain <http://www.w3.org/ns/dcat#Distribution> ;
+                                    rdfs:range xsd:string .
+
+
+
+#<http://www.w3.org/2006/vcard/ns#fn> rdf:type owl:DatatypeProperty ;
+#                                    rdfs:domain <http://www.w3.org/2006/vcard/ns#Organization> ;
+#                                    rdfs:range xsd:string .
+
+#<http://www.w3.org/2006/vcard/ns#hasEmail> rdf:type owl:DatatypeProperty ;
+#                                    rdfs:domain <http://www.w3.org/2006/vcard/ns#Organization> ;
+#                                    rdfs:range xsd:string .
+
+
+# Object Properties for LDM Datasets
+
+<http://www.w3.org/ns/dcat#distribution> rdf:type owl:ObjectProperty;
+                                        rdfs:domain <http://www.w3.org/ns/dcat#Dataset> ;
+                                        rdfs:range <http://www.w3.org/ns/dcat#Distribution> .
+
+<http://purl.org/dc/terms/publisher> rdf:type owl:ObjectProperty;
+                                        rdfs:domain <http://www.w3.org/ns/dcat#Dataset> ;
+                                        rdfs:range <http://www.w3.org/2006/vcard/ns#Organization> .
+
+<http://purl.org/spar/pro/owner> rdf:type owl:ObjectProperty;
+                                        rdfs:domain <http://www.w3.org/2006/vcard/ns#Organization> ;
+                                        rdfs:range <http://www.w3.org/ns/dcat#Dataset> .
+
+<http://purl.org/dc/terms/creator> rdf:type owl:ObjectProperty;
+                                        rdfs:domain <http://www.w3.org/ns/dcat#Dataset> ;
+                                        rdfs:range <http://purl.org/spar/pro/Author> .
+
+<http://purl.org/spar/pro/authorOf> rdf:type owl:ObjectProperty;
+                                        rdfs:domain <http://purl.org/spar/pro/Author> ;
+                                        rdfs:range <http://www.w3.org/ns/dcat#Dataset> .
+
+<http://www.w3.org/ns/dcat#keyword> rdf:type owl:ObjectProperty ;
+                                    rdfs:domain <http://www.w3.org/ns/dcat#Dataset> ;
+                                    rdfs:range <@prefix skos: <http://www.w3.org/2004/02/skos/core#Concept> .> .
+
+#<http://www.w3.org/ns/dcat#contactPoint> rdf:type owl:ObjectProperty;
+#                                        rdfs:domain <http://www.w3.org/ns/dcat#Dataset> ;
+#                                        rdfs:range <http://www.w3.org/2006/vcard/ns#Organization> .
+
+
+# Ternary Relationship is_evaluated
+
+<http://fedTool4boxology.org/evaluatesPaper> rdf:type owl:ObjectProperty;
+                                                rdfs:domain <http://fedTool4boxology.org/Evaluation> ;
+                                                rdfs:range <http://orkg.org/class/Paper> .
+
+<http://fedTool4boxology.org/evaluatesDataset> rdf:type owl:ObjectProperty;
+                                                rdfs:domain <http://fedTool4boxology.org/Evaluation> ;
+                                                rdfs:range <http://www.w3.org/ns/dcat#Dataset>.
+
+<http://fedTool4boxology.org/evaluatesBoxology> rdf:type owl:ObjectProperty;
+                                                rdfs:domain <http://fedTool4boxology.org/Evaluation> ;
+                                                rdfs:range <http://tool4boxology.org/Boxology> .

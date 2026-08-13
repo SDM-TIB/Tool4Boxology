@@ -1,0 +1,344 @@
+@prefix rr: <http://www.w3.org/ns/r2rml#>.
+@prefix rml: <http://semweb.mmlab.be/ns/rml#>.
+@prefix ql: <http://semweb.mmlab.be/ns/ql#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix schema: <http://schema.org/>.
+@prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#lat>.
+@prefix gn: <http://www.geonames.org/ontology#>.
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix datacite: <http://purl.org/spar/datacite/> .
+@prefix pro: <http://purl.org/spar/pro/>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix adms: <http://www.w3.org/ns/adms#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@base <http://example.com/ns#>.
+
+
+<#DatasetMapping> a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source "C:/Users/simon/OneDrive/Uni/Veranstaltungen/Semester 8/Bachelorarbeit/ttl/data/metadata.json";
+    rml:referenceFormulation ql:JSONPath;
+    rml:iterator "$.[*]";
+  ];
+
+  rr:subjectMap [
+    rr:template "http://fedTool4boxology.org/Dataset/{id}";
+    rr:class dcat:Dataset;
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dct:source;
+    rr:objectMap [
+      rr:template "https://doi.org/{doi}";
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dct:title;
+    rr:objectMap [
+      rml:reference "title"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dct:description;
+    rr:objectMap [
+      rml:reference "notes"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dct:identifier;
+    rr:objectMap [
+      rml:reference "id"
+    ]
+  ];
+
+  #rr:predicateObjectMap [
+  #  rr:predicate dct:issued;
+  #  rr:objectMap [
+  #    rr:datatype xsd:dateTime;
+  #    rml:reference "metadata_created"
+  #  ]
+  #];
+
+  #rr:predicateObjectMap [
+  #  rr:predicate dct:modified;
+  #  rr:objectMap [
+  #    rr:datatype xsd:dateTime;
+  #    rml:reference "metadata_modified"
+  #  ]
+  #];
+
+  rr:predicateObjectMap [
+    rr:predicate dct:publisher;
+    rr:objectMap [
+      rr:template "http://fedTool4boxology.org/Organization/{organization.name}"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate datacite:isDescribedBy;
+    rr:objectMap [
+      rr:template "{defined_in}"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate datacite:isDescribedBy;
+    rr:objectMap [
+      rr:template "{link_orkg}"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate schema:citation;
+    rr:objectMap [
+      rr:template "{citation[*]}"
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate dcat:landingPage;
+    rr:objectMap [
+      rr:template "{landing_page}"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dct:source;
+    rr:objectMap [
+      rr:template "{url}"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcat:keyword;
+    rr:objectMap [
+      rr:template "http://fedTool4boxology.org/Keyword/{tags[*].id}"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcat:distribution;
+    rr:objectMap [
+      rr:template "http://fedTool4boxology.org/Distribution/{resources[*].id}"
+    ]
+  #];
+
+  #rr:predicateObjectMap [
+  #  rr:predicate dct:license;
+  #  rr:objectMap [
+  #    rml:reference "license_url";
+  #  ]
+  ].
+
+
+<#KeywordsMapping> a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source "C:/Users/simon/OneDrive/Uni/Veranstaltungen/Semester 8/Bachelorarbeit/ttl/data/tags.csv";
+    rml:referenceFormulation ql:CSV;
+  ];
+
+  rr:subjectMap [
+    rr:template "http://fedTool4boxology.org/Keyword/{id}";
+    rr:class skos:Concept;
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate rdfs:label;
+    rr:objectMap [
+      rml:reference "name"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate owl:sameAs;
+    rr:objectMap [
+      rr:template "{wikidata_link}"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate owl:sameAs;
+    rr:objectMap [
+      rr:template "{dbpedia_link}"
+    ]
+  ].
+
+<#DistributionMapping> a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source "C:/Users/simon/OneDrive/Uni/Veranstaltungen/Semester 8/Bachelorarbeit/ttl/data/metadata.json";
+    rml:referenceFormulation ql:JSONPath;
+    rml:iterator "$.[*].resources[*]";
+  ];
+
+  rr:subjectMap [
+    rr:template "http://fedTool4boxology.org/Distribution/{id}";
+    rr:class dcat:Distribution
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dct:title;
+    rr:objectMap [
+      rml:reference "name"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcat:accessURL;
+    rr:objectMap [
+      rr:template "{url}"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcat:downloadURL;
+    rr:objectMap [
+      rr:template "{url}"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dct:description;
+    rr:objectMap [
+      rml:reference "description"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcat:byteSize;
+    rr:objectMap [
+      rml:reference "size"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dct:format;
+    rr:objectMap [
+      rml:reference "format"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dct:issued;
+    rr:objectMap [
+      rr:datatype xsd:dateTime;
+      rml:reference "created"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dct:rights;
+    rr:objectMap [
+      rml:reference "rights"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dct:language;
+    rr:objectMap [
+      rml:reference "language"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate dcat:mediaType;
+    rr:objectMap [
+      rml:reference "media"
+    ]
+  #];
+
+  #rr:predicateObjectMap [
+  #  rr:predicate dct:modified;
+  #  rr:objectMap [
+  #    rr:datatype xsd:dateTime;
+  #    rml:reference "metadata_modified"
+  #  ]
+  ].
+
+<#Author> a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source "C:/Users/simon/OneDrive/Uni/Veranstaltungen/Semester 8/Bachelorarbeit/ttl/data/authors.csv";
+    rml:referenceFormulation ql:CSV;
+  ];
+  rr:subjectMap [
+    rr:template "http://fedTool4boxology.org/Author/{author_id}";
+    rr:class pro:Author;
+  ];
+  rr:predicateObjectMap [
+    rr:predicate rdfs:label;
+    rr:objectMap [
+      rml:reference "author_name";
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate owl:sameAS;
+    rr:objectMap [
+      rr:template "https://orcid.org/{orcid}";
+    ]
+  ].
+
+<#AuthorORCID> a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source "C:/Users/simon/OneDrive/Uni/Veranstaltungen/Semester 8/Bachelorarbeit/ttl/data/authors.csv";
+    rml:referenceFormulation ql:CSV;
+  ];
+  rr:subjectMap [
+    rr:template "https://orcid.org/{orcid}";
+    rr:class pro:Author;
+  ].
+
+<#DatasetAuthors> a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source "C:/Users/simon/OneDrive/Uni/Veranstaltungen/Semester 8/Bachelorarbeit/ttl/data/dataset_authors.csv";
+    rml:referenceFormulation ql:CSV;
+  ];
+  rr:subjectMap [
+    rr:template "http://fedTool4boxology.org/Dataset/{dataset_id}";
+    rr:class dcat:Dataset;
+    
+  ];
+  rr:predicateObjectMap [
+    rr:predicate dct:creator;
+    rr:objectMap [
+      rr:template "http://fedTool4boxology.org/Author/{author_id}"
+    ]
+  ].
+
+<#AuthorDataset> a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source "C:/Users/simon/OneDrive/Uni/Veranstaltungen/Semester 8/Bachelorarbeit/ttl/data/dataset_authors.csv";
+    rml:referenceFormulation ql:CSV;
+  ];
+  rr:subjectMap [
+    rr:template "http://fedTool4boxology.org/Author/{author_id}";
+    rr:class pro:Author;
+  ];
+  rr:predicateObjectMap [
+    rr:predicate pro:authorOf;
+    rr:objectMap [
+      rr:template "http://fedTool4boxology.org/Dataset/{dataset_id}";
+    ]
+  ].
+  
+<#Organization> a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source "C:/Users/simon/OneDrive/Uni/Veranstaltungen/Semester 8/Bachelorarbeit/ttl/data/metadata.json";
+    rml:referenceFormulation ql:JSONPath;
+    rml:iterator "$.[*]";
+  ];
+  rr:subjectMap [
+    rr:template "http://fedTool4boxology.org/Organization/{organization.name}";
+    rr:class vcard:Organization;
+  ];
+  rr:predicateObjectMap [
+    rr:predicate pro:owner;
+    rr:objectMap [
+      rr:template "http://fedTool4boxology.org/Dataset/{id}";
+    ]
+  ].

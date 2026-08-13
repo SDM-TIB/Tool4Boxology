@@ -1,0 +1,270 @@
+@prefix rr: <http://www.w3.org/ns/r2rml#> .
+@prefix rml: <http://semweb.mmlab.be/ns/rml#> .
+@prefix ql: <http://semweb.mmlab.be/ns/ql#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+@prefix t4b: <http://tool4boxology.org/> .
+@prefix ft4b: <http://fedTool4boxology.org/> .
+@prefix orkgc: <http://orkg.org/class/> .
+@prefix orkgp: <http://orkg.org/predicate/> .
+@base <http://tib.de/SDM-RDFizer/mapping#> .
+
+
+<PapersMap>	a rr:TriplesMap;
+	rml:logicalSource [ rml:source "C:/Users/simon/OneDrive/Uni/Veranstaltungen/Semester 8/Bachelorarbeit/ttl/data/papers.json";
+						rml:referenceFormulation ql:JSONPath;
+						rml:iterator "$.papers[*]"
+						];
+	rr:subjectMap [
+		rr:template "http://orkg.org/papers/{id}"; # "http://orkg.org/class/Paper/{id}"
+		rr:class orkgc:Paper
+	];
+	rr:predicateObjectMap [
+		rr:predicate rdfs:label; # title
+		rr:objectMap [
+			rml:reference "title"
+		]
+	];	
+    rr:predicateObjectMap [
+		rr:predicate orkgp:P26; # doi
+		rr:objectMap [
+			rml:reference "identifiers.doi[*]"
+		]
+	];	
+    rr:predicateObjectMap [
+		rr:predicate orkgp:P28; # publication_month
+		rr:objectMap [
+			rml:reference "publication_info.published_month";
+            rr:datatype xsd:int
+		]
+	];	
+    rr:predicateObjectMap [
+		rr:predicate orkgp:P29; # publication_year
+		rr:objectMap [
+			rml:reference "publication_info.published_year";
+            rr:datatype xsd:int
+		]
+	];	
+    rr:predicateObjectMap [
+		rr:predicate orkgp:HAS_VENUE; # publishedIn
+		rr:objectMap [
+			rr:template "http://orkg.org/venues/{publication_info.published_in.id}"; # "http://orkg.org/class/Venue/{publication_info.published_in.id}"
+		]
+	];	
+    rr:predicateObjectMap [
+		rr:predicate orkgp:url;
+		rr:objectMap [
+			rml:reference "publication_info.url"
+		]
+	];	
+    #rr:predicateObjectMap [
+	#	rr:predicate ft4b:extraction_method;
+	#	rr:objectMap [
+	#		rml:reference "extraction_method"
+	#	]
+	#];	
+    #rr:predicateObjectMap [
+	#	rr:predicate ft4b:sdg;
+	#	rr:objectMap [
+	#		rml:template "https://orkg.org/sustainable-development-goals/{sdgs[*]}" # "sdgs[*]"
+	#	]
+	#];	
+	rr:predicateObjectMap [
+		rr:predicate orkgp:P6; # author
+		rr:objectMap [ 
+			rr:template "http://orkg.org/authors/{authors[*].id}"; # "http://orkg.org/class/Author/{authors[*].id}"
+		]
+	];
+	rr:predicateObjectMap [
+		rr:predicate orkgp:P30; # research_field
+		rr:objectMap [ 
+			rr:template "http://orkg.org/fields/{research_fields[*].id}"; # "http://orkg.org/class/ResearchField/{research_fields[*].id}"
+		]
+	];
+	rr:predicateObjectMap [
+		rr:predicate orkgp:P31; # contribution
+		rr:objectMap [ 
+			rr:template "http://orkg.org/resources/{contributions[*].id}"; # "http://orkg.org/class/Contribution/{contributions[*].id}"
+		]
+	];
+    rr:predicateObjectMap [
+		rr:predicate ft4b:belongsToObservatory;
+		rr:objectMap [ 
+			rr:template "http://orkg.org/observatories/{observatories[*]}"; # "http://orkg.org/class/Observatory/{observatories[*]}"
+		]
+	];
+    rr:predicateObjectMap [
+		rr:predicate ft4b:belongsToOrganization;
+		rr:objectMap [ 
+			rr:template "http://orkg.org/organization/{organizations[*]}"; # "http://orkg.org/class/Organization/{organizations[*]}"
+		]
+	].
+
+<AuthorsMap> a rr:TriplesMap;
+    rml:logicalSource [ rml:source "C:/Users/simon/OneDrive/Uni/Veranstaltungen/Semester 8/Bachelorarbeit/ttl/data/papers.json";
+						rml:referenceFormulation ql:JSONPath;
+						rml:iterator "$.papers[*].authors[*]"
+						];
+    rr:subjectMap [
+		rr:template "http://orkg.org/authors/{id}"; # "http://orkg.org/class/Author/{id}"
+		rr:class orkgc:Author
+	];
+    rr:predicateObjectMap [
+		rr:predicate rdfs:label;
+		rr:objectMap [
+			rml:reference "name"
+		]
+	];	
+    #rr:predicateObjectMap [
+	#	rr:predicate orkgp:HAS_ORCID;
+	#	rr:objectMap [
+	#		rml:reference "identifiers.orcid"
+	#	]
+	#];	
+    #rr:predicateObjectMap [
+	#	rr:predicate orkgp:googleScholarID;
+	#	rr:objectMap [
+	#		rml:reference "identifiers.google_scholar[*]"
+	#	]
+	#];	
+    #rr:predicateObjectMap [
+	#	rr:predicate orkgp:linkedInID;
+	#	rr:objectMap [
+	#		rml:reference "identifiers.linked_in[*]"
+	#	]
+	#];	
+    #rr:predicateObjectMap [
+	#	rr:predicate orkgp:researchGateID;
+	#	rr:objectMap [
+	#		rml:reference "identifiers.research_gate[*]"
+	#	]
+	#];	
+    #rr:predicateObjectMap [
+	#	rr:predicate ft4b:web_of_science;
+	#	rr:objectMap [
+	#		rml:reference "identifiers.web_of_science[*]"
+	#	]
+	#];	
+    #rr:predicateObjectMap [
+	#	rr:predicate ft4b:wikidata;
+	#	rr:objectMap [
+	#		rml:reference "identifiers.wikidata[*]"
+	#	]
+	#];
+	#rr:predicateObjectMap [
+	#	rr:predicate orkgp:website;
+	#	rr:objectMap [
+	#		rml:reference "homepage"
+	#	]
+	#];
+	rr:predicateObjectMap [
+    	rr:predicate owl:sameAS;
+    	rr:objectMap [
+      		rr:template "https://orcid.org/{identifiers.orcid[*]}";
+    	]
+  	].
+
+<ContributionsMap> a rr:TriplesMap;
+    rml:logicalSource [ rml:source "C:/Users/simon/OneDrive/Uni/Veranstaltungen/Semester 8/Bachelorarbeit/ttl/data/papers.json";
+						rml:referenceFormulation ql:JSONPath;
+						rml:iterator "$.papers[*].contributions[*]"
+						];
+    rr:subjectMap [
+		rr:template "https://orkg.org/resources/{id}"; # "http://orkg.org/class/Contribution/{id}"
+		rr:class orkgc:Contribution
+	];
+    rr:predicateObjectMap [
+		rr:predicate rdfs:label;
+		rr:objectMap [
+			rml:reference "label"
+		]
+	].	
+
+<ResearchFieldsMap> a rr:TriplesMap;
+    rml:logicalSource [ rml:source "C:/Users/simon/OneDrive/Uni/Veranstaltungen/Semester 8/Bachelorarbeit/ttl/data/papers.json";
+						rml:referenceFormulation ql:JSONPath;
+						rml:iterator "$.papers[*].research_fields[*]"
+						];
+    rr:subjectMap [
+		rr:template "http://orkg.org/fields/{id}"; # "http://orkg.org/class/ResearchField/{id}"
+		rr:class orkgc:ResearchField
+	];
+    rr:predicateObjectMap [
+		rr:predicate rdfs:label;
+		rr:objectMap [
+			rml:reference "label"
+		]
+	].	
+
+<ObservatoriesMap> a rr:TriplesMap;
+	rml:logicalSource [ rml:source "C:/Users/simon/OneDrive/Uni/Veranstaltungen/Semester 8/Bachelorarbeit/ttl/data/papers.json";
+						rml:referenceFormulation ql:JSONPath;
+						rml:iterator "$.papers[*]"
+						];
+    rr:subjectMap [
+		rr:template "http://orkg.org/observatories/{observatories[*]}" ; # "http://orkg.org/class/Observatory/{observatories[*]}"
+		rr:class ft4b:Observatory
+	].
+
+<OrganizationsMap> a rr:TriplesMap;
+    rml:logicalSource [ rml:source "C:/Users/simon/OneDrive/Uni/Veranstaltungen/Semester 8/Bachelorarbeit/ttl/data/papers.json";
+						rml:referenceFormulation ql:JSONPath;
+						rml:iterator "$.papers[*]"
+						];
+    rr:subjectMap [
+		rr:template "http://orkg.org/organizations/General/{organizations[*]}"; # "http://orkg.org/class/Organization/{organizations[*]}"
+		rr:class vcard:Organization
+	].
+
+<VenuesMap> a rr:TriplesMap;
+	rml:logicalSource [ rml:source "C:/Users/simon/OneDrive/Uni/Veranstaltungen/Semester 8/Bachelorarbeit/ttl/data/papers.json";
+						rml:referenceFormulation ql:JSONPath;
+						rml:iterator "$.papers[*].publication_info.published_in"
+						];
+    rr:subjectMap [
+		rr:template "http://orkg.org/venues/{id}"; #"http://orkg.org/class/Venue/{id}"
+		rr:class orkgc:Venue
+	];
+	rr:predicateObjectMap [
+		rr:predicate rdfs:label;
+		rr:objectMap [
+			rml:reference "label"
+		]
+	].
+
+<EvaluationsMap> a rr:TriplesMap;
+	rml:logicalSource [ rml:source "C:/Users/simon/OneDrive/Uni/Veranstaltungen/Semester 8/Bachelorarbeit/ttl/data/papers.json";
+						rml:referenceFormulation ql:JSONPath;
+						rml:iterator "$.papers[*]."
+						];
+	rr:subjectMap [
+		rr:template "http://fedTool4boxology.org/Evaluation/{id}"; 
+		rr:class ft4b:Evaluation
+	];
+	rr:predicateObjectMap [
+    	rr:predicate ft4b:evaluatesPaper;
+    	rr:objectMap [
+      		rr:parentTriplesMap <PapersMap>;
+			rr:joinCondition [
+				rr:child "id";
+				rr:parent "id"
+			] 
+    	]
+  	#];
+	#rr:predicateObjectMap [
+    #	rr:predicate ft4b:evaluatesDataset;
+    #	rr:objectMap [
+    #  		rr:parentTriplesMap <DatasetsMap>;
+	#		rr:joinCondition [
+	#			rr:child "identifiers.doi[*]"; 
+	#			rr:parent "isDescribedBy"
+	#		] 
+    #	]
+  	].
+
