@@ -1,0 +1,26 @@
+{ "class": "GraphLinksModel",
+  "modelData": {"boxologyLabel":"Tumor-Diagnosis","boxologyId":"9dc7c502-4de0-441a-b729-28e29dad6f5e"},
+  "nodeDataArray": [
+{"key":"node_17877475032991","name":"Actor","label":"Expert","shape":"Triangle","color":"#ffdcabff","stroke":"#9c6921","loc":"210 110","type":"Actor","group":"group_1787747803280","isShared":false,"sharedGroups":[]},
+{"key":"node_17877475032992","name":"Engineer","label":"Engineering","shape":"RoundedRectangle","color":"#f6d6cf","stroke":"#b85068","loc":"360 110","type":"Engineer","parameter1":15,"group":"group_1787747803280"},
+{"key":"node_17877475033003","name":"Symbol","label":"Label for Segments","shape":"Rectangle","color":"#d1f0c9ff","stroke":"#218721ff","loc":"510 110","type":"Symbol","isShared":true,"sharedGroups":["group_1787747803280","group_1787747830274"]},
+{"key":"node_17877476150221","name":"Data","label":"Preprocessed MRT Data","shape":"Rectangle","color":"#c4e8ffff","stroke":"#1E5F8B","loc":"360.4000244140625 240","type":"Dataset","isShared":false,"sharedGroups":[],"group":"group_1787747830274"},
+{"key":"node_17877476150232","name":"Train","label":"Train","shape":"RoundedRectangle","color":"#ffc2a0","stroke":"#c05f30","loc":"510.4000244140625 240","type":"Train","parameter1":15,"group":"group_1787747830274"},
+{"key":"node_17877476150243","name":"Model","label":"Supervised Model","shape":"Hexagon","color":"#edd3f3ff","stroke":"#8B4F8B","loc":"723.6000366210938 240","type":"SelfSupervisedRuleMiningModel","isShared":true,"sharedGroups":["group_1787747830274","group_1787747844551"]},
+{"key":"node_17877476485991","name":"Data","label":"MRT Image","shape":"Rectangle","color":"#c4e8ffff","stroke":"#1E5F8B","loc":"565.5999755859375 376.800048828125","type":"Image","isShared":false,"sharedGroups":[],"group":"group_1787747844551"},
+{"key":"node_17877476485993","name":"Deduce","label":"Deduce","shape":"RoundedRectangle","color":"#ffcdcd","stroke":"#4c003bff","loc":"723.5999755859375 376.800048828125","type":"Deduce","parameter1":15,"group":"group_1787747844551"},
+{"key":"node_17877476485994","name":"Symbol","label":"Diagnosis","shape":"Rectangle","color":"#d1f0c9ff","stroke":"#218721ff","loc":"873.5999755859375 376.800048828125","type":"Label","isShared":false,"sharedGroups":[],"group":"group_1787747844551"},
+{"key":"group_1787747803280","isGroup":true,"category":"ClusterGroup","label":"Labeling"},
+{"key":"group_1787747830274","isGroup":true,"category":"ClusterGroup","label":"Train a Supervised Model"},
+{"key":"group_1787747844551","isGroup":true,"category":"ClusterGroup","label":"Symptom Detection"}
+],
+  "linkDataArray": [
+{"key":"link_1787747503300_1_2","from":"node_17877475032991","to":"node_17877475032992"},
+{"key":"link_1787747503302_2_3","from":"node_17877475032992","to":"node_17877475033003"},
+{"key":"link_1787747615024_1_2","from":"node_17877476150221","to":"node_17877476150232"},
+{"key":"link_1787747615025_2_3","from":"node_17877476150232","to":"node_17877476150243"},
+{"from":"node_17877475033003","to":"node_17877476150232"},
+{"key":"link_1787747648599_1_3","from":"node_17877476485991","to":"node_17877476485993"},
+{"key":"link_1787747648600_2_3","from":"node_17877476150243","to":"node_17877476485993"},
+{"key":"link_1787747648600_3_4","from":"node_17877476485993","to":"node_17877476485994"}
+]}

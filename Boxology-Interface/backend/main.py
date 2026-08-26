@@ -43,9 +43,12 @@ def clean_upstream_error(text: str, fallback: str) -> str:
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
-for p in (str(SRC), str(ROOT)):
+BACKEND_DIR = Path(__file__).resolve().parent
+for p in (str(SRC), str(ROOT), str(BACKEND_DIR)):
     if p not in sys.path:
         sys.path.insert(0, p)
+
+from shacl_lite import ShaclCompileError, compile_shapes_ttl
 
 def _detect_host(service_name: str = "boxology_kg") -> str:
     env_host = os.getenv("SPARQL_HOST")
@@ -975,6 +978,23 @@ async def api_t4b_sparql(payload: dict):
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/api/shacl/compile")
+async def api_shacl_compile(payload: dict):
+    """Compile an uploaded SHACL shapes file (Turtle) into standalone SPARQL
+    SELECT queries, one per constraint. Does not touch Virtuoso - the caller
+    runs each returned query (e.g. via /api/t4b/sparql) and applies any
+    scope filtering itself."""
+    shapes_ttl = (payload.get("shapes_ttl") or "").strip()
+    if not shapes_ttl:
+        raise HTTPException(status_code=400, detail="Missing shapes_ttl")
+    try:
+        return compile_shapes_ttl(shapes_ttl)
+    except ShaclCompileError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/")
 async def root():
