@@ -26,6 +26,12 @@ import ChatBotButton from './components/ChatBot/ChatBotButton';
 import { colors } from './styles/theme';
 
 
+// Public .boxology files that can be auto-opened via ?example=<key> in the URL,
+// e.g. the "Open editor" link on the tutorial page uses ?example=tumor-diagnosis.
+const EXAMPLE_BOXOLOGY_FILES: Record<string, string> = {
+  'tumor-diagnosis': '/download/Tumor-Diagnosis.boxology',
+};
+
 function App() {
   const { showToast } = useToast();
   const { confirmAsync, promptAsync, alertAsync } = useDialogs();
@@ -44,8 +50,23 @@ function App() {
       setAiAssistOpen(true);
       params.delete('aiAssist');
     }
+    const exampleKey = params.get('example');
+    if (exampleKey) {
+      params.delete('example');
+      const path = EXAMPLE_BOXOLOGY_FILES[exampleKey];
+      if (path) {
+        fetch(path)
+          .then(res => {
+            if (!res.ok) throw new Error(`Failed to fetch ${path}`);
+            return res.json();
+          })
+          .then(boxology => handleOpenGeneratedBoxology(boxology, path.split('/').pop()))
+          .catch(() => showToast('Could not load the example diagram.', 'error'));
+      }
+    }
     const query = params.toString();
     window.history.replaceState(null, '', `${window.location.pathname}${query ? `?${query}` : ''}${window.location.hash}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 
