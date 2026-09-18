@@ -6,6 +6,7 @@ import GoDiagram from './GoDiagram';
 import { saveWithPicker } from './utils/fs-save';
 import * as go from 'gojs';
 import RightSidebar from './components/sidebar/RightSidebar';
+import AddonRightSidebar from './components/sidebar/AddonRightSidebar';
 import ContextMenu from './components/ContextMenu';
 import { validateElementaryOnlyDiagram, validateGoJSDiagram } from './plugin/GoJSBoxologyValidation';
 import { v4 as uuidv4 } from 'uuid';
@@ -1095,6 +1096,9 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
   const [rightCollapsed, setRightCollapsed] = useState<boolean>(() => {
     return localStorage.getItem('rightCollapsed') === 'true';
   });
+  const [addonRightCollapsed, setaddonRightCollapsed] = useState<boolean>(() => {
+    return localStorage.getItem('addonRightCollapsed') === 'true';
+  });
 
   // 💾 PERSIST STATE ON CHANGE
   useEffect(() => {
@@ -1104,6 +1108,10 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
   useEffect(() => {
     localStorage.setItem('rightCollapsed', String(rightCollapsed));
   }, [rightCollapsed]);
+
+  useEffect(() => {
+    localStorage.setItem('addonRightCollapsed', String(addonRightCollapsed));
+  }, [addonRightCollapsed]);
 
   // ⌨️ KEYBOARD SHORTCUTS: Ctrl+Alt+[ for left, Ctrl+Alt+] for right
   useEffect(() => {
@@ -1124,13 +1132,14 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
   // 📏 SIDEBAR WIDTHS for clean JSX
   const LEFT_W = leftCollapsed ? 44 : 300;   // 44px rail when collapsed
   const RIGHT_W = rightCollapsed ? 44 : 280; // 44px rail when collapsed
+  const RIGHT2_W = addonRightCollapsed ? 44 : 324; // 44px rail when collapsed
 
   // 🔄 OPTIONAL: Nudge diagram layout when sidebars change
   useEffect(() => {
     if (diagramRef.current) {
       diagramRef.current.requestUpdate(); // gentle layout refresh
     }
-  }, [leftCollapsed, rightCollapsed]);
+  }, [leftCollapsed, rightCollapsed, addonRightCollapsed]);
 
   const processNodeNames = [
     "Train", "Engineer", "Deduce", "Induce", "Transform", "Embed"
@@ -1612,6 +1621,57 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
             onAction={handleContextMenuAction}
             selectedData={selectedData}
           />
+        </div>
+
+
+        {/* Collapsable Addon Right Sidebar for FedTool4Boxology */}
+        <div
+          className="sidebar sidebar--right"
+          style={{
+            width: RIGHT2_W,
+            minWidth: addonRightCollapsed ? 44 : 200,
+            maxWidth: addonRightCollapsed ? 44 : 340,
+            background: '#f9f9f9',
+            borderLeft: '1px solid #ddd',
+            height: '100%',
+            overflow: 'hidden',
+            position: 'relative',
+            transition: 'width 180ms ease'
+          }}
+        >
+          {/* Collapse toggle button */}
+          <button
+            aria-label={addonRightCollapsed ? 'Expand right sidebar' : 'Collapse right sidebar'}
+            title={addonRightCollapsed ? 'Expand Properties Panel (Ctrl+Alt+])' : 'Collapse Properties Panel (Ctrl+Alt+])'}
+            onClick={() => setaddonRightCollapsed(v => !v)}
+            className="collapse-btn collapse-btn--left"
+          >
+            {addonRightCollapsed ? '‹' : '›'}
+          </button>
+
+          {addonRightCollapsed ? (
+            <div className="sidebar-rail">
+              <div className="rail-title">Evaluations</div>
+              <div className="rail-icons">
+                <div 
+                  className="rail-icon" 
+                  title="Click to expand"
+                  onClick={() => setaddonaddonRightCollapsed(false)}
+                >
+                  🧾
+                </div>
+              </div>
+            </div>
+          ) : (
+          <AddonRightSidebar
+              selectedData={selectedData}
+              diagramRef={diagramRef}
+              pages={pages}
+              currentPageId={currentPageId}
+              setPages={setPages}
+              setCurrentPageId={setCurrentPageId}
+            />
+          )}
         </div>
 
         {/* 🎯 COLLAPSIBLE RIGHT SIDEBAR */}
