@@ -324,12 +324,13 @@ function downloadTextFile(content: string, filename: string, mimeType: string) {
 // }
 // ###
 export default function AddonRightSidebar({ selectedData, diagramRef, pages, currentPageId, setPages, setCurrentPageId }: RightSidebarProps) {
-  const [activeSection, setActiveSection] = useState<'paper1' | 'paper2' | 'paper3' | 'paper4' | 'paper5'>('paper1');
+  const [activeSection, setActiveSection] = useState<'paper1' | 'paper2' | 'paper3' | 'paper4' | 'paper5' | null>(null);
   const [localLabel, setLocalLabel] = useState('');
   const [localColor, setLocalColor] = useState('#ffffff');
   const [localStroke, setLocalStroke] = useState('#000000');
   const [localShape, setLocalShape] = useState('Rectangle');
   const [isLinkSelected, setIsLinkSelected] = useState(false);
+  const [evaluationsSearched, setEvaluationsSearched] = useState(false);
   const [linkRouting, setLinkRouting] = useState<'straight' | 'curve'>('straight');
   const [selectedCount, setSelectedCount] = useState(0);
   const [showInstruction, setShowInstruction] = useState(false);
@@ -584,6 +585,11 @@ export default function AddonRightSidebar({ selectedData, diagramRef, pages, cur
     }
   };
 
+  const searchForEvaluations = () => {
+    setEvaluationsSearched(true);
+    //TODO: Run queries and display results
+  }
+
   return (
     <div
       style={{
@@ -596,6 +602,19 @@ export default function AddonRightSidebar({ selectedData, diagramRef, pages, cur
         fontSize: '13px'
       }}
     >
+      {!evaluationsSearched && (
+        <div style={{ marginBottom: 12, padding: 12, background: '#ffffff', borderRadius: 14, border: '1px solid #e5e7eb' }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#6b7280', marginBottom: 10}}>
+            <span>No Evaluations found!</span>
+          </div>
+          <button onClick={() => searchForEvaluations()} style={getButtonStyle()}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <span>Search for evaluations</span>
+            </div>
+          </button>
+        </div>
+      )}
+      {evaluationsSearched && (
       <div style={{ marginBottom: 12, padding: 12, background: '#ffffff', borderRadius: 14, border: '1px solid #e5e7eb' }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: '#6b7280', marginBottom: 10, letterSpacing: 0.6 }}>
           EVALUATIONS
@@ -643,6 +662,7 @@ export default function AddonRightSidebar({ selectedData, diagramRef, pages, cur
           </button>
         </div>
       </div>
+      )}
 
       {activeSection === 'paper1' && (
         <div style={{ marginBottom: 12, padding: 8, background: '#fff', borderRadius: 6, border: '1px solid #eee' }}>
