@@ -10,6 +10,8 @@ import { generateMultiPageRMLExport } from '../../utils/exportHelpers';
 import { shapes, shapeTypesMin } from '../../data/shape';
 import { getButtonStyle, getMenuButtonStyle } from '../../styles/buttonStyles';
 import { colors } from '../../styles/theme';
+import PresentationPanel from './PresentationPanel';
+import type { Presentation } from '../../types/presentation';
 
 interface RightSidebarProps {
   selectedData: {
@@ -26,6 +28,8 @@ interface RightSidebarProps {
   currentPageId: string;
   setPages: (pages: any[]) => void;
   setCurrentPageId: (id: string) => void;
+  presentation: Presentation;
+  setPresentation: React.Dispatch<React.SetStateAction<Presentation>>;
 }
 
 // Math symbols database
@@ -416,8 +420,8 @@ function downloadTextFile(content: string, filename: string, mimeType: string) {
 // }
 // }
 // ###
-export default function RightSidebar({ selectedData, diagramRef, pages, currentPageId, setPages, setCurrentPageId }: RightSidebarProps) {
-  const [activeSection, setActiveSection] = useState<'howto' | 'examples' | 'query' | 'style' | 'symbols'>('howto');
+export default function RightSidebar({ selectedData, diagramRef, pages, currentPageId, setPages, setCurrentPageId, presentation, setPresentation }: RightSidebarProps) {
+  const [activeSection, setActiveSection] = useState<'howto' | 'examples' | 'query' | 'style' | 'symbols' | 'presentation'>('howto');
   const [localLabel, setLocalLabel] = useState('');
   const [localColor, setLocalColor] = useState('#ffffff');
   const [localStroke, setLocalStroke] = useState('#000000');
@@ -757,6 +761,14 @@ export default function RightSidebar({ selectedData, diagramRef, pages, currentP
               </span>
             </div>
           </button>
+          <button onClick={() => setActiveSection('presentation')} style={getMenuButtonStyle(activeSection === 'presentation')}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
+              <span>Presentation</span>
+              <span style={{ fontSize: 11, fontWeight: 500, color: activeSection === 'presentation' ? '#cbd5f5' : '#64748b' }}>
+                Core / Refinements view
+              </span>
+            </div>
+          </button>
         </div>
       </div>
 
@@ -912,6 +924,10 @@ export default function RightSidebar({ selectedData, diagramRef, pages, currentP
             </>
           )}
         </div>
+      )}
+
+      {activeSection === 'presentation' && (
+        <PresentationPanel diagramRef={diagramRef} presentation={presentation} setPresentation={setPresentation} />
       )}
 
       {activeSection === 'symbols' && (

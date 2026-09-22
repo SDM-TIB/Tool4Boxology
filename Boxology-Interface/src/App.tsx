@@ -24,6 +24,8 @@ import { useDialogs } from './hooks/useDialogs';
 import AboutDialog from './components/dialogs/AboutDialog';
 import ChatBotButton from './components/ChatBot/ChatBotButton';
 import { colors } from './styles/theme';
+import { createEmptyPresentation, normalizePresentation, type Presentation } from './types/presentation';
+import { applyPresentationVisibility } from './utils/presentation';
 
 
 // Public .boxology files that can be auto-opened via ?example=<key> in the URL,
@@ -43,6 +45,7 @@ function App() {
   const [customGroups, setCustomGroups] = useState<{ [key: string]: any[] }>({});
   const [kgJson, setKgJson] = useState<any>(null); // <-- Add this line
   const [aiAssistOpen, setAiAssistOpen] = useState(false);
+  const [presentation, setPresentation] = useState<Presentation>(createEmptyPresentation());
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -79,6 +82,8 @@ function App() {
       // optional stable identifiers/labels used by Boxology exports/imports
       boxologyId?: string;
       boxologyLabel?: string;
+      // Presentation-only Core/Refinement view state for this page (never read by the KG exporter)
+      presentation?: Presentation;
     };
 
   const [pages, setPages] = useState<PageData[]>(
@@ -111,7 +116,7 @@ function App() {
   const updateCurrentPage = (nodeDataArray: any[], linkDataArray: any[]) => {
     setPages(pages.map(p => {
       if (p.id === currentPageId) {
-        return { ...p, nodeDataArray, linkDataArray };
+        return { ...p, nodeDataArray, linkDataArray, presentation };
       }
       return p;
     }));
@@ -174,6 +179,7 @@ function App() {
                   ...page,
                   nodeDataArray: liveModel.nodeDataArray,
                   linkDataArray: liveModel.linkDataArray || [],
+                  presentation,
                 }
               : page
           )
@@ -225,6 +231,7 @@ function App() {
     const liveModel = isActive ? (diagramRef.current?.model as go.GraphLinksModel | undefined) : undefined;
     const nodeDataArray = liveModel ? liveModel.nodeDataArray : (pageToClose.nodeDataArray || []);
     const linkDataArray = liveModel ? (liveModel.linkDataArray || []) : (pageToClose.linkDataArray || []);
+    const pagePresentation = isActive ? presentation : pageToClose.presentation;
     const hasContent = nodeDataArray.length > 0 || linkDataArray.length > 0;
 
     if (hasContent) {
@@ -233,7 +240,7 @@ function App() {
         `OK = Save this diagram first\nCancel = Continue without saving`
       );
       if (wantsSave) {
-        const saved = await savePageDataToDisk({ ...pageToClose, nodeDataArray, linkDataArray });
+        const saved = await savePageDataToDisk({ ...pageToClose, nodeDataArray, linkDataArray, presentation: pagePresentation });
         if (!saved) return; // save was cancelled - keep the page open
       } else {
         const confirmDiscard = await confirmAsync(
@@ -269,7 +276,7 @@ function App() {
       const liveLinkData = model.linkDataArray || [];
       const snapshotPages = pagesRef.current.map(p =>
         p.id === currentPageIdRef.current
-          ? { ...p, nodeDataArray: liveNodeData, linkDataArray: liveLinkData }
+          ? { ...p, nodeDataArray: liveNodeData, linkDataArray: liveLinkData, presentation }
           : p
       );
       saveSession({ pages: snapshotPages, currentPageId: currentPageIdRef.current, savedAt: Date.now() });
@@ -349,8 +356,23 @@ function App() {
       };
       model.addChangedListener(() => scheduleAutosave());
       diagram.model = model;
+      setPresentation(normalizePresentation(currentPage.presentation));
     }
-  }, [currentPageId, currentPage]);
+    // Intentionally keyed on currentPageId alone: this must only reload the
+    // diagram/presentation on a genuine page switch. Depending on `currentPage`
+    // (a new object reference on every setPages call, including unrelated ones
+    // like KG-export bookkeeping) would re-run this on every such call and stomp
+    // in-progress presentation edits with whatever was last persisted to `pages`.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPageId]);
+
+  // Re-apply Core/Refinement visibility whenever the presentation state changes.
+  // This never touches nodeDataArray/linkDataArray - only GoJS Part.visible.
+  useEffect(() => {
+    if (diagramRef.current) {
+      applyPresentationVisibility(diagramRef.current, presentation);
+    }
+  }, [presentation]);
 
   // Initialize elementary patterns in custom groups
   useEffect(() => {
@@ -500,7 +522,7 @@ function App() {
       class: 'GraphLinksModel',
       nodeDataArray,
       linkDataArray,
-      modelData: { boxologyId: id, boxologyLabel: label },
+      modelData: { boxologyId: id, boxologyLabel: label, presentation: normalizePresentation(page.presentation) },
     });
 
     const safe = sanitizeFilename(page.name) || 'diagram';
@@ -593,17 +615,23 @@ function App() {
       try {
         updatedModel.setDataProperty(updatedModel.modelData, 'boxologyId', id);
         updatedModel.setDataProperty(updatedModel.modelData, 'boxologyLabel', label);
+        updatedModel.setDataProperty(updatedModel.modelData, 'presentation', presentation);
       } catch {
         (updatedModel as any).modelData.boxologyId = id;
         (updatedModel as any).modelData.boxologyLabel = label;
+        (updatedModel as any).modelData.presentation = presentation;
       }
 
       // persist into pages state with normalized data
-      setPages(prev => prev.map(pg => 
-        pg.id === currentPageId 
-          ? { ...pg, nodeDataArray, linkDataArray, boxologyId: id, boxologyLabel: label } 
+      setPages(prev => prev.map(pg =>
+        pg.id === currentPageId
+          ? { ...pg, nodeDataArray, linkDataArray, boxologyId: id, boxologyLabel: label, presentation }
           : pg
       ));
+
+      // the model was just rebuilt via go.Model.fromJson, which resets every
+      // Part back to visible - reapply presentation visibility on the new Parts.
+      applyPresentationVisibility(diagramRef.current, presentation);
 
       const modelBoxology = updatedModel.toJson();
 
@@ -661,9 +689,11 @@ if (model && model.nodeDataArray) {
       try {
         const { pages: newPages } = buildPagesFromModel(model, file.name.replace(/\.[^.]+$/, ''));
 
-        // Extract boxologyId/boxologyLabel from model.modelData if present
+        // Extract boxologyId/boxologyLabel/presentation from model.modelData if present.
+        // Old files have no `presentation` key - normalizePresentation safely defaults them.
         const savedBoxologyId = model.modelData?.boxologyId;
         const savedBoxologyLabel = model.modelData?.boxologyLabel;
+        const savedPresentation = normalizePresentation(model.modelData?.presentation);
 
         // Ensure every page has a boxologyId/boxologyLabel
         const ensuredPages = newPages.map(pg => {
@@ -671,7 +701,7 @@ if (model && model.nodeDataArray) {
           const id = savedBoxologyId ?? (pg as any).boxologyId ?? pg.id ?? generateStableIdFromData(pg.nodeDataArray, pg.linkDataArray);
           // Priority: saved label from modelData > existing page.boxologyLabel > page name
           const label = savedBoxologyLabel ?? (pg as any).boxologyLabel ?? pg.name ?? `Diagram`;
-          return { ...pg, boxologyId: id, boxologyLabel: label };
+          return { ...pg, boxologyId: id, boxologyLabel: label, presentation: savedPresentation };
         });
 
         // Add the opened diagram as new page(s) alongside existing ones, syncing
@@ -682,7 +712,7 @@ if (model && model.nodeDataArray) {
             ? prev.map(p => {
                 if (p.id !== currentPageId) return p;
                 const liveModel = diagram.model as go.GraphLinksModel;
-                return { ...p, nodeDataArray: liveModel.nodeDataArray, linkDataArray: liveModel.linkDataArray || [] };
+                return { ...p, nodeDataArray: liveModel.nodeDataArray, linkDataArray: liveModel.linkDataArray || [], presentation };
               })
             : prev;
           return [...withSyncedCurrent, ...ensuredPages];
@@ -1681,6 +1711,8 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
               currentPageId={currentPageId}
               setPages={setPages}
               setCurrentPageId={setCurrentPageId}
+              presentation={presentation}
+              setPresentation={setPresentation}
             />
           )}
         </div>

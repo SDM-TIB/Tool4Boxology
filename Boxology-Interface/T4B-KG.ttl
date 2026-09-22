@@ -1,0 +1,145 @@
+@prefix t4b: <http://tool4boxology.org/> .
+@prefix t4bs: <http://tool4boxology.org/shapes> .
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+t4bs:BoxologyShape a sh:NodeShape ;
+    sh:targetClass t4b:Boxology ;
+
+    sh:property [
+        sh:path t4b:hasPattern ;
+        sh:minCount 1 ;
+        sh:message "A Boxology must contain at least one design pattern (t4b:hasPattern)." ;
+    ]  .
+
+t4bs:DesignPatternShape a sh:NodeShape ;
+    sh:targetClass t4b:DesignPattern ;
+    sh:property [
+        sh:path t4b:hasInput ;
+        sh:minCount 1 ;
+        sh:message "Every design pattern must have at least one input of type t4b:Artifact." ;
+    ] ;
+    sh:property [
+        sh:path t4b:hasProcess ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every design pattern must have exactly one process of type t4b:Process." ;
+    ] ;
+
+    sh:property [
+        sh:path t4b:hasOutput ;
+        sh:minCount 1 ;
+        sh:message "Every design pattern must have at least one output of type t4b:Artifact." ;
+    ] .
+
+
+t4bs:TrainProcessShape a sh:NodeShape ;
+    sh:targetClass t4b:training ;
+    sh:property [
+        sh:path [ sh:inversePath t4b:hasProcess ] ;
+        sh:minCount 1 ;
+        sh:class t4b:DesignPattern ;
+        sh:message "Every Train process must participate in at least one DesignPattern via t4b:patternProcess." ;
+    ] ;
+    sh:property [
+        sh:path [ sh:inversePath t4b:hasProcess ] ;
+        sh:qualifiedValueShape [ sh:node t4bs:DesignPatternShape] ;
+        sh:qualifiedMinCount 1 ;
+        sh:message "At least one pattern using this Train process must produce a t4b:Model as output." ;
+    ] .
+
+t4bs:TrainPatternOutputShape a sh:NodeShape ;
+    sh:targetClass t4b:DesignPattern ;
+    
+    # If the pattern uses training as process, it should output a model
+    sh:sparql [
+        sh:message "A pattern using training process should output at least one model." ;
+        sh:select """
+            PREFIX t4b: <http://tool4boxology.org/>
+            SELECT $this
+            WHERE {
+                $this <http://tool4boxology.org/hasProcess> ?proc .
+                ?proc a <http://tool4boxology.org/training> .
+                FILTER NOT EXISTS {
+                    $this <http://tool4boxology.org/hasOutput> ?output .
+                    ?output a <http://tool4boxology.org/model> .
+                }
+            }
+        """ ;
+    ] .
+
+
+t4bs:DeduceProcessShape a sh:NodeShape ;
+    sh:targetClass t4b:deduce ;
+
+    # There must be at least one DesignPattern that uses this deduce as its process
+    sh:property [
+        sh:path [ sh:inversePath t4b:hasProcess ] ;
+        sh:minCount 1 ;
+        sh:class t4b:DesignPattern ;
+        sh:message "Every deduce process must participate in at least one DesignPattern." ;
+    ] .
+
+
+# Separate shape to check that patterns with deduce have model as input
+t4bs:DeducePatternInputModelShape a sh:NodeShape ;
+    sh:targetClass t4b:DesignPattern ;
+    
+    sh:sparql [
+        sh:message "A pattern using deduce process should have at least one model as input." ;
+        sh:select """
+            PREFIX t4b: <http://tool4boxology.org/>
+            SELECT $this
+            WHERE {
+                $this <http://tool4boxology.org/hasProcess> ?proc .
+                ?proc a <http://tool4boxology.org/deduce> .
+                FILTER NOT EXISTS {
+                    $this <http://tool4boxology.org/hasInput> ?input .
+                    ?input a <http://tool4boxology.org/model> .
+                }
+            }
+        """ ;
+    ] .
+
+
+# Separate shape to check that patterns with deduce have data or symbol as input
+t4bs:DeducePatternInputDataOrSymbolShape a sh:NodeShape ;
+    sh:targetClass t4b:DesignPattern ;
+    
+    sh:sparql [
+        sh:message "A pattern using deduce process should have at least one data or symbol as input." ;
+        sh:select """
+            PREFIX t4b: <http://tool4boxology.org/>
+            SELECT $this
+            WHERE {
+                $this <http://tool4boxology.org/hasProcess> ?proc .
+                ?proc a <http://tool4boxology.org/deduce> .
+                FILTER NOT EXISTS {
+                    $this <http://tool4boxology.org/hasInput> ?input .
+                    { ?input a <http://tool4boxology.org/data> } UNION { ?input a <http://tool4boxology.org/symbol> }
+                }
+            }
+        """ ;
+    ] .
+
+
+# Separate shape to check that patterns with deduce have data or symbol as output
+t4bs:DeducePatternOutputDataOrSymbolShape a sh:NodeShape ;
+    sh:targetClass t4b:DesignPattern ;
+    
+    sh:sparql [
+        sh:message "A pattern using deduce process should output at least one data or symbol." ;
+        sh:select """
+            PREFIX t4b: <http://tool4boxology.org/>
+            SELECT $this
+            WHERE {
+                $this <http://tool4boxology.org/hasProcess> ?proc .
+                ?proc a <http://tool4boxology.org/deduce> .
+                FILTER NOT EXISTS {
+                    $this <http://tool4boxology.org/hasOutput> ?output .
+                    { ?output a <http://tool4boxology.org/data> } UNION { ?output a <http://tool4boxology.org/symbol> }
+                }
+            }
+        """ ;
+    ] .

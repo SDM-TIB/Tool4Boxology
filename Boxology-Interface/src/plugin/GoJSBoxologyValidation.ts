@@ -6,7 +6,7 @@ import { validateKautzDiagram } from './KautzBoxologyValidation.ts';
 const validNext: Record<string, string[]> = {
 	"Actor": ["Engineer", "Transform","Deduce"],
 	//"artifacts": ["artifacts","symbol", "data","Deduce","Engineer", "Transform:embed", "generate", "Transform", "generate", "Train"],
-  "Symbol": ["Deduce", "Train", "Generate","Engineer", "Transform", "artifacts"],
+  "Symbol": ["Deduce", "Train", "Generate","Engineer", "Transform", "artifacts", "Symbol"],
   "Data": ["Deduce", "Train", "Generate","Engineer", "Transform", "Data", "embed", "artifacts"],
   "Deduce": ["Symbol", "Model", "Deduce", "Data", "artifacts", "SemanticModel", "StatisticalModel"],
   "Model": ["Deduce", "Model", "Generate", "Train","Engineer", "StatisticalModel", "SemanticModel", "embed", "Transform"],

@@ -69,14 +69,14 @@ export interface Pattern {
 export const elementaryPatterns: Pattern[] = [
   // Train model patterns
   {
-    id: 'train_model_symbol',
+    id: 'train_model_Symbol',
     name: 'Use Symbol to Train a Model',
-    description: 'Train a model from symbol Data',
+    description: 'Train a model from Symbol Data',
     nodes: normalizePatternNodes([
       {
         id: '1',
         name: 'Symbol',
-        label: 'id-symbol',
+        label: 'id-Symbol',
         shape: 'Rectangle',
         color: '', stroke: '', x: 0, y: 0
       },
@@ -177,9 +177,9 @@ export const elementaryPatterns: Pattern[] = [
   },
 
   {
-    id: 'generate_model_symbol',
+    id: 'generate_model_Symbol',
     name: 'Generate Model from Model and Symbol',
-    description: 'Generate model from existing model and symbol',
+    description: 'Generate model from existing model and Symbol',
     nodes: normalizePatternNodes([
       {
         id: '1',
@@ -190,8 +190,8 @@ export const elementaryPatterns: Pattern[] = [
       },
       {
         id: '2',
-        name: 'symbol',
-        label: 'id-symbol',
+        name: 'Symbol',
+        label: 'id-Symbol',
         shape: 'Rectangle',
         color: '', stroke: '', x: 0, y: 80
       },
@@ -220,14 +220,14 @@ export const elementaryPatterns: Pattern[] = [
 
   // Transform patterns
   {
-    id: 'transform_symbol_to_Data',
+    id: 'transform_Symbol_to_Data',
     name: 'Transform Symbol to Data',
-    description: 'Transform symbol to Data',
+    description: 'Transform Symbol to Data',
     nodes: normalizePatternNodes([
       {
         id: '1',
-        name: 'symbol',
-        label: 'id-symbol',
+        name: 'Symbol',
+        label: 'id-Symbol',
         shape: 'Rectangle',
         color: '', stroke: '', x: 0, y: 0
       },
@@ -325,9 +325,9 @@ export const elementaryPatterns: Pattern[] = [
   },
 
   {
-    id: 'transform_Data_to_symbol',
+    id: 'transform_Data_to_Symbol',
     name: 'Transform Data to Symbol',
-    description: 'Transform Data to symbol',
+    description: 'Transform Data to Symbol',
     nodes: normalizePatternNodes([
       {
         id: '1',
@@ -345,8 +345,8 @@ export const elementaryPatterns: Pattern[] = [
       },
       {
         id: '3',
-        name: 'symbol',
-        label: 'id-symbol',
+        name: 'Symbol',
+        label: 'id-Symbol',
         shape: 'Rectangle',
         color: '', stroke: '', x: 300, y: 0
       }
@@ -358,14 +358,14 @@ export const elementaryPatterns: Pattern[] = [
   },
 
   {
-    id: 'transform_symbol_to_symbol',
+    id: 'transform_Symbol_to_Symbol',
     name: 'Transform Symbol to Symbol',
-    description: 'Transform symbol to symbol',
+    description: 'Transform Symbol to Symbol',
     nodes: normalizePatternNodes([
       {
         id: '1',
-        name: 'symbol',
-        label: 'id-symbol',
+        name: 'Symbol',
+        label: 'id-Symbol',
         shape: 'Rectangle',
         color: '', stroke: '', x: 0, y: 0
       },
@@ -378,8 +378,8 @@ export const elementaryPatterns: Pattern[] = [
       },
       {
         id: '3',
-        name: 'symbol',
-        label: 'id-symbol',
+        name: 'Symbol',
+        label: 'id-Symbol',
         shape: 'Rectangle',
         color: '', stroke: '', x: 300, y: 0
       }
@@ -457,9 +457,9 @@ export const elementaryPatterns: Pattern[] = [
   },
 
   {
-    id: 'actor_Engineer_symbol',
+    id: 'actor_Engineer_Symbol',
     name: 'Actor Engineer a Symbol',
-    description: 'Actor Engineers a symbol',
+    description: 'Actor Engineers a Symbol',
     nodes: normalizePatternNodes([
       {
         id: '1',
@@ -477,8 +477,8 @@ export const elementaryPatterns: Pattern[] = [
       },
       {
         id: '3',
-        name: 'symbol',
-        label: 'id-symbol',
+        name: 'Symbol',
+        label: 'id-Symbol',
         shape: 'Rectangle',
         color: '', stroke: '', x: 300, y: 0
       }
@@ -524,14 +524,14 @@ export const elementaryPatterns: Pattern[] = [
 
   // Inference patterns
   {
-    id: 'infer_symbol_from_symbol',
+    id: 'infer_Symbol_from_Symbol',
     name: 'Infer Symbol (Symbol + Model)',
-    description: 'Infer symbol from model and symbol input',
+    description: 'Infer Symbol from model and Symbol input',
     nodes: normalizePatternNodes([
       {
         id: '1',
-        name: 'symbol',
-        label: 'id-symbol',
+        name: 'Symbol',
+        label: 'id-Symbol',
         shape: 'Rectangle',
         color: '', stroke: '', x: 0, y: 0
       },
@@ -551,8 +551,8 @@ export const elementaryPatterns: Pattern[] = [
       },
       {
         id: '4',
-        name: 'symbol',
-        label: 'id-symbol',
+        name: 'Symbol',
+        label: 'id-Symbol',
         shape: 'Rectangle',
         color: '', stroke: '', x: 300, y: 40
       }
@@ -565,9 +565,9 @@ export const elementaryPatterns: Pattern[] = [
   },
 
   {
-    id: 'infer_symbol_from_Data',
+    id: 'infer_Symbol_from_Data',
     name: 'Infer Symbol (Data + Model)',
-    description: 'Infer symbol from model and Data input',
+    description: 'Infer Symbol from model and Data input',
     nodes: normalizePatternNodes([
       {
         id: '1',
@@ -592,8 +592,8 @@ export const elementaryPatterns: Pattern[] = [
       },
       {
         id: '4',
-        name: 'symbol',
-        label: 'id-symbol',
+        name: 'Symbol',
+        label: 'id-Symbol',
         shape: 'Rectangle',
         color: '', stroke: '', x: 300, y: 40
       }
@@ -606,14 +606,14 @@ export const elementaryPatterns: Pattern[] = [
   },
 
   {
-    id: 'infer_model_from_symbol',
+    id: 'infer_model_from_Symbol',
     name: 'Infer Model (Symbol + Model)',
-    description: 'Infer model from symbol and model input',
+    description: 'Infer model from Symbol and model input',
     nodes: normalizePatternNodes([
       {
         id: '1',
-        name: 'symbol',
-        label: 'id-symbol',
+        name: 'Symbol',
+        label: 'id-Symbol',
         shape: 'Rectangle',
         color: '', stroke: '', x: 0, y: 0
       },
@@ -729,14 +729,14 @@ export const elementaryPatterns: Pattern[] = [
   },
 
   {
-    id: 'infer_Data_from_symbol',
+    id: 'infer_Data_from_Symbol',
     name: 'Infer Data (Symbol + Model)',
-    description: 'Infer Data from symbol and model input',
+    description: 'Infer Data from Symbol and model input',
     nodes: normalizePatternNodes([
       {
         id: '1',
-        name: 'symbol',
-        label: 'id-symbol',
+        name: 'Symbol',
+        label: 'id-Symbol',
         shape: 'Rectangle',
         color: '', stroke: '', x: 0, y: 0
       },
@@ -769,14 +769,14 @@ export const elementaryPatterns: Pattern[] = [
     ]
   },
   {
-    id: 'Data_symbol_transform',
+    id: 'Data_Symbol_transform',
     name: 'Data-Symbol Transform',
-    description: 'Transform symbol and Data to Data',
+    description: 'Transform Symbol and Data to Data',
     nodes: normalizePatternNodes([
       {
         id: '1',
-        name: 'symbol',
-        label: 'id-symbol',
+        name: 'Symbol',
+        label: 'id-Symbol',
         shape: 'Rectangle',
         color: '', stroke: '', x: 0, y: 0
       },
@@ -864,7 +864,7 @@ export const compositePatterns: Pattern[] = [
       {
         id: '6',
         name: 'Symbol',
-        label: 'id-symbol',
+        label: 'id-Symbol',
         shape: 'Rectangle',
         color: '', stroke: '', x: 450, y: 150,
         group: 'prediction_cluster'
@@ -881,7 +881,7 @@ export const compositePatterns: Pattern[] = [
   {
     id: 'learning-prediction',
     name: 'Learning and Prediction Task from Symbol',
-    description: 'Train a model with symbol and then use it for prediction',
+    description: 'Train a model with Symbol and then use it for prediction',
     clusters: [
       { id: 'learning_cluster', label: 'Learning', category: 'ClusterGroup' },
       { id: 'prediction_cluster', label: 'Prediction', category: 'ClusterGroup' }
@@ -890,7 +890,7 @@ export const compositePatterns: Pattern[] = [
       {
         id: '1',
         name: 'Symbol',
-        label: 'id-symbol',
+        label: 'id-Symbol',
         shape: 'Rectangle',
         color: '', stroke: '', x: 0, y: 0,
         group: 'learning_cluster'
@@ -914,7 +914,7 @@ export const compositePatterns: Pattern[] = [
       {
         id: '4',
         name: 'Symbol',
-        label: 'id-symbol',
+        label: 'id-Symbol',
         shape: 'Rectangle',
         color: '', stroke: '', x: 150, y: 150,
         group: 'prediction_cluster'
@@ -930,7 +930,7 @@ export const compositePatterns: Pattern[] = [
       {
         id: '6',
         name: 'Symbol',
-        label: 'id-symbol',
+        label: 'id-Symbol',
         shape: 'Rectangle',
         color: '', stroke: '', x: 450, y: 150,
         group: 'prediction_cluster'
@@ -980,7 +980,7 @@ export const compositePatterns: Pattern[] = [
       {
         id: '4',
         name: 'Symbol',
-        label: 'id-symbol',
+        label: 'id-Symbol',
         shape: 'Rectangle',
         color: '', stroke: '', x: 300, y: 150,
         sharedGroups: ['group_1779964685138', 'group_1779964483811']
@@ -1004,7 +1004,7 @@ export const compositePatterns: Pattern[] = [
       {
         id: '7',
         name: 'Symbol',
-        label: 'id-symbol',
+        label: 'id-Symbol',
         shape: 'Rectangle',
         color: '', stroke: '', x: 600, y: 150,
         group: 'group_1779964685138'
