@@ -693,7 +693,7 @@ export default function AddonRightSidebar({ selectedData, diagramRef, pages, cur
           <div style={{ fontSize: 14, fontWeight: 700, color: '#7a0000', marginBottom: 10}}>
             <span>No Evaluations found!</span>
           </div>
-          <button onClick={() => searchForEvaluations()} style={getButtonStyle(). + color: '#7a0000'}>
+          <button onClick={() => searchForEvaluations()} style={getButtonStyle()}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <span>Search for evaluations</span>
             </div>
