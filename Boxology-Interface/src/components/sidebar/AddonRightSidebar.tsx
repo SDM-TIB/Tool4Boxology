@@ -712,8 +712,12 @@ export default function AddonRightSidebar({ selectedData, diagramRef, pages, cur
     )}
     {(evaluationsSearched && !evaluationsFound) && (
       <div style={{ marginBottom: 12, padding: 12, background: '#ff4f4f', borderRadius: 14, border: '1px solid #e5e7eb' }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: '#7a0000', marginBottom: 10}}>
+          <div style={{display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left', fontSize: 14, fontWeight: 700, color: '#7a0000', marginBottom: 10}}>
             <span>No Linked Papers found!</span>
+            <span style={{ fontSize: 12, fontWeight: 500, color: '#f5cbcb' }}>
+                It seems no similar Boxology has been evaluated in a paper in the database. 
+                This does not mean that no such paper exists.
+            </span>
           </div>
           <button onClick={() => searchForEvaluations()} style={getButtonStyle()}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
