@@ -38,6 +38,7 @@ function App() {
   const [customGroups, setCustomGroups] = useState<{ [key: string]: any[] }>({});
   const [kgJson, setKgJson] = useState<any>(null); // <-- Add this line
   const [aiAssistOpen, setAiAssistOpen] = useState(false);
+  const [isKgGenerated, setIsKgGenerated] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -1311,12 +1312,14 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
       setLoadingMessage(`Validation failed:\n\n${validation.errors.join('\n')}`);
       setIsCreatingKG(true);
       setTimeout(() => setIsCreatingKG(false), 2500);
+      setIsKgGenerated(false);
       return;
     }
     if (!diagramRef.current) {
       setLoadingMessage('Diagram not ready.');
       setIsCreatingKG(true);
       setTimeout(() => setIsCreatingKG(false), 2000);
+      setIsKgGenerated(false);
       return;
     }
 
@@ -1348,9 +1351,11 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
 
       setLoadingMessage('KG created successfully.');
       setTimeout(() => setIsCreatingKG(false), 2000);
+      setIsKgGenerated(true);
     } catch (err: any) {
       setLoadingMessage(`Failed to create KG:\n${err?.message ?? err}`);
       setTimeout(() => setIsCreatingKG(false), 2500);
+      setIsKgGenerated(false);
     }
   };
 
@@ -1670,6 +1675,8 @@ const validateNodeClustering = (): { valid: boolean; errors: string[] } => {
               currentPageId={currentPageId}
               setPages={setPages}
               setCurrentPageId={setCurrentPageId}
+              isKgGenerated={isKgGenerated}
+              showToast={showToast}
             />
           )}
         </div>

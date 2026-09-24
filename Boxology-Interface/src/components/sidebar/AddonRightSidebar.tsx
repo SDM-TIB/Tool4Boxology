@@ -323,7 +323,7 @@ function downloadTextFile(content: string, filename: string, mimeType: string) {
 // }
 // }
 // ###
-export default function AddonRightSidebar({ selectedData, diagramRef, pages, currentPageId, setPages, setCurrentPageId }: RightSidebarProps) {
+export default function AddonRightSidebar({ selectedData, diagramRef, pages, currentPageId, setPages, setCurrentPageId, isKgGenerated, showToast }: RightSidebarProps) {
   const [activeSection, setActiveSection] = useState<'paper1' | 'paper2' | 'paper3' | 'paper4' | 'paper5' | null>(null);
   const [localLabel, setLocalLabel] = useState('');
   const [localColor, setLocalColor] = useState('#ffffff');
@@ -597,6 +597,10 @@ export default function AddonRightSidebar({ selectedData, diagramRef, pages, cur
 		results = sparql.query().convert()*/
   }
 
+  const displayNoKgError = () => {
+    showToast('No Knowledge Graph is available to search for linked Papers. Create the KG first.', 'warning');
+  }
+
   return (
     <div
       style={{
@@ -609,10 +613,28 @@ export default function AddonRightSidebar({ selectedData, diagramRef, pages, cur
         fontSize: '13px'
       }}
     >
-      {!evaluationsSearched && (
+      {!evaluationsSearched && !isKgGenerated && (
         <div style={{ marginBottom: 12, padding: 12, background: '#ffffff', borderRadius: 14, border: '1px solid #e5e7eb' }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: '#6b7280', marginBottom: 10}}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left', fontSize: 14, fontWeight: 700, color: '#6b7280', marginBottom: 10}}>
             <span>No Linked Papers found!</span>
+            <span style={{ fontSize: 12, fontWeight: 500, color: '#64748b' }}>
+                No Knowledge Graph found! Please generate the KG before searching for linked papers.
+            </span>
+          </div>
+          <button onClick={() => displayNoKgError()} style={getButtonStyle()}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <span>Search</span>
+            </div>
+          </button>
+        </div>
+      )}
+      {!evaluationsSearched && isKgGenerated && (
+        <div style={{ marginBottom: 12, padding: 12, background: '#ffffff', borderRadius: 14, border: '1px solid #e5e7eb' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left', fontSize: 14, fontWeight: 700, color: '#6b7280', marginBottom: 10}}>
+            <span>No Linked Papers found!</span>
+            <span style={{ fontSize: 12, fontWeight: 500, color: '#64748b' }}>
+                Knowledge Graph is generated. You can now search for linked papers.
+            </span>
           </div>
           <button onClick={() => searchForEvaluations()} style={getButtonStyle()}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
