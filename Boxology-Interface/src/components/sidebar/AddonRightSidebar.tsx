@@ -612,11 +612,11 @@ export default function AddonRightSidebar({ selectedData, diagramRef, pages, cur
       {!evaluationsSearched && (
         <div style={{ marginBottom: 12, padding: 12, background: '#ffffff', borderRadius: 14, border: '1px solid #e5e7eb' }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: '#6b7280', marginBottom: 10}}>
-            <span>No Evaluations found!</span>
+            <span>No Linked Papers found!</span>
           </div>
           <button onClick={() => searchForEvaluations()} style={getButtonStyle()}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <span>Search for evaluations</span>
+              <span>Search</span>
             </div>
           </button>
         </div>
@@ -691,11 +691,11 @@ export default function AddonRightSidebar({ selectedData, diagramRef, pages, cur
     {(evaluationsSearched && !evaluationsFound) && (
       <div style={{ marginBottom: 12, padding: 12, background: '#ff4f4f', borderRadius: 14, border: '1px solid #e5e7eb' }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: '#7a0000', marginBottom: 10}}>
-            <span>No Evaluations found!</span>
+            <span>No Linked Papers found!</span>
           </div>
           <button onClick={() => searchForEvaluations()} style={getButtonStyle()}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <span>Search for evaluations</span>
+              <span>Search again</span>
             </div>
           </button>
         </div>
