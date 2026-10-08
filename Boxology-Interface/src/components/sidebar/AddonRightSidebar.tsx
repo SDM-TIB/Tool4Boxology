@@ -10,6 +10,7 @@ import { generateMultiPageRMLExport } from '../../utils/exportHelpers';
 import { shapes, shapeTypesMin } from '../../data/shape';
 import { getButtonStyle, getMenuButtonStyle } from '../../styles/buttonStyles';
 import { colors } from '../../styles/theme';
+import { API_BASE } from '../../config';
 
 interface RightSidebarProps {
   selectedData: {
@@ -323,6 +324,19 @@ function downloadTextFile(content: string, filename: string, mimeType: string) {
 // }
 // }
 // ###
+
+  const PREFIXES = `PREFIX t4b: <http://tool4boxology.org/>
+  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>`;
+
+  const DEFAULT_QUERY = `${PREFIXES}
+
+  SELECT ?boxology ?label
+  WHERE {
+    ?boxology a t4b:Boxology ;
+              rdfs:label ?label .
+  }
+  LIMIT 100`;
+
 export default function AddonRightSidebar({ selectedData, diagramRef, pages, currentPageId, setPages, setCurrentPageId, isKgGenerated, showToast }: RightSidebarProps) {
   const [activeSection, setActiveSection] = useState<'paper1' | 'paper2' | 'paper3' | 'paper4' | 'paper5' | null>(null);
   const [localLabel, setLocalLabel] = useState('');
@@ -341,6 +355,13 @@ export default function AddonRightSidebar({ selectedData, diagramRef, pages, cur
   const [conversionStatus, setConversionStatus] = useState<string>('');
   const [kgExportStatus, setKgExportStatus] = useState<string>('');
   const exportUploadRef = useRef<HTMLInputElement | null>(null);
+  const [queryText, setQueryText] = useState(DEFAULT_QUERY);
+  const [activeNotice, setActiveNotice] = useState<string | null>(null);
+  const [isRunning, setIsRunning] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [hasRun, setHasRun] = useState(false);
+  const [userBoxologyLabel, setUserBoxologyLabel] = useState('');
+  const [paperBoxologyLabel, setPaperBoxologyLabel] = useState('');
 
   // Check how many objects are selected and detect links
   useEffect(() => {
@@ -586,9 +607,111 @@ export default function AddonRightSidebar({ selectedData, diagramRef, pages, cur
     }
   };
 
+  const processTypeQuery = `${PREFIXES}
+
+  SELECT ?processType (COUNT(DISTINCT ?patternA) AS ?countInSystemA) (COUNT(DISTINCT ?patternB) AS ?countInSystemB) WHERE {
+    {
+      ?boxologyA rdfs:label ${userBoxologyLabel} ;
+                t4b:hasPattern ?patternA .
+      ?patternA t4b:hasProcess ?processA .
+      ?processA a ?processType .
+    }
+    UNION
+    {
+      ?boxologyB rdfs:label ${paperBoxologyLabel} ;
+                t4b:hasPattern ?patternB .
+      ?patternB t4b:hasProcess ?processB .
+      ?processB a ?processType .
+    }
+  }
+  GROUP BY ?processType`
+
+  function shortenUri(uri: string): string {
+    if (uri.startsWith('http://tool4boxology.org/')) return 't4b:' + uri.slice('http://tool4boxology.org/'.length);
+    if (uri.startsWith('http://www.w3.org/2000/01/rdf-schema#')) return 'rdfs:' + uri.slice('http://www.w3.org/2000/01/rdf-schema#'.length);
+    return uri;
+  }
+
+  function formatBindingValue(binding?: { type: string; value: string }): string {
+    if (!binding) return '';
+    return binding.type === 'uri' ? shortenUri(binding.value) : binding.value;
+  }
+
+  const runQuery = async (userBoxologyLabel, paperBoxologyLabel) => {
+      setIsRunning(true);
+      setError(null);
+      try {
+        const res = await fetch(`${API_BASE}/api/t4b/sparql`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: 
+            `${PREFIXES}
+
+            SELECT ?processType (COUNT(DISTINCT ?patternA) AS ?countInSystemA) (COUNT(DISTINCT ?patternB) AS ?countInSystemB) WHERE {
+              {
+                ?boxologyA rdfs:label "${userBoxologyLabel}" ;
+                          t4b:hasPattern ?patternA .
+                ?patternA t4b:hasProcess ?processA .
+                ?processA a ?processType .
+              }
+              UNION
+              {
+                ?boxologyB rdfs:label "${paperBoxologyLabel}" ;
+                          t4b:hasPattern ?patternB .
+                ?patternB t4b:hasProcess ?processB .
+                ?processB a ?processType .
+              }
+            }
+            GROUP BY ?processType`
+          }),
+        });
+        if (!res.ok) {
+          const text = await res.text().catch(() => '');
+          throw new Error(`Query failed (${res.status}): ${text || res.statusText}`);
+        }
+        const data = await res.json();
+        setHasRun(true);
+        setEvaluationsSearched(true);
+  
+        if (typeof data?.boolean === 'boolean') {
+          console.log(['result'])//setColumns(['result']);
+          console.log([{ result: String(data.boolean) }])//setRows([{ result: String(data.boolean) }]);
+          return;
+        }
+  
+        const vars: string[] = data?.head?.vars || [];
+        const bindings: Record<string, { type: string; value: string }>[] = data?.results?.bindings || [];
+        console.log(vars) // setColumns(vars);
+        console.log(//setRows(
+          bindings.map((binding) => {
+            const row: Record<string, string> = {};
+            vars.forEach((v) => {
+              row[v] = formatBindingValue(binding[v]);
+            });
+            return row;
+          })
+        );
+      } catch (err: any) {
+        setError(err?.message || 'Query failed. Is the backend / Virtuoso endpoint reachable?');
+        //setColumns([]);
+        //setRows([]);
+        setEvaluationsFound(false);
+        setEvaluationsSearched(true);
+        setHasRun(true);
+      } finally {
+        setIsRunning(false);
+      }
+    };
+
   const searchForEvaluations = () => {
     setEvaluationsSearched(true);
-    setEvaluationsFound(false);
+    setEvaluationsFound(true);
+    setUserBoxologyLabel(diagramRef.current.model.label);
+    console.log(diagramRef.current);
+    setPaperBoxologyLabel('Pain-Classification');
+    setQueryText(processTypeQuery);
+    console.log(queryText)
+    runQuery(diagramRef.current.model.label, 'Pain-Classification');
     //TODO: Run queries and display results
     /*python file with 
     query = "ASK WHERE { " + query + " .}"
