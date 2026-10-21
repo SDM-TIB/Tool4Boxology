@@ -688,7 +688,6 @@ export default function AddonRightSidebar({ selectedData, diagramRef, pages, cur
               }
             }
             GROUP BY ?processType
-            FILTER(?countInSystemA == ?countInSystemB)
             `
           }),
         });
