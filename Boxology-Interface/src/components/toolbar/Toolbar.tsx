@@ -514,6 +514,15 @@ LIMIT 100`;
       >
         🛡️ SHACL
       </button>
+
+      {/* Link to the archived first version of the tool */}
+      <button
+        onClick={() => window.open('/Version1/index.html', '_blank', 'noopener,noreferrer')}
+        style={simpleButtonStyle}
+        title="Open Version 1 of Tool4Boxology (archived earlier release)"
+      >
+        🕐 Version 1
+      </button>
       </div>
 
       {/* Hidden file input */}
