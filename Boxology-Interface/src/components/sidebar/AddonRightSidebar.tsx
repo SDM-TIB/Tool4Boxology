@@ -326,7 +326,8 @@ function downloadTextFile(content: string, filename: string, mimeType: string) {
 // ###
 
   const PREFIXES = `PREFIX t4b: <http://tool4boxology.org/>
-  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>`;
+  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>`;
 
   const DEFAULT_QUERY = `${PREFIXES}
 
@@ -672,22 +673,28 @@ export default function AddonRightSidebar({ selectedData, diagramRef, pages, cur
           body: JSON.stringify({ query: 
             `${PREFIXES}
 
-            SELECT ?processType (COUNT(DISTINCT ?patternA) AS ?countInSystemA) (COUNT(DISTINCT ?patternB) AS ?countInSystemB) WHERE {
-              {
-                ?boxologyA rdfs:label "${userBoxologyLabel}" ;
-                          t4b:hasPattern ?patternA .
-                ?patternA t4b:hasProcess ?processA .
-                ?processA a ?processType .
-              }
-              UNION
-              {
-                ?boxologyB rdfs:label "${paperBoxologyLabel}" ;
-                          t4b:hasPattern ?patternB .
-                ?patternB t4b:hasProcess ?processB .
-                ?processB a ?processType .
+            SELECT ?otherLabel (SUM(?overlap) AS ?overlapSum) WHERE {
+              SELECT ?otherLabel (xsd:float(xsd:float(?countInSystemB)/xsd:float(?countInSystemA)) AS ?overlap) WHERE {
+                {SELECT ?otherLabel ?processType (COUNT(DISTINCT ?patternA) AS ?countInSystemA) (COUNT(DISTINCT ?patternB) AS ?countInSystemB) WHERE {
+                  # Get process types from the other boxologies
+                  ?boxologyB rdfs:label ?otherLabel ;
+                            t4b:hasPattern ?patternB .
+                  ?patternB t4b:hasProcess ?processB .
+                  ?processB a ?processType .
+                  # Match the corresponding process type in Diagram, if present
+                  OPTIONAL {
+                    ?boxologyA rdfs:label "Diagram" ;
+                              t4b:hasPattern ?patternA .
+                    ?patternA t4b:hasProcess ?processA .
+                    ?processA a ?processType .
+                  }
+                }
+                GROUP BY ?otherLabel ?processType
+                ORDER BY ?otherLabel ?processType
+                }
+                FILTER(?countInSystemA > 0)
               }
             }
-            GROUP BY ?processType
             `
           }),
         });
