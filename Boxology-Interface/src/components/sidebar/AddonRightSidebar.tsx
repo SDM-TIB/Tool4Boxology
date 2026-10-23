@@ -728,25 +728,26 @@ export default function AddonRightSidebar({ selectedData, diagramRef, pages, cur
         );
 
         const newPaperButtons: any[] = [];
-        for (var i = 1; i <= rows.length; i++){
-        //rows.forEach((r) => {
-          console.log(rows[i-1]["otherBoxology"]);
-          const currentName = "paper"+i;
+        //for (var i = 1; i <= rows.length; i++){
+        rows.forEach((r) => {
+          console.log(r)
+          console.log(r["otherLabel"]);
+          const currentName = r["otherLabel"];
           console.log(currentName)
           console.log(activeSection)
           newPaperButtons.push(
             <React.Fragment key={currentName}>
             <button onClick={() => setActiveSection(currentName)} style={getMenuButtonStyle(activeSection === currentName)}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
-                <span>Example Paper Title {i}</span>
+                <span>Example Paper Title {currentName}</span>
                 <span style={{ fontSize: 11, fontWeight: 500, color: activeSection === currentName ? '#cbd5f5' : '#64748b' }}>
-                  Example Paper Description {i}
+                  Example Paper Description {currentName}
                 </span>
               </div>
             </button>
             {(activeSection === currentName) && (
               <div style={{ marginBottom: 12, padding: 8, background: '#fff', borderRadius: 6, border: '1px solid #eee' }}>
-                <strong style={{ display: 'block', marginBottom: 6, fontWeight: '600', fontSize: '14px', color: '#1b1b1bff' }}>Example Paper Titel {i}</strong>
+                <strong style={{ display: 'block', marginBottom: 6, fontWeight: '600', fontSize: '14px', color: '#1b1b1bff' }}>Example Paper Titel {currentName}</strong>
                 <p style={{ fontSize: 12, color: '#555', marginBottom: 10 }}>
                   Here information about the paper will be displayed, such as:
                 </p>
@@ -764,7 +765,7 @@ export default function AddonRightSidebar({ selectedData, diagramRef, pages, cur
             )}
             </React.Fragment>
           );
-        };
+        });
 
         console.log(newPaperButtons)
         setPaperButtons(newPaperButtons);
@@ -813,66 +814,7 @@ export default function AddonRightSidebar({ selectedData, diagramRef, pages, cur
   const activePaperSection: any[] = [];
 
   /*setPaperButtons(
-    <>
-    <button onClick={() => setActiveSection('paper1')} style={getMenuButtonStyle(activeSection === 'paper1')}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
-        <span>Example Paper Title 1</span>
-        <span style={{ fontSize: 11, fontWeight: 500, color: activeSection === 'paper1' ? '#cbd5f5' : '#64748b' }}>
-          Example Paper Description 1
-        </span>
-      </div>
-    </button>
-    {(activeSection === 'paper1') && (
-      <div style={{ marginBottom: 12, padding: 8, background: '#fff', borderRadius: 6, border: '1px solid #eee' }}>
-        <strong style={{ display: 'block', marginBottom: 6, fontWeight: '600', fontSize: '14px', color: '#1b1b1bff' }}>Example Paper Titel 1</strong>
-        <p style={{ fontSize: 12, color: '#555', marginBottom: 10 }}>
-          Here information about the paper will be displayed, such as:
-        </p>
-        <p style={{ fontSize: 12, color: '#555'}}>
-          <strong>Authors: </strong>Author Name
-        </p>
-        <p style={{ fontSize: 12, color: '#555'}}>
-          <strong>Year: </strong>2016
-        </p>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button style={getButtonStyle()}>Link to Paper</button>
-          <button style={getButtonStyle()}>Link to Dataset</button>
-        </div>
-      </div>
-    )}
-    <button onClick={() => setActiveSection('paper2')} style={getMenuButtonStyle(activeSection === 'paper2')}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
-        <span>Example Paper Title 2</span>
-        <span style={{ fontSize: 11, fontWeight: 500, color: activeSection === 'paper2' ? '#cbd5f5' : '#64748b' }}>
-          Example Paper Description 2
-        </span>
-      </div>
-    </button>
-    <button onClick={() => setActiveSection('paper3')} style={getMenuButtonStyle(activeSection === 'paper3')}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
-        <span>Example Paper Title 3</span>
-        <span style={{ fontSize: 11, fontWeight: 500, color: activeSection === 'paper3' ? '#cbd5f5' : '#64748b' }}>
-          Example Paper Description 3
-        </span>
-      </div>
-    </button>
-    <button onClick={() => setActiveSection('paper4')} style={getMenuButtonStyle(activeSection === 'paper4')}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
-        <span>Example Paper Title 4</span>
-        <span style={{ fontSize: 11, fontWeight: 500, color: activeSection === 'paper4' ? '#cbd5f5' : '#64748b' }}>
-          Example Paper Description 4
-        </span>
-      </div>
-    </button>
-    <button onClick={() => setActiveSection('paper5')} style={getMenuButtonStyle(activeSection === 'paper5')}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
-        <span>Example Paper Title 5</span>
-        <span style={{ fontSize: 11, fontWeight: 500, color: activeSection === 'paper5' ? '#cbd5f5' : '#64748b' }}>
-          Example Paper Description 5
-        </span>
-      </div>
-    </button>
-    </>
+    
   ); */
 
   return (
@@ -924,7 +866,66 @@ export default function AddonRightSidebar({ selectedData, diagramRef, pages, cur
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {paperButtons}
-            {activePaperSection}
+            <>//Example begins here
+              <button onClick={() => setActiveSection('paper1')} style={getMenuButtonStyle(activeSection === 'paper1')}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
+                  <span>Example Paper Title 1</span>
+                  <span style={{ fontSize: 11, fontWeight: 500, color: activeSection === 'paper1' ? '#cbd5f5' : '#64748b' }}>
+                    Example Paper Description 1
+                  </span>
+                </div>
+              </button>
+              {(activeSection === 'paper1') && (
+                <div style={{ marginBottom: 12, padding: 8, background: '#fff', borderRadius: 6, border: '1px solid #eee' }}>
+                  <strong style={{ display: 'block', marginBottom: 6, fontWeight: '600', fontSize: '14px', color: '#1b1b1bff' }}>Example Paper Titel 1</strong>
+                  <p style={{ fontSize: 12, color: '#555', marginBottom: 10 }}>
+                    Here information about the paper will be displayed, such as:
+                  </p>
+                  <p style={{ fontSize: 12, color: '#555'}}>
+                    <strong>Authors: </strong>Author Name
+                  </p>
+                  <p style={{ fontSize: 12, color: '#555'}}>
+                    <strong>Year: </strong>2016
+                  </p>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button style={getButtonStyle()}>Link to Paper</button>
+                    <button style={getButtonStyle()}>Link to Dataset</button>
+                  </div>
+                </div>
+              )}
+              <button onClick={() => setActiveSection('paper2')} style={getMenuButtonStyle(activeSection === 'paper2')}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
+                  <span>Example Paper Title 2</span>
+                  <span style={{ fontSize: 11, fontWeight: 500, color: activeSection === 'paper2' ? '#cbd5f5' : '#64748b' }}>
+                    Example Paper Description 2
+                  </span>
+                </div>
+              </button>
+              <button onClick={() => setActiveSection('paper3')} style={getMenuButtonStyle(activeSection === 'paper3')}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
+                  <span>Example Paper Title 3</span>
+                  <span style={{ fontSize: 11, fontWeight: 500, color: activeSection === 'paper3' ? '#cbd5f5' : '#64748b' }}>
+                    Example Paper Description 3
+                  </span>
+                </div>
+              </button>
+              <button onClick={() => setActiveSection('paper4')} style={getMenuButtonStyle(activeSection === 'paper4')}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
+                  <span>Example Paper Title 4</span>
+                  <span style={{ fontSize: 11, fontWeight: 500, color: activeSection === 'paper4' ? '#cbd5f5' : '#64748b' }}>
+                    Example Paper Description 4
+                  </span>
+                </div>
+              </button>
+              <button onClick={() => setActiveSection('paper5')} style={getMenuButtonStyle(activeSection === 'paper5')}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
+                  <span>Example Paper Title 5</span>
+                  <span style={{ fontSize: 11, fontWeight: 500, color: activeSection === 'paper5' ? '#cbd5f5' : '#64748b' }}>
+                    Example Paper Description 5
+                  </span>
+                </div>
+              </button>
+            </>//Example ends here
           </div>
         </div>
       )}
