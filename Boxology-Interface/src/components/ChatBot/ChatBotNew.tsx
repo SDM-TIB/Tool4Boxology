@@ -41,6 +41,9 @@ type BoxologyGraphLinksModel = {
 
 type GeneratedBoxologyArtifact = {
   id: string;
+  title?: string;
+  generationMode?: string;
+  explanation?: string;
   filename: string;
   model: BoxologyGraphLinksModel;
   prettyJson: string;
@@ -54,6 +57,7 @@ interface Message {
   content: string;
   timestamp: number;
   artifact?: GeneratedBoxologyArtifact;
+  artifacts?: GeneratedBoxologyArtifact[];
 }
 
 interface ChatBotProps {
@@ -63,7 +67,7 @@ interface ChatBotProps {
 }
 
 type Step = 'provider' | 'setup' | 'chat';
-type ProviderKey = 'openai' | 'gemini' | 'claude' | 'huggingface';
+type ProviderKey = 'openai' | 'gemini' | 'claude' | 'huggingface' | 'local' | 'modal';
 
 const GENERAL_SYSTEM_PROMPT = 'You are a helpful, general-purpose AI assistant.';
 
@@ -112,6 +116,31 @@ const providers: Record<
     docs: 'https://huggingface.co/settings/tokens',
     placeholder: 'hf_...',
     tokenLabel: 'Access token',
+  },
+  local: {
+    name: 'Local T4B Model (offline)',
+    models: [
+      { id: 'local-baseline', name: 'T4B LLaMA-3.2-1B (baseline)' },
+      { id: 'local-cot2', name: 'T4B LLaMA-3.2-1B (rules + CoT2)' },
+      { id: 'local-cot3', name: 'T4B LLaMA-3.2-1B (rules + CoT3)' },
+      { id: 'local-planner', name: 'Qwen diagram builder (no advisor)' },
+    ],
+    docs: '',
+    placeholder: '',
+    tokenLabel: '',
+  },
+  modal: {
+    name: 'T4B Fine-tune (Modal GPU)',
+    models: [
+      { id: 'modal-baseline', name: 'T4B LLaMA-3.2-1B (baseline)' },
+      { id: 'modal-cot2', name: 'T4B LLaMA-3.2-1B (rules + CoT2)' },
+      { id: 'modal-cot3', name: 'T4B LLaMA-3.2-1B (rules + CoT3)' },
+      { id: 'modal-planner', name: 'Gemini diagram builder (no advisor)' },
+      { id: 'modal-compare', name: 'Compare builder alone vs CoT3 advisor + builder' },
+    ],
+    docs: 'whoever deployed modal_app/serve.py (shared endpoint token)',
+    placeholder: 'paste the shared Modal endpoint token',
+    tokenLabel: 'Modal API key',
   },
 };
 
@@ -171,12 +200,13 @@ export const ChatBotNew: React.FC<ChatBotProps> = ({ open, onClose, onOpenBoxolo
   };
 
   const handleStartChat = async () => {
+    const noCredentialNeeded = selectedProvider === 'local' || selectedProvider === 'modal';
     const trimmed = apiKey.trim();
-    if (!trimmed) {
+    if (!noCredentialNeeded && !trimmed) {
       setSetupError(`${currentProvider.tokenLabel} is required`);
       return;
     }
-    if (/^https?:\/\//i.test(trimmed)) {
+    if (!noCredentialNeeded && /^https?:\/\//i.test(trimmed)) {
       setSetupError(`Paste the ${currentProvider.tokenLabel} itself, not an API URL.`);
       return;
     }
@@ -222,7 +252,11 @@ export const ChatBotNew: React.FC<ChatBotProps> = ({ open, onClose, onOpenBoxolo
           id: `msg_${Date.now()}`,
           type: 'assistant',
           content: useSkill
-            ? 'Boxology skill mode is active. Describe a neuro-symbolic AI system and I will generate a .boxology JSON file.'
+            ? (selectedProvider === 'modal'
+                ? 'Describe your system. Your selected T4B adapter advises on the design; Gemini generates and validates the diagram. Builder-only mode skips the advisor.'
+                : selectedProvider === 'local'
+                ? 'Describe your system. Your selected T4B adapter advises on the design; a separate local Qwen instruction model generates the diagram. Both run offline after model setup.'
+                : 'Boxology skill mode is active. Describe your system to generate a .boxology file.')
             : 'Hi! How can I help?',
           timestamp: Date.now(),
         },
@@ -243,7 +277,10 @@ export const ChatBotNew: React.FC<ChatBotProps> = ({ open, onClose, onOpenBoxolo
     const label = parsed.modelData?.boxologyLabel || data.filename?.replace(/\.boxology$/i, '') || 'AI Generated Boxology';
     const filename = data.filename || safeFilename(String(label));
     return {
-      id: `artifact_${Date.now()}`,
+      id: `artifact_${String(data.model_id || data.title || 'boxology')}_${Date.now()}`,
+      title: data.title || data.model_id,
+      generationMode: data.plan_generation_mode,
+      explanation: data.explanation,
       filename,
       model: parsed,
       prettyJson: JSON.stringify(parsed, null, 2),
@@ -270,7 +307,7 @@ export const ChatBotNew: React.FC<ChatBotProps> = ({ open, onClose, onOpenBoxolo
 
     try {
       const messageHistory = messages
-        .filter((m) => m.type !== 'error' && !m.artifact)
+        .filter((m) => m.type !== 'error' && !m.artifact && !m.artifacts?.length)
         .map((m) => ({ role: m.type === 'user' ? 'user' : 'assistant', content: m.content }));
 
       const response = await fetch(`${API_BASE}/api/llm/chat`, {
@@ -300,15 +337,24 @@ export const ChatBotNew: React.FC<ChatBotProps> = ({ open, onClose, onOpenBoxolo
       }
 
       const data = await response.json();
-      const artifact = useSkill ? makeArtifact(data, trimmedInput) : null;
+      const comparisonArtifacts: GeneratedBoxologyArtifact[] =
+        useSkill && Array.isArray(data.comparisons)
+          ? data.comparisons
+              .map((item: any) => makeArtifact(item, trimmedInput))
+              .filter((item: GeneratedBoxologyArtifact | null): item is GeneratedBoxologyArtifact => item !== null)
+          : [];
+      const artifact = useSkill && comparisonArtifacts.length === 0 ? makeArtifact(data, trimmedInput) : null;
       const assistantMessage: Message = {
         id: `msg_${Date.now()}`,
         type: 'assistant',
-        content: artifact
-          ? `Generated ${artifact.filename}. Review the Boxology JSON below, then open it on the canvas when ready.`
+        content: comparisonArtifacts.length > 0
+          ? data.explanation || 'Generated planner and fine-tuned comparison diagrams.'
+          : artifact
+          ? `${data.explanation || `Generated ${artifact.filename}.`} Review the Boxology JSON below, then open it on the canvas when ready.`
           : data.response || 'No response received',
         timestamp: Date.now(),
         artifact: artifact || undefined,
+        artifacts: comparisonArtifacts.length > 0 ? comparisonArtifacts : undefined,
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
@@ -441,18 +487,33 @@ export const ChatBotNew: React.FC<ChatBotProps> = ({ open, onClose, onOpenBoxolo
                 Gemini needs a Google AI Studio API key. OAuth access tokens usually do not work here.
               </Alert>
             )}
+            {selectedProvider === 'local' && (
+              <Alert severity="info">
+                Runs fully offline on this machine/server via llama.cpp &mdash; no API key, no network call.
+                First setup downloads the adapter base (~800&nbsp;MB) and the separate Qwen diagram
+                builder (~4.7&nbsp;GB). CPU diagram generation can take several minutes.
+              </Alert>
+            )}
+            {selectedProvider === 'modal' && (
+              <Alert severity="info">
+                The selected adapter runs on Modal; Gemini builds the diagram. Credentials are managed
+                by the site operator and both services have usage limits. The GPU may need 30–60s to start.
+              </Alert>
+            )}
 
-            <TextField
-              fullWidth
-              label={currentProvider.tokenLabel}
-              type="password"
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              placeholder={currentProvider.placeholder}
-              helperText={`Get from ${currentProvider.docs}`}
-              autoComplete="new-password"
-              inputProps={{ name: `boxology-${selectedProvider}-credential`, spellCheck: false }}
-            />
+            {selectedProvider !== 'local' && selectedProvider !== 'modal' && (
+              <TextField
+                fullWidth
+                label={currentProvider.tokenLabel}
+                type="password"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                placeholder={currentProvider.placeholder}
+                helperText={`Get from ${currentProvider.docs}`}
+                autoComplete="new-password"
+                inputProps={{ name: `boxology-${selectedProvider}-credential`, spellCheck: false }}
+              />
+            )}
 
             <FormControl fullWidth>
               <InputLabel>Model</InputLabel>
@@ -550,8 +611,8 @@ export const ChatBotNew: React.FC<ChatBotProps> = ({ open, onClose, onOpenBoxolo
                     color: message.type === 'error' ? '#d32f2f' : '#000',
                     borderRadius: 1.5,
                     alignSelf: message.type === 'user' ? 'flex-end' : 'flex-start',
-                    width: message.artifact ? '100%' : 'auto',
-                    maxWidth: message.artifact ? '100%' : '86%',
+                    width: message.artifact || message.artifacts?.length ? '100%' : 'auto',
+                    maxWidth: message.artifact || message.artifacts?.length ? '100%' : '86%',
                     minWidth: 0,
                     boxSizing: 'border-box',
                     border: message.type === 'error' ? '1px solid #ef5350' : '1px solid #dfe7ef',
@@ -562,12 +623,29 @@ export const ChatBotNew: React.FC<ChatBotProps> = ({ open, onClose, onOpenBoxolo
                     {message.content}
                   </Typography>
 
-                  {message.artifact && (
-                    <Box sx={{ mt: 1.5, minWidth: 0, display: 'grid', gap: 1 }}>
+                  {(message.artifacts ?? (message.artifact ? [message.artifact] : [])).map((artifact) => (
+                    <Box key={artifact.id + artifact.filename} sx={{ mt: 1.5, minWidth: 0, display: 'grid', gap: 1 }}>
                       <Box sx={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 1 }}>
+                        <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>
+                          {artifact.title && (
+                            <Chip
+                              size="small"
+                              label={artifact.title}
+                              sx={{ fontWeight: 700, backgroundColor: '#e7f1fa' }}
+                            />
+                          )}
+                          {artifact.generationMode && (
+                            <Chip size="small" variant="outlined" label={artifact.generationMode} />
+                          )}
+                        </Box>
+                        {artifact.explanation && (
+                          <Typography variant="caption" sx={{ color: '#405466', lineHeight: 1.45 }}>
+                            {artifact.explanation}
+                          </Typography>
+                        )}
                         <Typography
                           variant="caption"
-                          title={message.artifact.filename}
+                          title={artifact.filename}
                           sx={{
                             minWidth: 0,
                             overflow: 'hidden',
@@ -577,14 +655,14 @@ export const ChatBotNew: React.FC<ChatBotProps> = ({ open, onClose, onOpenBoxolo
                             color: '#2c5f86',
                           }}
                         >
-                          {message.artifact.filename}
+                          {artifact.filename}
                         </Typography>
                         <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
                           <Button
                             size="small"
                             variant="outlined"
                             startIcon={<DownloadIcon />}
-                            onClick={() => message.artifact && downloadBoxology(message.artifact)}
+                            onClick={() => downloadBoxology(artifact)}
                             sx={{ minWidth: 0 }}
                           >
                             Download
@@ -593,7 +671,7 @@ export const ChatBotNew: React.FC<ChatBotProps> = ({ open, onClose, onOpenBoxolo
                             size="small"
                             variant="contained"
                             startIcon={<OpenInNewIcon />}
-                            onClick={() => message.artifact && onOpenBoxology(message.artifact.model, message.artifact.filename)}
+                            onClick={() => onOpenBoxology(artifact.model, artifact.filename)}
                             sx={{ backgroundColor: colors.primary.darker }}
                           >
                             Open
@@ -617,10 +695,10 @@ export const ChatBotNew: React.FC<ChatBotProps> = ({ open, onClose, onOpenBoxolo
                           whiteSpace: 'pre',
                         }}
                       >
-                        {message.artifact.prettyJson}
+                        {artifact.prettyJson}
                       </Box>
                     </Box>
-                  )}
+                  ))}
                 </Paper>
               ))}
               {isLoading && (

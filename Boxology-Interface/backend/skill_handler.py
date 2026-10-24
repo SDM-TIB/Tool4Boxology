@@ -65,6 +65,9 @@ _GEMINI_RETRY_DELAY_RE = re.compile(r"retry_delay\s*\{\s*seconds:\s*(\d+)")
 
 def _gemini_retry_seconds(text: str) -> int | None:
     match = _GEMINI_RETRY_DELAY_RE.search(text or "")
+    if match:
+        return int(match.group(1))
+    match = re.search(r'"retryDelay"\s*:\s*"(\d+)s"', text or "")
     return int(match.group(1)) if match else None
 
 def _clean_gemini_error(status_code, text: str, fallback: str) -> str:
@@ -75,6 +78,10 @@ def _clean_gemini_error(status_code, text: str, fallback: str) -> str:
             "Gemini rate limit/quota exceeded for this API key's tier."
             f"{retry_hint} Reduce request frequency, upgrade the plan, or switch models/providers."
         )
+    try:
+        text = json.loads(text).get("error", {}).get("message") or text
+    except (ValueError, AttributeError):
+        pass
     return clean_upstream_error(text, fallback)
 
 def get_skill_content() -> str:
@@ -174,56 +181,64 @@ def chat_with_gemini(
     max_tokens: int = 4096,
     system_prompt: str | None = None,
     _retried_after_rate_limit: bool = False,
+    response_schema: dict | None = None,
 ) -> str:
-    """Chat with Google Gemini models"""
+    """Per-request Gemini REST client, with schema-constrained architecture output.
+
+    Avoid the retired SDK's process-global API key. Concurrent users must not
+    share credentials, and JSON MIME type alone does not enforce the plan format.
+    """
+    from urllib.parse import quote
+    generation = {
+        "maxOutputTokens": max_tokens,
+        "temperature": _generation_temperature(system_prompt),
+    }
+    if response_schema is not None:
+        generation.update(responseMimeType="application/json", responseJsonSchema=response_schema)
+    elif system_prompt and "Tool4Boxology" in system_prompt:
+        generation["responseMimeType"] = "application/json"
+    body = {
+        "contents": [{"role": "model" if m["role"] == "assistant" else "user",
+                      "parts": [{"text": m["content"]}]} for m in messages],
+        "generationConfig": generation,
+    }
+    if system_prompt:
+        body["systemInstruction"] = {"parts": [{"text": system_prompt}]}
+    model = quote(model_id.removeprefix("models/"), safe="")
     try:
-        import google.generativeai as genai
-        genai.configure(api_key=api_key)
-
-        model = genai.GenerativeModel(model_id, system_instruction=system_prompt or "")
-
-        # Convert messages to Gemini format
-        chat_messages = []
-        for msg in messages:
-            if msg["role"] == "user":
-                chat_messages.append({"role": "user", "parts": [msg["content"]]})
-            else:
-                chat_messages.append({"role": "model", "parts": [msg["content"]]})
-
-        generation_kwargs = {
-            "max_output_tokens": max_tokens,
-            "temperature": _generation_temperature(system_prompt),
-        }
-        if system_prompt and "Tool4Boxology" in system_prompt:
-            generation_kwargs["response_mime_type"] = "application/json"
-
-        response = model.generate_content(
-            contents=chat_messages,
-            generation_config=genai.types.GenerationConfig(**generation_kwargs),
-            request_options={"timeout": 60.0}
+        response = requests.post(
+            f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+            headers={"x-goog-api-key": api_key}, json=body,
+            timeout=(10, float(os.getenv("T4B_BUILDER_TIMEOUT_SECONDS") or "180")),
         )
-
-        return response.text
+        if response.status_code >= 400:
+            raw = response.text
+            delay = _gemini_retry_seconds(raw)
+            if response.status_code == 429 and not _retried_after_rate_limit and delay is not None and delay <= 20:
+                time.sleep(delay)
+                return chat_with_gemini(api_key, model_id, messages, max_tokens, system_prompt,
+                                        True, response_schema)
+            detail = _clean_gemini_error(response.status_code, raw, "Gemini request failed")
+            raise HTTPException(status_code=response.status_code, detail=f"Gemini error: {detail}")
+        data = response.json()
+        candidates = data.get("candidates") or []
+        if not candidates:
+            raise HTTPException(status_code=502, detail="Gemini returned no candidate response.")
+        candidate = candidates[0]
+        if candidate.get("finishReason") == "MAX_TOKENS":
+            raise HTTPException(status_code=502, detail="Gemini output was truncated. Increase T4B_PLAN_MAX_TOKENS.")
+        result = "".join(part.get("text", "") for part in candidate.get("content", {}).get("parts", [])
+                         if not part.get("thought"))
+        if not result.strip():
+            raise HTTPException(status_code=502, detail="Gemini returned no text response.")
+        return result
     except HTTPException:
         raise
-    except Exception as e:
-        status_code = getattr(e, "code", None) or getattr(e, "status_code", 502) or 502
-        raw_detail = _network_hint(e)
+    except requests.RequestException as exc:
+        raise HTTPException(status_code=502, detail=f"Gemini connection failed: {type(exc).__name__}") from exc
+    except (ValueError, KeyError, TypeError) as exc:
+        raise HTTPException(status_code=502, detail="Gemini returned an invalid response envelope.") from exc
 
-        if status_code == 429 and not _retried_after_rate_limit:
-            retry_seconds = _gemini_retry_seconds(raw_detail)
-            if retry_seconds is not None and retry_seconds <= 20:
-                print(f"[LLM] Gemini rate-limited; waiting {retry_seconds}s and retrying once")
-                time.sleep(retry_seconds)
-                return chat_with_gemini(
-                    api_key, model_id, messages, max_tokens, system_prompt,
-                    _retried_after_rate_limit=True,
-                )
-
-        detail = _clean_gemini_error(status_code, raw_detail, f"Gemini API error: {status_code}")
-        if status_code in (401, 403):
-            detail = f"Gemini rejected the API key: {detail}"
-        raise HTTPException(status_code=status_code, detail=f"Gemini error: {detail}")
 
 def chat_with_huggingface(
     api_key: str,

@@ -11,10 +11,46 @@ node_modules
 dist
 dist-ssr
 *.local
+.venv/
+venv/
+
+# Python test and tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local GPU/model artifacts. Keep the Modal app and model configuration
+# tracked, but do not commit downloaded weights or training checkpoints.
+T4B-LLM/**/checkpoint-*/
+T4B-LLM/**/*.safetensors
+T4B-LLM/**/*.bin
+T4B-LLM/**/*.pt
+T4B-LLM/**/*.pth
+T4B-LLM/**/*.ckpt
+T4B-LLM/**/wandb/
+T4B-LLM/**/runs/
+T4B-LLM/T4B_cloudrift/
+backend/local_t4b/adapters/*.gguf
+modal_app/.venv/
+modal_app/.modal/
+modal_app/**/__pycache__/
+training/**/checkpoints/
+training/**/outputs/
+training/**/runs/
+training/**/generated/
+training/**/evaluation/
 
 # Python
 __pycache__/
 *.pyc
+
+# Local T4B model cache (auto-downloaded base GGUF; adapters/ source stays committed)
+backend/local_t4b/models/
+
+# Server-side secrets read by docker-compose.yml's ${VAR} substitution
+.env
+.env.*
+!.env.example
 
 # Editor directories and files
 .vscode/*

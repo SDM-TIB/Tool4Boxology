@@ -19,3 +19,8 @@ coverage
 .cache
 Dockerfile
 docker-compose.yml
+
+# Raw fine-tuning research artifacts (not needed at runtime; only the small
+# converted GGUF adapters in backend/local_t4b/adapters are)
+T4B-LLM
+backend/local_t4b/models

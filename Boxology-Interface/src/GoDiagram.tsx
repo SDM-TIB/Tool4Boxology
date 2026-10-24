@@ -351,7 +351,9 @@ const GoDiagram: React.FC<GoDiagramProps> = ({
             toSpot: go.Spot.AllSides,
             cursor: 'move',  // Default cursor
             minSize: new go.Size(100, 60),
-            maxSize: new go.Size(300, 300),
+            // Width stays capped so labels wrap at a reasonable column; height is
+            // unbounded so wrapped multi-line labels aren't clipped.
+            maxSize: new go.Size(300, NaN),
             // 🔧 ADD: Mouse handlers to change cursor dynamically
             mouseEnter: (e, shape) => {
               const sh = shape as go.Shape;
@@ -487,16 +489,18 @@ const GoDiagram: React.FC<GoDiagramProps> = ({
     );
 
     diagram.linkTemplate = $(
-      
       go.Link,
-      // 🔧 CHANGED: Use Orthogonal instead of AvoidsNodes (much faster)
-      {routing: go.Routing.AvoidsNodes,
-          curve: go.Curve.JumpOver,
-          corner: 5,
-          toShortLength: 4,
-          reshapable: true,
-          resegmentable: true},
-      { routing: go.Link.Orthogonal, corner: 5, selectable: true },
+      // AvoidsNodes so links route around node bodies instead of through them;
+      // JumpOver so crossing links are visually distinguishable at intersections.
+      {
+        routing: go.Routing.AvoidsNodes,
+        curve: go.Curve.JumpOver,
+        corner: 5,
+        toShortLength: 4,
+        reshapable: true,
+        resegmentable: true,
+        selectable: true,
+      },
       $(go.Shape, { strokeWidth: 2, stroke: "#555" }),
       $(go.Shape, { toArrow: "Triangle", fill: "#555", stroke: null })
     );

@@ -1,3 +1,7 @@
+# Prebuilt CPU wheels for llama-cpp-python (avoids compiling from source, which
+# needs a C++ toolchain/CMake that most minimal server images don't have).
+--extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
+
 fastapi>=0.104.0
 uvicorn[standard]>=0.24.0
 python-multipart>=0.0.6
@@ -9,6 +13,7 @@ transformers>=4.35.0
 peft>=0.4.0
 openai>=1.0.0
 anthropic>=0.7.0
-google-generativeai>=0.3.0
 requests>=2.31.0
 python-dotenv>=1.0.0
+llama-cpp-python>=0.3.0
+huggingface_hub>=0.20.0

@@ -26,6 +26,7 @@ import ChatBotButton from './components/ChatBot/ChatBotButton';
 import { colors } from './styles/theme';
 import { createEmptyPresentation, normalizePresentation, type Presentation } from './types/presentation';
 import { applyPresentationVisibility } from './utils/presentation';
+import { autoArrangeDiagram } from './utils/autoArrange';
 
 
 // Public .boxology files that can be auto-opened via ?example=<key> in the URL,
@@ -198,6 +199,18 @@ function App() {
         boxologyDescription: modelData.boxologyDescription,
       };
       diagramRef.current.model = model;
+
+      // AI-generated layouts are rarely usable as-is (overlapping clusters, unsized
+      // labels) - auto-arrange once on open. Deferred a frame so GoJS has finished
+      // measuring the freshly-set nodes (actualBounds) before layout reads them.
+      const diagramForArrange = diagramRef.current;
+      requestAnimationFrame(() => {
+        try {
+          autoArrangeDiagram(diagramForArrange);
+        } catch (error) {
+          console.error('Auto-arrange on open failed:', error);
+        }
+      });
     }
 
     showToast(`Opened "${boxologyLabel}" on the canvas.`, 'success');

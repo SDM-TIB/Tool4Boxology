@@ -10,8 +10,10 @@ import AlignHorizontalCenterIcon from '@mui/icons-material/AlignHorizontalCenter
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import ViewStreamIcon from '@mui/icons-material/ViewStream';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import { useToast } from '../Toast/ToastProvider';
 import ShaclValidationDialog from '../dialogs/ShaclValidationDialog';
+import { autoArrangeDiagram } from '../../utils/autoArrange';
 import {
   simpleButtonStyle,
   toolbarGroupStyle,
@@ -268,6 +270,20 @@ const Toolbar: React.FC<ToolbarProps> = ({
     diagram.commitTransaction('organize vertically');
   };
 
+  const handleAutoArrange = () => {
+    if (!diagram) return;
+    if (diagram.nodes.count === 0) {
+      showToast('Nothing to arrange - the diagram is empty.', 'warning');
+      return;
+    }
+    try {
+      autoArrangeDiagram(diagram);
+      showToast('Diagram auto-arranged.', 'success');
+    } catch (error) {
+      console.error('Error auto-arranging diagram:', error);
+      showToast('Auto-arrange failed. See console for details.', 'error');
+    }
+  };
 
   const openSparqlEditor = () => {
     const query = `PREFIX t4b: <http://tool4boxology.org/>
@@ -536,6 +552,13 @@ LIMIT 100`;
       />
 
       <div style={toolbarGroupStyle} title="Arrange">
+      <button
+        onClick={handleAutoArrange}
+        style={{ ...simpleButtonStyle, display: 'flex', alignItems: 'center', gap: '4px' }}
+        title="Automatically lay out the whole diagram: size nodes to their labels, arrange each cluster's inputs/process/outputs, position clusters by dependency, and place shared nodes near the clusters that use them."
+      >
+        <AutoFixHighIcon fontSize="small" /> Auto-arrange
+      </button>
       {/* Collapsible Alignment & Organization Section */}
       <button
         onClick={() => setShowAlignOrganize(prev => !prev)}

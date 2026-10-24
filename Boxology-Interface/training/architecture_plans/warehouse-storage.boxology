@@ -1,0 +1,397 @@
+{
+  "modelData": {
+    "boxologyId": "warehouse-neuro-symbolic-storage",
+    "boxologyLabel": "Warehouse Robot Storage Planning",
+    "boxologyDescription": "Workers annotate warehouse images; a trained neural detector supplies location facts to rule-based storage reasoning for a robot. Rule implementation and task-context assembly are explicit supporting stages.",
+    "neuroSymbolicPattern": "Neuro > Symbolic"
+  },
+  "nodeDataArray": [
+    {
+      "key": "g1",
+      "isGroup": true,
+      "category": "ClusterGroup",
+      "label": "1c Annotation",
+      "text": "1c Annotation"
+    },
+    {
+      "key": "g2",
+      "isGroup": true,
+      "category": "ClusterGroup",
+      "label": "1d Training Data Preparation",
+      "text": "1d Training Data Preparation"
+    },
+    {
+      "key": "g3",
+      "isGroup": true,
+      "category": "ClusterGroup",
+      "label": "1a Training",
+      "text": "1a Training"
+    },
+    {
+      "key": "g4",
+      "isGroup": true,
+      "category": "ClusterGroup",
+      "label": "2a Detection",
+      "text": "2a Detection"
+    },
+    {
+      "key": "g5",
+      "isGroup": true,
+      "category": "ClusterGroup",
+      "label": "2b Rule Model Construction",
+      "text": "2b Rule Model Construction"
+    },
+    {
+      "key": "g6",
+      "isGroup": true,
+      "category": "ClusterGroup",
+      "label": "2c Robot Task Context",
+      "text": "2c Robot Task Context"
+    },
+    {
+      "key": "g7",
+      "isGroup": true,
+      "category": "ClusterGroup",
+      "label": "2d Symbolic Storage Reasoning",
+      "text": "2d Symbolic Storage Reasoning"
+    },
+    {
+      "key": "images",
+      "name": "Data",
+      "type": "Image",
+      "label": "Warehouse training images",
+      "shape": "Rectangle",
+      "color": "#c4e8ffff",
+      "stroke": "#1E5F8B",
+      "loc": "0 0",
+      "isShared": true,
+      "sharedGroups": [
+        "g1",
+        "g2"
+      ]
+    },
+    {
+      "key": "workers",
+      "name": "Actor",
+      "type": "Human",
+      "label": "Warehouse workers",
+      "shape": "Triangle",
+      "color": "#ffdcabff",
+      "stroke": "#9c6921",
+      "loc": "240 -160",
+      "group": "g1"
+    },
+    {
+      "key": "annotate",
+      "name": "Engineer",
+      "type": "engineering",
+      "label": "Label boxes and shelves",
+      "shape": "RoundedRectangle",
+      "color": "#f6d6cf",
+      "stroke": "#b85068",
+      "loc": "240 0",
+      "group": "g1",
+      "parameter1": 45
+    },
+    {
+      "key": "labels",
+      "name": "Symbol",
+      "type": "Label",
+      "label": "Box and shelf annotations",
+      "shape": "Rectangle",
+      "color": "#d1f0c9ff",
+      "stroke": "#218721ff",
+      "loc": "480 0",
+      "isShared": true,
+      "sharedGroups": [
+        "g1",
+        "g2"
+      ]
+    },
+    {
+      "key": "prepare",
+      "name": "Transform",
+      "type": "transform",
+      "label": "Pair images with annotations",
+      "shape": "RoundedRectangle",
+      "color": "#fbf1b0ff",
+      "stroke": "#B8A600",
+      "loc": "480 240",
+      "group": "g2",
+      "parameter1": 45
+    },
+    {
+      "key": "dataset",
+      "name": "Data",
+      "type": "Dataset",
+      "label": "Labeled warehouse dataset",
+      "shape": "Rectangle",
+      "color": "#c4e8ffff",
+      "stroke": "#1E5F8B",
+      "loc": "720 240",
+      "isShared": true,
+      "sharedGroups": [
+        "g2",
+        "g3"
+      ]
+    },
+    {
+      "key": "train",
+      "name": "Train",
+      "type": "Deep Learning",
+      "label": "Train location detector",
+      "shape": "RoundedRectangle",
+      "color": "#ffc2a0",
+      "stroke": "#c05f30",
+      "loc": "960 240",
+      "group": "g3",
+      "parameter1": 45
+    },
+    {
+      "key": "detector",
+      "name": "Model",
+      "type": "NeuralModel",
+      "label": "Trained box and shelf detector",
+      "shape": "Hexagon",
+      "color": "#edd3f3ff",
+      "stroke": "#8B4F8B",
+      "loc": "1200 240",
+      "isShared": true,
+      "sharedGroups": [
+        "g3",
+        "g4"
+      ]
+    },
+    {
+      "key": "live",
+      "name": "Data",
+      "type": "Image",
+      "label": "Current warehouse images",
+      "shape": "Rectangle",
+      "color": "#c4e8ffff",
+      "stroke": "#1E5F8B",
+      "loc": "960 480",
+      "group": "g4"
+    },
+    {
+      "key": "detect",
+      "name": "Deduce",
+      "type": "prediction",
+      "label": "Detect boxes and shelf locations",
+      "shape": "RoundedRectangle",
+      "color": "#ffcdcd",
+      "stroke": "#4c003bff",
+      "loc": "1200 480",
+      "group": "g4",
+      "parameter1": 45
+    },
+    {
+      "key": "locations",
+      "name": "Symbol",
+      "type": "DB",
+      "label": "Detected boxes and shelf locations",
+      "shape": "Rectangle",
+      "color": "#d1f0c9ff",
+      "stroke": "#218721ff",
+      "loc": "1200 720",
+      "isShared": true,
+      "sharedGroups": [
+        "g4",
+        "g6"
+      ]
+    },
+    {
+      "key": "rules",
+      "name": "Symbol",
+      "type": "Rules",
+      "label": "Warehouse storage rules",
+      "shape": "Rectangle",
+      "color": "#d1f0c9ff",
+      "stroke": "#218721ff",
+      "loc": "0 720",
+      "group": "g5"
+    },
+    {
+      "key": "expert",
+      "name": "Actor",
+      "type": "Human",
+      "label": "Warehouse rule designer",
+      "shape": "Triangle",
+      "color": "#ffdcabff",
+      "stroke": "#9c6921",
+      "loc": "240 560",
+      "group": "g5"
+    },
+    {
+      "key": "compile",
+      "name": "Engineer",
+      "type": "engineering",
+      "label": "Implement storage rules",
+      "shape": "RoundedRectangle",
+      "color": "#f6d6cf",
+      "stroke": "#b85068",
+      "loc": "240 720",
+      "group": "g5",
+      "parameter1": 45
+    },
+    {
+      "key": "reasoner",
+      "name": "Model",
+      "type": "RuleBasedModel",
+      "label": "Warehouse storage rule model",
+      "shape": "Hexagon",
+      "color": "#edd3f3ff",
+      "stroke": "#8B4F8B",
+      "loc": "480 720",
+      "isShared": true,
+      "sharedGroups": [
+        "g5",
+        "g7"
+      ]
+    },
+    {
+      "key": "robot",
+      "name": "Actor",
+      "type": "Robot",
+      "label": "Robot with new item task",
+      "shape": "Triangle",
+      "color": "#ffdcabff",
+      "stroke": "#9c6921",
+      "loc": "1440 960",
+      "group": "g6"
+    },
+    {
+      "key": "context",
+      "name": "Engineer",
+      "type": "engineering",
+      "label": "Assemble new item and location facts",
+      "shape": "RoundedRectangle",
+      "color": "#f6d6cf",
+      "stroke": "#b85068",
+      "loc": "1200 960",
+      "group": "g6",
+      "parameter1": 45
+    },
+    {
+      "key": "facts",
+      "name": "Symbol",
+      "type": "DB",
+      "label": "New item and warehouse facts",
+      "shape": "Rectangle",
+      "color": "#d1f0c9ff",
+      "stroke": "#218721ff",
+      "loc": "960 960",
+      "isShared": true,
+      "sharedGroups": [
+        "g6",
+        "g7"
+      ]
+    },
+    {
+      "key": "reason",
+      "name": "Deduce",
+      "type": "deduce",
+      "label": "ss:deduce — select storage location",
+      "shape": "RoundedRectangle",
+      "color": "#ffcdcd",
+      "stroke": "#4c003bff",
+      "loc": "720 960",
+      "group": "g7",
+      "parameter1": 45
+    },
+    {
+      "key": "decision",
+      "name": "Symbol",
+      "type": "Trace",
+      "label": "Storage decision for the robot",
+      "shape": "Rectangle",
+      "color": "#d1f0c9ff",
+      "stroke": "#218721ff",
+      "loc": "720 1200",
+      "group": "g7"
+    }
+  ],
+  "linkDataArray": [
+    {
+      "from": "images",
+      "to": "annotate"
+    },
+    {
+      "from": "workers",
+      "to": "annotate"
+    },
+    {
+      "from": "annotate",
+      "to": "labels"
+    },
+    {
+      "from": "images",
+      "to": "prepare"
+    },
+    {
+      "from": "labels",
+      "to": "prepare"
+    },
+    {
+      "from": "prepare",
+      "to": "dataset"
+    },
+    {
+      "from": "dataset",
+      "to": "train"
+    },
+    {
+      "from": "train",
+      "to": "detector"
+    },
+    {
+      "from": "detector",
+      "to": "detect"
+    },
+    {
+      "from": "live",
+      "to": "detect"
+    },
+    {
+      "from": "detect",
+      "to": "locations"
+    },
+    {
+      "from": "rules",
+      "to": "compile"
+    },
+    {
+      "from": "expert",
+      "to": "compile"
+    },
+    {
+      "from": "compile",
+      "to": "reasoner"
+    },
+    {
+      "from": "locations",
+      "to": "context"
+    },
+    {
+      "from": "robot",
+      "to": "context"
+    },
+    {
+      "from": "context",
+      "to": "facts"
+    },
+    {
+      "from": "facts",
+      "to": "reason"
+    },
+    {
+      "from": "reasoner",
+      "to": "reason"
+    },
+    {
+      "from": "reason",
+      "to": "decision"
+    }
+  ],
+  "class": "GraphLinksModel"
+}

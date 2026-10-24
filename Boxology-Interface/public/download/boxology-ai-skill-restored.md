@@ -45,14 +45,14 @@ The app validates by stable node `name`. Use exactly one canonical root in `name
 
 Avoid `comment` unless the user explicitly asks for notes.
 
-Useful `type` values from `shapeTypesTree`: `Dataset`, `Image`, `Tensor`, `Text`, `Audio`, `Video`, `Table`, `TimeSeries`, `Number`, `Label`, `Trace`, `Rules`, `KG`, `Human`, `Robot`, `NeuralModel`, `NeuralNetwork`, `CNN`, `RNN`, `Transformer`, `GNN`, `LLM`, `SemanticModel`, `OWLOntology`, `RDFModel`, `RuleBasedModel`, `StatisticalModel`, `ClassificationModel`, `ClusteringModel`, `HybridModel`, `Transform`, `Train`, `Deduce`, `Engineer`.
+Useful `type` values from `shapeTypesTree`: `Dataset`, `Image`, `Tensor`, `Text`, `Audio`, `Video`, `Table`, `TimeSeries`, `Number`, `Label`, `Trace`, `Rules`, `KG`, `Human`, `Robot`, `NeuralModel`, `NeuralNetwork`, `CNN`, `RNN`, `Transformer`, `GNN`, `LLM`, `SemanticModel`, `OWLOntology`, `RDFModel`, `RuleBasedModel`, `StatisticalModel`, `ClassificationModel`, `ClusteringModel`, `Transform`, `Train`, `Deduce`, `Engineer`.
 
 `type` is a closed vocabulary per root, not free text — pick one of these, never invent a new one:
 
 - `Data`: `Number`, `Dataset`, `Tensor`, `Text`, `Image`, `Audio`, `Video`, `TimeSeries`, `Table`
 - `Symbol`: `Trace`, `Label`, `Rules`, `KG`, `DB`
 - `Actor`: `Human`, `Robot`
-- `Model`: the `shapeTypesTree` model branch (`NeuralModel`, `NeuralNetwork`, `CNN`, `RNN`, `LSTM`, `GRU`, `Transformer` and its variants, `GNN`/`GCN`/`GAT`, `LLM`, `SemanticModel`, `OWLOntology`, `RDFModel`, `RuleBasedModel`, `StatisticalModel`, `RegressionModel`, `ClassificationModel`, `ClusteringModel`, `FuzzyModel`, `InductiveModel` and its branch, `HybridModel`)
+- `Model`: the `shapeTypesTree` model branch (`NeuralModel`, `NeuralNetwork`, `CNN`, `RNN`, `LSTM`, `GRU`, `Transformer` and its variants, `GNN`/`GCN`/`GAT`, `LLM`, `SemanticModel`, `OWLOntology`, `RDFModel`, `RuleBasedModel`, `StatisticalModel`, `RegressionModel`, `ClassificationModel`, `ClusteringModel`, `FuzzyModel`, `InductiveModel` and its branch)
 - `Transform`: `transform`, `embed`, `Normalize`, `aggregate`
 - `Train`: `training`, `Symbolic Learning`, `Statistical Learning`, `Deep Learning`, `Reinforcement Learning`
 - `Deduce`: `deduce`, `classification`, `prediction` — detection/forecasting/reasoning/diagnosis/clustering-as-a-step all normalize to `prediction` unless it's specifically a discrete-label task, then use `classification`
@@ -82,18 +82,18 @@ Each cluster should normally contain one process node and its input/output artif
 
 ### Enforced Connectivity Grammar (`validNext`)
 
-The editor checks every link against this fixed adjacency table and **deletes any link that is not in it**. Only emit a link `A -> B` when `B` appears after `A` below:
+Use this generation grammar, a subset of the editor connectivity rules. Editor-only merge links are not architecture data flow. Only emit a link `A -> B` when `B` appears after `A` below:
 
 | From | May link to |
 | --- | --- |
-| `Actor` | `Engineer`, `Transform`, `Deduce`, `Actor` |
-| `Symbol` | `Transform`, `Train`, `Engineer`, `Deduce`, `Symbol` |
-| `Data` | `Transform`, `Train`, `Engineer`, `Deduce`, `Data` |
-| `Model` | `Transform`, `Train`, `Engineer`, `Deduce`, `Model` |
-| `Transform` | `Data`, `Symbol`, `Model`, `Transform` |
-| `Train` | `Model`, `Train` |
-| `Engineer` | `Data`, `Symbol`, `Model`, `Engineer` |
-| `Deduce` | `Data`, `Symbol`, `Model`, `Deduce` |
+| `Actor` | `Engineer`, `Transform`, `Deduce` |
+| `Symbol` | `Transform`, `Train`, `Engineer`, `Deduce` |
+| `Data` | `Transform`, `Train`, `Engineer`, `Deduce` |
+| `Model` | `Transform`, `Train`, `Engineer`, `Deduce` |
+| `Transform` | `Data`, `Symbol`, `Model` |
+| `Train` | `Model` |
+| `Engineer` | `Data`, `Symbol`, `Model` |
+| `Deduce` | `Data`, `Symbol`, `Model` |
 
 A link between two process nodes (`Transform`, `Train`, `Deduce`, `Engineer`) is never valid in either direction. Every link is artifact -> process or process -> artifact.
 
@@ -104,7 +104,7 @@ Every process node's inputs+output must match one of these exact shapes — the 
 - **`Train`** (always outputs `Model`): `{Symbol}`, `{Data}`, `{Model, Data}`, `{Model, Symbol}` `-> Train ->` `Model`
 - **`Transform`** (output is `Data`, `Symbol`, or `Model`): `{Symbol} -> Data`, `{Data} -> Data`, `{Data} -> Symbol`, `{Symbol} -> Symbol`, `{Model} -> Model`, `{Symbol, Data} -> Data`, `{Symbol, Data} -> Model` (an embedding step, `type: embed`)
 - **`Engineer`** (`Actor` required; output is `Data`, `Symbol`, or `Model`): `{Actor}`, `{Actor, Data}`, `{Actor, Symbol}`, `{Actor, Model}` `-> Engineer ->` any one of `Data`/`Symbol`/`Model`
-- **`Deduce`** (`Model` required plus one evidence input; output is exactly one of `Data`/`Symbol`/`Model`): `{Model, Symbol}`, `{Model, Data}`, `{Model, Model}` (two cooperating models, e.g. `co:deduce`) `-> Deduce ->` any one of `Data`/`Symbol`/`Model`
+- **`Deduce`** (`Model` required plus one evidence input; output is exactly one of `Data`/`Symbol`/`Model`): `{Model, Symbol}`, `{Model, Data}`, `{Model, Model}` (two cooperating models) may output `Data` or `Symbol`; the other pairs may output `Data`, `Symbol`, or `Model`
 
 Hard rules:
 
@@ -116,15 +116,10 @@ Hard rules:
 
 ## Clustering
 
-Use one `ClusterGroup` per meaningful stage. Good labels are ordered and specific:
-
-- `1c Annotation`
-- `1d Preprocessing`
-- `1d Feature Extraction`
-- `1a Training`
-- `2a Detection`
-- `2b Symbolic Reasoning`
-- `3a Explanation`
+Use one `ClusterGroup` per meaningful stage with exactly one process in it.
+Name clusters after activities actually described by the user, in dependency order.
+The number and kinds of stages must follow the description; there is no fixed
+sequence of annotation, preprocessing, training, inference, or explanation.
 
 Every non-shared node must have `group` referencing an existing group.
 
@@ -132,7 +127,7 @@ Shared nodes are reused artifacts, never processes. For a shared trained model, 
 
 - set `isShared: true`
 - set `sharedGroups` to all related group keys
-- omit `group` or set it to `null`
+- omit `group` (GoJS does not accept an explicit `null` group key)
 
 Do not duplicate the same artifact in multiple groups.
 
@@ -152,11 +147,11 @@ These are labels or design intentions; the root `name` remains `Deduce`, `Model`
 ## Common Repairs
 
 - If the user says "train labels/symbols," repair to `Train -> Model`, then `Deduce -> Symbol`.
-- If supervised training lacks labels, add `Actor + Data -> Engineer -> Symbol`.
-- If raw data goes directly to training/inference, add a `Transform` preprocessing stage when appropriate.
+- Model annotation when the description includes it. Do not invent human labeling for unsupervised or already-labeled data. Pair observations and labels with `Data + Symbol -> Transform -> Data` before `Train`.
+- Add preparation only when described or required to assemble an input. Do not add preprocessing automatically.
 - If rules, maps, ontologies, or parking-space maps are mentioned, model them as `Symbol`, not `Data`.
 - If the same model/rules/map is reused, make one shared artifact node.
-- If the operation is predict/classify/detect/forecast/cluster/infer/induce/annotate/normalize, do not name the process after the task; use `Deduce`, `Deduce`, `Deduce`, `Deduce`, `Deduce`, `Deduce`, `Deduce`, `Engineer`, `Transform` respectively, with the task word kept in `label` (and `type` where it's in that root's allowed list).
+- Use `Deduce` for prediction, classification, detection, forecasting, clustering-as-inference, reasoning, and induction. Use `Engineer` for annotation. Use `Transform` for normalization. Keep task wording in `label`, not `name`.
 
 ## Checklist
 
@@ -171,3 +166,15 @@ These are labels or design intentions; the root `name` remains `Deduce`, `Model`
 - Every process has inputs and exactly one output.
 - `Deduce` has model plus evidence.
 - Labels are concise and domain-specific.
+
+
+## Description fidelity
+
+The description determines the architecture; do not start from a fixed workflow.
+Represent every explicit stage, actor, resource, and dependency. Use supporting stages
+only when required by the elementary grammar, and identify assumptions in the description.
+Distinguish a learned model from the process that trains it and from the inference that
+uses it. Distinguish symbolic rules from the executable rule model used with evidence.
+Connect upstream outputs to downstream inputs through shared artifacts. Never omit a
+stage merely to shorten JSON. A structurally valid graph can still misrepresent a request;
+check both structure and coverage of the user's description before returning it.

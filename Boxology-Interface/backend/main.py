@@ -2,10 +2,11 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from fastapi import FastAPI, HTTPException
+from fastapi import Request as FastAPIRequest
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 from SPARQLWrapper import SPARQLWrapper, JSON
-import sys, os, socket, importlib, traceback, json, hashlib, re
+import sys, os, socket, importlib, traceback, json, hashlib, re, threading
 
 # Turns a raw upstream error body (which may be an HTML block/error page from a CDN/WAF
 # such as Cloudflare) into a short, readable message instead of dumping raw HTML to the UI.
@@ -42,6 +43,8 @@ def clean_upstream_error(text: str, fallback: str) -> str:
     return stripped
 
 ROOT = Path(__file__).resolve().parents[1]
+from dotenv import load_dotenv
+load_dotenv(ROOT / ".env")  # process/container environment still takes precedence
 SRC = ROOT / "src"
 BACKEND_DIR = Path(__file__).resolve().parent
 for p in (str(SRC), str(ROOT), str(BACKEND_DIR)):
@@ -49,6 +52,8 @@ for p in (str(SRC), str(ROOT), str(BACKEND_DIR)):
         sys.path.insert(0, p)
 
 from shacl_lite import ShaclCompileError, compile_shapes_ttl
+import boxology_render
+import boxology_agents
 
 def _detect_host(service_name: str = "boxology_kg") -> str:
     env_host = os.getenv("SPARQL_HOST")
@@ -73,6 +78,25 @@ HF_CHAT_COMPLETIONS_URL = os.getenv(
 HF_REQUEST_TIMEOUT_SECONDS = float(os.getenv("HF_REQUEST_TIMEOUT_SECONDS", "120"))
 HF_DEFAULT_MAX_TOKENS = int(os.getenv("HF_DEFAULT_MAX_TOKENS", "512"))
 HF_BOXOLOGY_MAX_TOKENS = int(os.getenv("HF_BOXOLOGY_MAX_TOKENS", "4096"))
+
+MODAL_T4B_CHAT_URL = os.getenv(
+    "MODAL_T4B_CHAT_URL",
+    "https://mahsa-f91--t4b-llama-adapters-t4bllama-chat.us-east.modal.run",
+)
+MODAL_T4B_HEALTH_URL = os.getenv(
+    "MODAL_T4B_HEALTH_URL",
+    "https://mahsa-f91--t4b-llama-adapters-t4bllama-health.us-east.modal.run",
+)
+MODAL_REQUEST_TIMEOUT_SECONDS = float(os.getenv("MODAL_REQUEST_TIMEOUT_SECONDS", "300"))
+# Server-held secret for the Modal endpoint - never sent to or accepted from the
+# browser. The site operator pays for this GPU time, so access is capped below
+# rather than gated behind a per-user credential.
+MODAL_T4B_API_KEY = os.getenv("MODAL_T4B_API_KEY", "")
+# `or` (not a getenv default) because docker-compose's `${VAR:-}` substitution sets
+# an empty string, not an unset var, when the host/.env doesn't define it - a plain
+# getenv default would never fire and int("") would crash the app at startup.
+MODAL_RATE_LIMIT_PER_IP_PER_HOUR = int(os.getenv("MODAL_RATE_LIMIT_PER_IP_PER_HOUR") or "5")
+MODAL_RATE_LIMIT_GLOBAL_PER_DAY = int(os.getenv("MODAL_RATE_LIMIT_GLOBAL_PER_DAY") or "50")
 
 BOXOLOGY_GENERATOR_SYSTEM_PROMPT = """You convert natural-language neuro-symbolic AI system descriptions into Tool4Boxology files.
 
@@ -509,7 +533,8 @@ def _validate_remote_credentials(provider: str, api_key: str, model_id: str) -> 
 
     if provider == "gemini":
         request = Request(
-            f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}",
+            "https://generativelanguage.googleapis.com/v1beta/models",
+            headers={"x-goog-api-key": api_key},
             method="GET",
         )
         data = _request_json("Google Gemini", request)
@@ -536,6 +561,27 @@ def _validate_remote_credentials(provider: str, api_key: str, model_id: str) -> 
         )
         _request_json("Anthropic", request)
         return "Anthropic API key is valid."
+
+    if provider == "local":
+        from local_t4b import ensure_local_ready
+        return ensure_local_ready(model_id)
+
+    if provider == "modal":
+        if os.getenv("T4B_GENERATION_WORKFLOW", "agents") == "agents":
+            builder = boxology_agents.builder_for(boxology_agents.ModelRole(provider, model_id))
+            if model_id == "modal-planner":
+                return f"Diagram builder configured: {builder.model}. No adapter advisor selected."
+        if not MODAL_T4B_API_KEY:
+            raise HTTPException(status_code=500, detail="MODAL_T4B_API_KEY is not configured on the server.")
+        request = Request(
+            MODAL_T4B_HEALTH_URL,
+            headers={"Authorization": f"Bearer {MODAL_T4B_API_KEY}"},
+            method="GET",
+        )
+        # A cold Modal container can take 30-60s to spin up before answering even
+        # this cheap health check; the default 20s timeout isn't enough.
+        _request_json("Modal", request, timeout=MODAL_REQUEST_TIMEOUT_SECONDS)
+        return "Modal endpoint token is valid. First generation may take ~30-60s while the GPU container cold-starts."
 
     raise HTTPException(status_code=400, detail=f"Provider '{provider}' not implemented")
 
@@ -719,6 +765,96 @@ def _chat_with_hugging_face(
         "provider": "huggingface",
     }
 
+_modal_rate_limit_state = {"ip_hits": {}, "day": None, "day_count": 0}
+_modal_rate_limit_lock = threading.Lock()
+
+def _check_modal_rate_limit(client_ip: str) -> None:
+    with _modal_rate_limit_lock:
+        _check_modal_rate_limit_locked(client_ip)
+
+
+def _check_modal_rate_limit_locked(client_ip: str) -> None:
+    """Shared Modal GPU time is billed to the site operator, not the caller, so
+    cap it: a per-IP hourly limit plus a global daily ceiling."""
+    import time as _time
+
+    now = _time.time()
+    today = _time.strftime("%Y-%m-%d", _time.gmtime(now))
+
+    if _modal_rate_limit_state["day"] != today:
+        _modal_rate_limit_state["day"] = today
+        _modal_rate_limit_state["day_count"] = 0
+        _modal_rate_limit_state["ip_hits"] = {}
+
+    if _modal_rate_limit_state["day_count"] >= MODAL_RATE_LIMIT_GLOBAL_PER_DAY:
+        raise HTTPException(
+            status_code=429,
+            detail="The shared T4B Modal demo has hit its daily request limit. Please try again tomorrow, or use the Local T4B Model (offline) option instead.",
+        )
+
+    hits = _modal_rate_limit_state["ip_hits"].setdefault(client_ip, [])
+    hour_ago = now - 3600
+    hits[:] = [t for t in hits if t > hour_ago]
+    if len(hits) >= MODAL_RATE_LIMIT_PER_IP_PER_HOUR:
+        raise HTTPException(
+            status_code=429,
+            detail=f"Rate limit reached ({MODAL_RATE_LIMIT_PER_IP_PER_HOUR}/hour) for the shared T4B Modal demo. Try again later, or use the Local T4B Model (offline) option instead.",
+        )
+
+    hits.append(now)
+    _modal_rate_limit_state["day_count"] += 1
+
+def _chat_with_modal(
+    model_id: str,
+    messages: list,
+    max_tokens: int,
+    temperature: float = 0.0,
+    client_ip: str = "unknown",
+    structured_json: bool = False,
+) -> dict:
+    """Chat with a T4B fine-tune served on Modal (see modal_app/serve.py)."""
+    if not MODAL_T4B_API_KEY:
+        raise HTTPException(
+            status_code=500,
+            detail="MODAL_T4B_API_KEY is not configured on the server.",
+        )
+    _check_modal_rate_limit(client_ip)
+    payload = {
+        "variant": model_id,
+        "messages": messages,
+        "max_tokens": max_tokens,
+        "temperature": temperature,
+        "structured_json": structured_json,
+    }
+    request = Request(
+        MODAL_T4B_CHAT_URL,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {MODAL_T4B_API_KEY}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    print(f"[LLM] Sending Modal request: {model_id}")
+    try:
+        with urlopen(request, timeout=MODAL_REQUEST_TIMEOUT_SECONDS) as response:
+            data = json.loads(response.read().decode("utf-8"))
+    except HTTPError as e:
+        error_body = e.read().decode("utf-8", errors="replace")
+        detail = _hf_error_detail(error_body, f"Modal endpoint error: {e.code}")
+        print(f"[LLM] Modal endpoint error {e.code}: {detail}")
+        raise HTTPException(status_code=e.code, detail=detail)
+    except (URLError, TimeoutError) as e:
+        print(f"[LLM] Modal connection error: {str(e)}")
+        raise HTTPException(status_code=503, detail=f"Modal connection error: {str(e)}")
+
+    return {
+        "status": "ok",
+        "model_id": model_id,
+        "response": data.get("response", ""),
+        "provider": "modal",
+    }
+
 def _extract_json_object(text: str) -> dict:
     start = text.find("{")
     end = text.rfind("}")
@@ -761,6 +897,13 @@ def _repair_json_with_hugging_face(
             detail=f"AI returned malformed JSON, and the repair attempt also failed: {e.detail}",
         )
 
+def _rename_field(obj: dict, old: str, new: str) -> None:
+    """Weaker models sometimes use a plausible synonym instead of the schema's
+    actual field name. Adopt it only if the canonical field is missing, so a
+    model that got it right isn't second-guessed."""
+    if isinstance(obj, dict) and new not in obj and old in obj:
+        obj[new] = obj.pop(old)
+
 def _normalize_boxology_model(data: dict, description: str) -> dict:
     if not isinstance(data, dict):
         raise HTTPException(status_code=502, detail="AI response JSON must be an object")
@@ -771,6 +914,15 @@ def _normalize_boxology_model(data: dict, description: str) -> dict:
         raise HTTPException(status_code=502, detail="Boxology JSON must include nodeDataArray")
     if not isinstance(link_data, list):
         raise HTTPException(status_code=502, detail="Boxology JSON must include linkDataArray")
+
+    for node in node_data:
+        if isinstance(node, dict):
+            _rename_field(node, "node", "key")
+            _rename_field(node, "id", "key")
+    for link in link_data:
+        if isinstance(link, dict):
+            _rename_field(link, "source", "from")
+            _rename_field(link, "target", "to")
 
     data["class"] = "GraphLinksModel"
     raw_model_data = data.get("modelData")
@@ -847,11 +999,21 @@ def _normalize_boxology_model(data: dict, description: str) -> dict:
         if node["isShared"]:
             node.pop("group", None)
 
+    valid_links = []
+    dropped_links = 0
     for link in link_data:
         if not isinstance(link, dict):
             raise HTTPException(status_code=502, detail="Every linkDataArray item must be an object")
+        # Weaker models (especially small local/fine-tuned ones) sometimes reference a
+        # node key that never made it into nodeDataArray. That's a single bad edge, not
+        # a reason to discard an otherwise-valid diagram - drop just that link.
         if link.get("from") not in seen_keys or link.get("to") not in seen_keys:
-            raise HTTPException(status_code=502, detail="Every link must reference existing node keys")
+            dropped_links += 1
+            continue
+        valid_links.append(link)
+    if dropped_links:
+        print(f"[LLM] Dropped {dropped_links} link(s) referencing a missing node key")
+    data["linkDataArray"] = valid_links
 
     return data
 
@@ -869,6 +1031,8 @@ def _chat_provider_text(
     max_tokens: int,
     system_prompt: str | None,
     use_skill: bool = False,
+    client_ip: str = "unknown",
+    response_schema: dict | None = None,
 ) -> str:
     if provider == "openai":
         from skill_handler import chat_with_openai
@@ -880,9 +1044,11 @@ def _chat_provider_text(
 
     if provider == "gemini":
         from skill_handler import chat_with_gemini
-        return chat_with_gemini(api_key, model_id, messages, max_tokens, system_prompt)
+        from boxology_contract import PLAN_SCHEMA
+        return chat_with_gemini(api_key, model_id, messages, max_tokens, system_prompt,
+                                response_schema=(response_schema or PLAN_SCHEMA) if use_skill else None)
 
-    if provider in ["huggingface", "local"]:
+    if provider == "huggingface":
         full_messages = []
         if system_prompt:
             full_messages.append({"role": "system", "content": system_prompt})
@@ -896,39 +1062,127 @@ def _chat_provider_text(
         )
         return result["response"]
 
+    if provider == "local":
+        from local_t4b import chat_local
+        full_messages = []
+        if system_prompt:
+            full_messages.append({"role": "system", "content": system_prompt})
+        full_messages.extend(messages)
+        return chat_local(model_id, full_messages, max_tokens, temperature=0 if use_skill else 0.7,
+                          structured_json=use_skill, response_schema=response_schema)
+
+    if provider == "modal":
+        full_messages = []
+        if system_prompt:
+            full_messages.append({"role": "system", "content": system_prompt})
+        full_messages.extend(messages)
+        result = _chat_with_modal(
+            model_id,
+            full_messages,
+            max_tokens,
+            temperature=0 if use_skill else 0.7,
+            client_ip=client_ip,
+            structured_json=use_skill,
+        )
+        return result["response"]
+
     raise HTTPException(status_code=400, detail=f"Provider '{provider}' not implemented")
 
-def _plan_boxology_architecture(
+
+def _generate_boxology_plan(
     llm,
     provider: str,
     api_key: str,
     model_id: str,
-    messages: list,
-) -> str:
-    planner_prompt = (
-        llm.get_planning_prompt()
-        if hasattr(llm, "get_planning_prompt")
-        else "Plan a Tool4Boxology architecture as strict JSON."
-    )
-    user_description = _latest_user_description(messages)
-    planner_messages = [
-        {
-            "role": "user",
-            "content": (
-                "Create the intermediate architecture plan for this Tool4Boxology request.\n\n"
-                f"User description:\n{user_description}"
-            ),
-        }
-    ]
-    return _chat_provider_text(
-        provider,
-        api_key,
-        model_id,
-        planner_messages,
-        1800,
-        planner_prompt,
-        use_skill=True,
-    )
+    user_description: str,
+    client_ip: str = "unknown",
+    history: list | None = None,
+) -> tuple[dict, dict, list[str], str]:
+    """Run the configured model roles; the renderer supplies presentation only."""
+    workflow = os.getenv("T4B_GENERATION_WORKFLOW", "agents")
+    if workflow not in {"agents", "direct"}:
+        raise HTTPException(status_code=500, detail="T4B_GENERATION_WORKFLOW must be agents or direct.")
+    if workflow == "agents":
+        diagram, plan, issues, mode, proposal = boxology_agents.generate(
+            llm, boxology_agents.ModelRole(provider, model_id, api_key), user_description,
+            _chat_provider_text, client_ip=client_ip, history=history,
+        )
+        diagram["modelData"]["generation"]["advisor_proposal"] = proposal
+        return diagram, plan, issues, mode
+    if not user_description.strip():
+        raise HTTPException(status_code=400, detail="Describe the system to generate.")
+    planner_prompt = llm.get_planning_prompt()
+    instruction = boxology_render.GENERATE_INSTRUCTION + user_description
+    plan_messages = [{"role": "user", "content": instruction}]
+    problems = ["No JSON architecture plan could be parsed."]
+    # Same bounded repair policy for offline and GPU; never switch adapters.
+    max_attempts = max(1, min(3, int(os.getenv("T4B_PLAN_ATTEMPTS") or "3")))
+    token_budget = max(2048, min(8192, int(os.getenv("T4B_PLAN_MAX_TOKENS") or "4096")))
+    for attempt in range(max_attempts):
+        raw_text = _chat_provider_text(
+            provider, api_key, model_id, plan_messages, token_budget, planner_prompt,
+            use_skill=True, client_ip=client_ip,
+        )
+        plan = boxology_render.extract_plan(raw_text)
+        problems = (boxology_render.validate_plan(plan) if plan is not None
+                    else ["No complete JSON architecture plan could be parsed."])
+        if not problems:
+            boxology = boxology_render.plan_to_boxology(plan, description=user_description)
+            boxology["modelData"]["generation"] = {
+                "provider": provider, "model": model_id, "attempts": attempt + 1,
+                "skill_sha256": hashlib.sha256(llm.get_system_prompt().encode("utf-8")).hexdigest(),
+            }
+            return boxology, plan, [], "model"
+        # Keep retries bounded in context. Preserve the original request and the
+        # latest invalid answer, not an ever-growing transcript of failed plans.
+        plan_messages = [
+            {"role": "user", "content": instruction},
+            {"role": "assistant", "content": raw_text},
+            {"role": "user", "content": (
+                "Correct the previous plan against the skill and the ORIGINAL description. "
+                "Preserve every described stage and dependency. Return complete plan JSON only. "
+                "Validation errors: " + "; ".join(problems[:20])
+            )},
+        ]
+    raise HTTPException(status_code=502, detail=(
+        f"{model_id} did not produce a valid architecture after {max_attempts} attempt(s). "
+        "No diagram was substituted or rendered. " + "; ".join(problems[:8]) +
+        " Configure the agents workflow to use a separate instruction model for diagram generation."
+    ))
+
+
+def _plan_explanation(plan: dict, generation_mode: str) -> str:
+    explanation = boxology_render.recommendation_from_plan(plan)
+    return explanation + " The model's plan passed validation."
+
+
+def _comparison_item(
+    title: str,
+    model_id: str,
+    boxology: dict,
+    plan: dict,
+    plan_problems: list[str],
+    generation_mode: str,
+) -> dict:
+    # Distinct labels prevent one comparison artifact from being mistaken for
+    # the other after download or when opened on the canvas. boxologyId is
+    # already a fresh uuid4 from plan_to_boxology - leave it alone rather than
+    # re-deriving a label slug, which would make it deterministic again (and
+    # collide whenever two comparisons share a title/label pair).
+    base_label = boxology.get("modelData", {}).get("boxologyLabel") or "AI Generated Boxology"
+    label = f"{base_label} - {title}"
+    boxology["modelData"]["boxologyLabel"] = label
+    safe_label = "".join(c if c.isalnum() or c in ("-", "_") else "_" for c in label).strip("_")
+    return {
+        "title": title,
+        "model_id": model_id,
+        "filename": f"{safe_label or 'ai_generated_boxology'}.boxology",
+        "boxology": boxology,
+        "architecture_plan": json.dumps(plan, indent=2),
+        "plan_validation_issues": plan_problems,
+        "plan_generation_mode": generation_mode,
+        "explanation": _plan_explanation(plan, generation_mode),
+    }
 
 def _fresh_kg_module():
     # Drop any cached kg_creation modules
@@ -1011,68 +1265,19 @@ async def api_health():
 
 
 @app.post("/api/llm/boxology")
-async def api_generate_boxology(payload: dict):
-    """
-    Generate a Tool4Boxology .boxology model from a natural-language system description
-    using hosted Hugging Face inference.
-    """
-    try:
-        model_id = (payload.get("model_id") or DEFAULT_HF_MODEL_ID).strip()
-        hf_token = payload.get("hf_token", "")
-        description = (payload.get("description") or "").strip()
-
-        if not hf_token:
-            raise HTTPException(status_code=400, detail="Hugging Face token required")
-        if not description:
-            raise HTTPException(status_code=400, detail="System description required")
-
-        config_module = get_llm_config()
-        system_prompt = config_module.get_system_prompt() if config_module else BOXOLOGY_GENERATOR_SYSTEM_PROMPT
-
-        result = _chat_with_hugging_face(
-            model_id,
-            hf_token,
-            [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": description},
-            ],
-            int(payload.get("max_tokens", HF_BOXOLOGY_MAX_TOKENS)),
-            temperature=0,
-        )
-        try:
-            raw_boxology = _extract_json_object(result["response"])
-        except HTTPException as e:
-            raw_boxology = _repair_json_with_hugging_face(
-                model_id,
-                hf_token,
-                result["response"],
-                str(e.detail),
-            )
-
-        boxology = _normalize_boxology_model(raw_boxology, description)
-        label = boxology["modelData"].get("boxologyLabel") or "AI Generated Boxology"
-        safe_label = "".join(c if c.isalnum() or c in ("-", "_") else "_" for c in label).strip("_")
-        filename = f"{safe_label or 'ai_generated_boxology'}.boxology"
-
-        node_count = len([n for n in boxology["nodeDataArray"] if not n.get("isGroup")])
-        group_count = len([n for n in boxology["nodeDataArray"] if n.get("isGroup")])
-        link_count = len(boxology["linkDataArray"])
-        return {
-            "status": "ok",
-            "provider": "huggingface",
-            "model_id": model_id,
-            "filename": filename,
-            "boxology": boxology,
-            "explanation": (
-                f"Generated {node_count} components, {group_count} groups, and "
-                f"{link_count} links as a Tool4Boxology GraphLinksModel."
-            ),
-        }
-    except HTTPException:
-        raise
-    except Exception as e:
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=str(e))
+def api_generate_boxology(payload: dict, http_request: FastAPIRequest):
+    """Legacy HF dialog uses the same skill, builder and strict validator as chat."""
+    description = (payload.get("description") or "").strip()
+    if not description:
+        raise HTTPException(status_code=400, detail="System description required")
+    return chat_with_llm({
+        "provider": "huggingface",
+        "model_id": (payload.get("model_id") or DEFAULT_HF_MODEL_ID).strip(),
+        "api_key": payload.get("hf_token", ""),
+        "messages": [{"role": "user", "content": description}],
+        "max_tokens": payload.get("max_tokens", HF_BOXOLOGY_MAX_TOKENS),
+        "use_boxology_skill": True,
+    }, http_request)
 
 # ============================================================================
 # NEW ENDPOINTS: Multi-LLM Provider Support + Skill Download
@@ -1186,13 +1391,13 @@ async def get_provider_models(provider: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/llm/chat")
-def chat_with_llm(payload: dict):
+def chat_with_llm(payload: dict, http_request: FastAPIRequest):
     """
     Chat with any LLM provider using the Boxology AI Skill
 
     Request body:
     {
-        "provider": "openai|claude|gemini|huggingface|local",
+        "provider": "openai|claude|gemini|huggingface|local|modal",
         "model_id": "gpt-4|claude-3-opus|gemini-2.0-flash|...",
         "api_key": "...",  // API key for provider
         "messages": [
@@ -1213,6 +1418,7 @@ def chat_with_llm(payload: dict):
         messages = payload.get("messages", [])
         max_tokens = int(payload.get("max_tokens", 4096))
         use_skill = payload.get("use_boxology_skill", True)
+        client_ip = http_request.client.host if http_request.client else "unknown"
 
         if isinstance(api_key, str) and api_key.strip().lower().startswith(("http://", "https://")):
             raise HTTPException(
@@ -1231,7 +1437,7 @@ def chat_with_llm(payload: dict):
 
         # Validate credentials
         creds = {"api_key": api_key}
-        if provider in ["huggingface", "local"]:
+        if provider == "huggingface":
             creds["hf_token"] = api_key
             creds["model_id"] = model_id
 
@@ -1241,60 +1447,82 @@ def chat_with_llm(payload: dict):
 
         # Get system prompt
         system_prompt = llm.get_system_prompt() if use_skill else payload.get("system_prompt")
-        architecture_plan = None
         user_description = _latest_user_description(messages)
 
         if use_skill:
-            architecture_plan = _plan_boxology_architecture(llm, provider, api_key, model_id, messages)
-            generation_messages = [
-                {
-                    "role": "user",
-                    "content": (
-                        "Generate the final Tool4Boxology .boxology GraphLinksModel JSON from this plan.\n"
-                        "Use the plan keys exactly when possible. Use group keys, not group labels, in group/sharedGroups references. "
-                        "Ensure linkDataArray is complete and non-empty for a multi-stage system.\n\n"
-                        f"Original user description:\n{user_description}\n\n"
-                        f"Architecture plan JSON:\n{architecture_plan}"
-                    ),
-                }
-            ]
-            response_text = _chat_provider_text(
-                provider,
-                api_key,
-                model_id,
-                generation_messages,
-                max_tokens,
-                system_prompt,
-                use_skill=True,
-            )
-        else:
-            response_text = _chat_provider_text(
-                provider,
-                api_key,
-                model_id,
-                messages,
-                max_tokens,
-                system_prompt,
-                use_skill=False,
-            )
-
-        if use_skill:
-            try:
-                raw_boxology = _extract_json_object(response_text)
-            except HTTPException as e:
-                if provider in ["huggingface", "local"]:
-                    raw_boxology = _repair_json_with_hugging_face(model_id, api_key, response_text, str(e.detail))
-                else:
-                    raise HTTPException(
-                        status_code=502,
-                        detail=f"The AI did not return a valid Boxology JSON object: {e.detail}",
+            if provider == "modal" and model_id == "modal-compare":
+                comparison_specs = (
+                    ("Diagram builder alone", "modal-planner"),
+                    ("CoT3 advisor + diagram builder", "modal-cot3"),
+                )
+                comparisons = []
+                for title, comparison_model in comparison_specs:
+                    comparison_boxology, comparison_plan, comparison_problems, comparison_mode = (
+                        _generate_boxology_plan(
+                            llm, provider, api_key, comparison_model, user_description,
+                            client_ip=client_ip,
+                            history=messages[:-1],
+                        )
                     )
+                    comparisons.append(_comparison_item(
+                        title,
+                        comparison_model,
+                        comparison_boxology,
+                        comparison_plan,
+                        comparison_problems,
+                        comparison_mode,
+                    ))
 
-            boxology = _normalize_boxology_model(raw_boxology, user_description)
+                planner_plan = json.loads(comparisons[0]["architecture_plan"])
+                finetune_plan = json.loads(comparisons[1]["architecture_plan"])
+                planner_signature = {k: v for k, v in planner_plan.items() if k != "diagnosis"}
+                finetune_signature = {k: v for k, v in finetune_plan.items() if k != "diagnosis"}
+                same_plan = planner_signature == finetune_signature
+                comparison_summary = (
+                    "Generated both diagrams from the same request. "
+                    + ("The resulting architecture plans are identical. " if same_plan else "The resulting architecture plans differ. ")
+                    + f"Planner mode: {comparisons[0]['plan_generation_mode']}; "
+                    + f"fine-tune mode: {comparisons[1]['plan_generation_mode']}. "
+                    + "Open or download each artifact to compare them."
+                )
+                primary = comparisons[0]
+                return {
+                    "status": "ok",
+                    "provider": provider,
+                    "model_id": model_id,
+                    "response": json.dumps(primary["boxology"], indent=2),
+                    "used_boxology_skill": True,
+                    "filename": primary["filename"],
+                    "boxology": primary["boxology"],
+                    "architecture_plan": primary["architecture_plan"],
+                    "plan_validation_issues": primary["plan_validation_issues"],
+                    "plan_generation_mode": "comparison",
+                    "comparison_same_plan": same_plan,
+                    "comparisons": comparisons,
+                    "explanation": comparison_summary,
+                }
+
+            boxology, plan, plan_problems, generation_mode = _generate_boxology_plan(
+                llm, provider, api_key, model_id, user_description, client_ip=client_ip,
+                history=messages[:-1],
+            )
+
             label = boxology["modelData"].get("boxologyLabel") or "AI Generated Boxology"
             safe_label = "".join(c if c.isalnum() or c in ("-", "_") else "_" for c in label).strip("_")
             filename = f"{safe_label or 'ai_generated_boxology'}.boxology"
             pretty_json = json.dumps(boxology, indent=2)
+
+            explanation = _plan_explanation(plan, generation_mode)
+            if generation_mode == "agents":
+                agents = boxology["modelData"]["generation"]
+                advisor = agents.get("advisor")
+                role_text = f"Design advisor: {advisor['model']}. " if advisor else ""
+                explanation += " " + role_text + f"Diagram builder: {agents['builder']['model']}."
+            if plan_problems:
+                explanation += (
+                    " The architecture plan still had unresolved validator issues after retries, "
+                    f"so this diagram may need manual review: {'; '.join(plan_problems)}"
+                )
 
             return {
                 "status": "ok",
@@ -1304,9 +1532,22 @@ def chat_with_llm(payload: dict):
                 "used_boxology_skill": True,
                 "filename": filename,
                 "boxology": boxology,
-                "architecture_plan": architecture_plan,
-                "explanation": "Generated a Tool4Boxology GraphLinksModel file.",
+                "architecture_plan": json.dumps(plan, indent=2),
+                "plan_validation_issues": plan_problems,
+                "plan_generation_mode": generation_mode,
+                "explanation": explanation,
             }
+
+        response_text = _chat_provider_text(
+            provider,
+            api_key,
+            model_id,
+            messages,
+            max_tokens,
+            system_prompt,
+            use_skill=False,
+            client_ip=client_ip,
+        )
 
         return {
             "status": "ok",
@@ -1323,7 +1564,7 @@ def chat_with_llm(payload: dict):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/llm/validate")
-async def validate_llm_credentials(payload: dict):
+def validate_llm_credentials(payload: dict):
     """Validate LLM provider credentials"""
     try:
         provider = payload.get("provider", "").lower()

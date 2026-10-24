@@ -9,8 +9,13 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
+      - t4b_local_models:/data/t4b-local-llm
     working_dir: /app
-    command: python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir backend --reload-dir src
+    # --reload removed: its file-watcher (inotify, and polling fares no better) was
+    # crashing with "Cannot allocate memory" under this project's WSL2 memory ceiling
+    # (~7.4GB), especially once a long-running local-model request was in flight.
+    # After editing backend code, run `docker compose restart backend` to pick it up.
+    command: python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000
     restart: unless-stopped
     networks:
       - boxology-network
@@ -19,7 +24,28 @@ services:
       - PYTHONPATH=/app
       - SPARQL_QUERY_ENDPOINT=http://boxology_kg:8890/sparql
       - SPARQL_UPDATE_ENDPOINT=http://boxology_kg:8890/sparql-auth
-    
+      - T4B_LOCAL_CACHE_DIR=/data/t4b-local-llm
+      - T4B_LOCAL_N_CTX=${T4B_LOCAL_N_CTX:-16384}
+      - T4B_GENERATION_WORKFLOW=${T4B_GENERATION_WORKFLOW:-agents}
+      - T4B_BUILDER_PROVIDER=${T4B_BUILDER_PROVIDER:-gemini}
+      - T4B_BUILDER_MODEL=${T4B_BUILDER_MODEL:-gemini-3.5-flash-lite}
+      - T4B_BUILDER_API_KEY=${T4B_BUILDER_API_KEY:-}
+      - T4B_BUILDER_TIMEOUT_SECONDS=${T4B_BUILDER_TIMEOUT_SECONDS:-180}
+      - T4B_LOCAL_BUILDER_PATH=${T4B_LOCAL_BUILDER_PATH:-}
+      - T4B_LOCAL_ADAPTERS_DIR=${T4B_LOCAL_ADAPTERS_DIR:-/app/backend/local_t4b/adapters}
+      - T4B_PLAN_MAX_TOKENS=${T4B_PLAN_MAX_TOKENS:-6144}
+      - T4B_PLAN_ATTEMPTS=${T4B_PLAN_ATTEMPTS:-3}
+      - MODAL_REQUEST_TIMEOUT_SECONDS=${MODAL_REQUEST_TIMEOUT_SECONDS:-300}
+      - MODAL_T4B_CHAT_URL=${MODAL_T4B_CHAT_URL:-https://mahsa-f91--t4b-llama-adapters-t4bllama-chat.us-east.modal.run}
+      - MODAL_T4B_HEALTH_URL=${MODAL_T4B_HEALTH_URL:-https://mahsa-f91--t4b-llama-adapters-t4bllama-health.us-east.modal.run}
+      # Read from .env (gitignored, see .env.example) - the shared Modal GPU
+      # endpoint's bearer token. Only the site operator holds this.
+      - MODAL_T4B_API_KEY=${MODAL_T4B_API_KEY:-}
+      # Optional overrides for local dev (see .env.example) - unset falls back
+      # to main.py's public-deployment-safe defaults (5/hour, 50/day).
+      - MODAL_RATE_LIMIT_PER_IP_PER_HOUR=${MODAL_RATE_LIMIT_PER_IP_PER_HOUR:-}
+      - MODAL_RATE_LIMIT_GLOBAL_PER_DAY=${MODAL_RATE_LIMIT_GLOBAL_PER_DAY:-}
+
     depends_on:
       - boxology_kg
 
@@ -62,3 +88,4 @@ networks:
 
 volumes:
   kg_data:
+  t4b_local_models:

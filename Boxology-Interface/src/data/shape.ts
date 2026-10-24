@@ -88,6 +88,7 @@ export const shapeTypesTree: ShapeTypeTree = {
     Image: null,
     Audio: null,
     Video: null,
+    Table: null,
     TimeSeries: null
   },
   Symbol: {

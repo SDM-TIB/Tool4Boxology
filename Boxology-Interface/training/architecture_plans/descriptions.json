@@ -1,0 +1,282 @@
+[
+  {
+    "file": "T4B-1",
+    "system_name": "Fuzzy SVM Medical Diagnosis",
+    "description": "Create a medical diagnosis system that cleans and tokenizes free-text symptoms, converts them into feature vectors, and trains a semantic support vector machine. In parallel, structure medical knowledge into fuzzy rules with learned weights, use those rules to estimate diagnoses and likelihoods, and combine the estimates with the support vector machine to rank the possible diagnoses."
+  },
+  {
+    "file": "T4B-10",
+    "system_name": "Personalized Sleep Staging",
+    "description": "Build a personalized sleep-staging system that cleans physiological signals, extracts sleep-event parameters, and lets a physician partially score selected epochs using clinical guidelines. Adapt a symbolic fusion framework to sleep staging, optimize personal thresholds from the partial hypnogram and extracted parameters, and infer the final hypnogram."
+  },
+  {
+    "file": "T4B-11",
+    "system_name": "Fuzzy MRF MRI Segmentation",
+    "description": "Develop a multidimensional carbon-13 MRI segmentation system that preprocesses raw scans and creates an initial segmentation estimate. Train a hybrid fuzzy Markov random field model with simulated and in-vivo data, refine the estimate with that model, and convert the result into final segmentation maps."
+  },
+  {
+    "file": "T4B-12",
+    "system_name": "Optimized Fuzzy Decision Tree Diagnosis",
+    "description": "Design a clinical diagnosis system that selects and structures medical databases, then uses stepwise regression to identify features for each condition and group similar cases. Train a fuzzy decision tree on the case groups, optimize it with a genetic algorithm, and use the optimized model with patient features to determine the condition."
+  },
+  {
+    "file": "T4B-14",
+    "system_name": "Semi-Supervised EEG Seizure Detection",
+    "description": "Create an EEG seizure-detection system that segments raw signals, extracts time-series features, and combines labeled and unlabeled examples for semi-supervised learning. Derive fuzzy rules from the features, integrate the learned classifier and rules into a Takagi-Sugeno-Kang fuzzy system, and identify seizure instances in new EEG data."
+  },
+  {
+    "file": "T4B-15",
+    "system_name": "Epilepsy Health Scoring and Treatment",
+    "description": "Build an epilepsy decision-support system that extracts features from historical measurements and trains a dynamic boosting model. Use the model to predict a health score and epilepsy likelihood from current measurements, then combine that result with fuzzy rules to produce a diagnosis and treatment recommendation."
+  },
+  {
+    "file": "T4B-18",
+    "system_name": "Hybrid Rule and Case Diagnosis",
+    "description": "Create a diagnostic system in which physicians encode expert rules while previous cases are used to train a case-based model. For a current case, combine both the rule-based and case-based models to infer the final diagnosis."
+  },
+  {
+    "file": "T4B-2",
+    "system_name": "Fuzzy fMRI Pain Classification",
+    "description": "Build a pain-level classifier that normalizes functional MRI scans, extracts brain-activity features, balances the data with synthetic minority oversampling, and selects the most useful pain features with a competitive swarm method. Learn a fuzzy model from those features, classify unseen scans into pain levels, and translate the numerical result into an interpretable pain category."
+  },
+  {
+    "file": "T4B-20",
+    "system_name": "Wavelet Neuro-Fuzzy Brain MRI Diagnosis",
+    "description": "Create a brain MRI diagnosis system that applies a wavelet transformation and then uses fuzzy logic to refine the resulting features. Train a wavelet neural network from the refined features and apply it to patient images to produce a diagnosis report."
+  },
+  {
+    "file": "T4B-22",
+    "system_name": "Fuzzy AHP Heart Failure Risk",
+    "description": "Design a heart-failure risk system that captures cardiac clinicians' experience as a semantic risk model and converts patient measurements into fuzzy numbers. Use fuzzy analytic hierarchy comparisons to compute local and global weights, train an artificial neural network from those weights and patient data, and predict each patient's heart-failure risk."
+  },
+  {
+    "file": "T4B-23",
+    "system_name": "Locally Weighted Readmission Prediction",
+    "description": "Build a hospital-readmission system that prepares patient records with factorization machines, computes locally weighted training instances, and partitions them using fuzzy c-means. Train a weighted factorization-machine model for each subset and use the resulting model with a patient's record to predict readmission."
+  },
+  {
+    "file": "T4B-24",
+    "system_name": "Layered Fuzzy Cardiovascular Risk",
+    "description": "Create a cardiovascular risk system that fuzzifies vital-sign measurements and lets clinicians define the semantic rules. Apply the same rule model through three successive fuzzy-inference layers, then defuzzify the final result into a crisp risk level."
+  },
+  {
+    "file": "T4B-26",
+    "system_name": "Bayesian Case-Based Pain Support",
+    "description": "Build a pain decision-support system that categorizes raw medical data, selects refined features, and trains a Bayesian network. Combine the network with current patient data and previous cases to estimate pain level, then present the classification together with supporting information for clinicians."
+  },
+  {
+    "file": "T4B-27",
+    "system_name": "Fuzzy Partition Diagnosis",
+    "description": "Create a diagnosis system that cleans patient data and estimates the optimal number of groups. Train a fuzzy partition matrix using the prepared data and selected group count, then use that model to predict a diagnosis for a new patient."
+  },
+  {
+    "file": "T4B-29",
+    "system_name": "Fuzzy U-Net Brain MRI Classification",
+    "description": "Build a brain MRI system that enhances contrast, decomposes images with a dual-tree complex wavelet transform, applies expert fuzzy rules for edge detection, and extracts image features. Have experts annotate training labels, train a U-Net convolutional network, prepare a patient's scan, and combine the network with the fuzzy rules to segment and classify the image."
+  },
+  {
+    "file": "T4B-3",
+    "system_name": "Self-Organizing Physiological Alerting",
+    "description": "Create an early-warning system that normalizes physiological readings, groups them with fuzzy c-means and fuzzy k-means, and combines the groups with learned fuzzy rules to identify physiological conditions. Train a semantic decision-support model using historical data, authentic diagnoses, guidelines, and domain knowledge, then issue an early alert from new readings."
+  },
+  {
+    "file": "T4B-30",
+    "system_name": "Fuzzy Enhanced Breast Ultrasound Segmentation",
+    "description": "Design a breast-ultrasound segmentation system that fuzzifies each image, intensifies relevant regions, and defuzzifies the enhanced result. Train a convolutional neural network on the enhanced images and use it to segment and label a patient's ultrasound image."
+  },
+  {
+    "file": "T4B-33",
+    "system_name": "Cascaded Expert and Machine Risk Assessment",
+    "description": "Build a risk-assessment system where experts structure patient characteristics, define fuzzy rules, create individual expert systems, and combine them into a cascade that yields an initial risk estimate. Balance data from those estimates, extract latent factors, train a machine-learning model, and produce a second risk assessment for new patient data."
+  },
+  {
+    "file": "T4B-35",
+    "system_name": "Fuzzy Finite-State Treatment Ranking",
+    "description": "Create a clinical treatment-ranking system in which experts define fuzzy parameters and patient records are reduced to relevant clinical variables. Fuzzify those variables, learn fuzzy finite-state machines from the values and ranked treatments, and use the resulting model to rank treatments for a new patient."
+  },
+  {
+    "file": "T4B-36",
+    "system_name": "ANFIS Chest MRI COVID Classification",
+    "description": "Build a chest MRI classifier that standardizes raw images and uses a gray-level co-occurrence model to derive feature vectors. Fine-tune an adaptive neuro-fuzzy inference system with those features and standardized images, then predict COVID-19 from a patient's scan."
+  },
+  {
+    "file": "T4B-37",
+    "system_name": "ANFIS Infarction Growth Prediction",
+    "description": "Create an infarction-growth predictor that cleans and normalizes CT scans and clinical data, then reduces their dimensionality with principal component analysis. Train an adaptive neuro-fuzzy inference system on the reduced data and use patient information with a new scan to estimate infarction-volume growth."
+  },
+  {
+    "file": "T4B-38",
+    "system_name": "Integrated Aneurysm Surgery Recommendation",
+    "description": "Build a clinical recommendation system that normalizes patient data, reduces it to principal components, and trains separate models for volume-growth rate and surgery prediction. Learn a fuzzy inference model from both predictions, then combine the fuzzy model and its two inputs to produce a treatment recommendation."
+  },
+  {
+    "file": "T4B-39",
+    "system_name": "Explainable Neuro-Fuzzy Diagnosis",
+    "description": "Design a diagnostic system that cleans patient bioimpedance measurements, retaining resistance and reactance values, and reduces the feature set. Train both a statistical machine-learning model and a neuro-fuzzy classifier, then combine their outputs for a diagnosis with an explanation."
+  },
+  {
+    "file": "T4B-40",
+    "system_name": "Weighted Fuzzy Clinical Risk",
+    "description": "Create a clinical risk predictor that cleans and normalizes benchmark health data, mines it for suitable attributes, and selects the strongest ones. Learn weighted fuzzy rules from the selected attributes and prepared data, then use them to assign risk levels to patient data."
+  },
+  {
+    "file": "T4B-41",
+    "system_name": "Two-Stage ANFIS Dialysis Assessment",
+    "description": "Build a dialysis assessment system that normalizes patient data, fuzzifies the input variables, and trains an adaptive neuro-fuzzy inference system. Generate a crisp urea-concentration prediction for a patient and pass it through a second adaptive neuro-fuzzy model to estimate dialysis effectiveness."
+  },
+  {
+    "file": "T4B-42",
+    "system_name": "Rough-Set Clinical Prediction",
+    "description": "Create a clinical prediction system that structures collected clinical data and uses rough-set theory to remove redundant attributes. Learn inductive decision rules from the reduced data and apply the resulting statistical model to make clinical predictions for a patient."
+  },
+  {
+    "file": "T4B-43",
+    "system_name": "Expert-Guided ANFIS Diagnosis",
+    "description": "Build a medical diagnosis system that lets experts combine diagnostic parameters with prepared patient data while an adaptive neuro-fuzzy inference model is trained from the resulting structured data. Fuzzify new patient values, infer a fuzzy diagnosis with the trained model, and turn it into a readable medical report."
+  },
+  {
+    "file": "T4B-44",
+    "system_name": "Active-Learning Rough-Fuzzy Cancer Classifier",
+    "description": "Create an active-learning cancer classifier that cleans microarray gene-expression data and lets experts divide it into labeled and unlabeled sets. Train a rough-fuzzy classifier, select the most uncertain examples for expert labeling, update the classifier with the new labels, and predict the cancer type for patient data."
+  },
+  {
+    "file": "T4B-45",
+    "system_name": "Longitudinal DSPN Severity Prediction",
+    "description": "Build a diabetic peripheral neuropathy system that cleans clinical study data, ranks important MNSI parameters, and trains an adaptive neuro-fuzzy model. Prepare electromyography signals, combine them with the first model, incorporate longitudinal severity progression, and predict both severity and a therapy recommendation for the patient."
+  },
+  {
+    "file": "T4B-46",
+    "system_name": "Fuzzy-Rough Mammography ANFIS",
+    "description": "Create a mammography diagnosis system that preprocesses raw mammographic data and applies fuzzy rough sets to select useful features. Build an adaptive neuro-fuzzy framework, train it with prepared data and fuzzy rules, and use the final model to predict diagnostic severity for a patient."
+  },
+  {
+    "file": "T4B-47",
+    "system_name": "Time-Varying Relapse Prediction",
+    "description": "Design a relapse-prediction system that normalizes clinical and pathological records, divides follow-up time into intervals, and selects prognostic factors with decision trees for each interval. Train a neural decision-support model from those factors and use it to predict relapse together with the contributing factors."
+  },
+  {
+    "file": "T4B-48",
+    "system_name": "Neuro-Fuzzy Lung CT Classification",
+    "description": "Build a lung CT classifier that converts raw scans to JPEG, produces normalized grayscale images, enhances contrast, and extracts image features. Train a neuro-fuzzy model on those features and use it to classify a patient's scan and produce a report with visual aids."
+  },
+  {
+    "file": "T4B-49",
+    "system_name": "Fuzzy Back-Pain Decision Support",
+    "description": "Create a back-pain decision-support system that structures symptom data and lets physicians convert the relevant values into fuzzy form. Train a fuzzy inference model, predict the patient's condition and severity, and present a diagnosis with recommended actions."
+  },
+  {
+    "file": "T4B-5",
+    "system_name": "Diabetes Metabolic Therapy Support",
+    "description": "Build a diabetes support system that classifies blood-glucose measurements, interprets glycaemia ranges with a first semantic model, and assesses urine ketones with a second semantic model to determine metabolic condition. Let an endocrinologist combine guidelines into a rule-based model, then use the metabolic condition and those rules to recommend interventions for the provider and patient."
+  },
+  {
+    "file": "T4B-50",
+    "system_name": "Radiologist-Assisted Lung CT Diagnosis",
+    "description": "Create a lung CT system that adjusts raw scans, segments lung regions with morphological operations, extracts numerical features, and trains a hybrid neural model. Prepare a patient's scan and let a radiologist combine its features with the trained model to produce a diagnostic report."
+  },
+  {
+    "file": "T4B-51",
+    "system_name": "Rule-Based Treatment Effect Estimation",
+    "description": "Build a treatment-effect estimator that splits observational data into discovery and inference sets, estimates individual pseudo-outcomes, generates candidate decision rules, and re-estimates outcomes on the held-out data. Train a treatment model from the selected rules and revised outcomes, then apply it to clinical data to estimate treatment effects."
+  },
+  {
+    "file": "T4B-52",
+    "system_name": "Hybrid NFIS Autoregressive Cardiovascular Modeling",
+    "description": "Create a cardiovascular modeling system that resamples physiological signals, separates frequency bands, and calculates cross-correlations. Train neuro-fuzzy and autoregressive models from the signal components and correlations, integrate them into a hybrid model, and use it for clinical cardiovascular analysis."
+  },
+  {
+    "file": "T4B-53",
+    "system_name": "Type-2 Fuzzy Gene Classification",
+    "description": "Build a gene-expression classifier that normalizes measurements and ranks informative genes with a modified analytic hierarchy method. Learn fuzzy c-means groupings and type-2 fuzzy rules from the selected genes, combine them into an interval type-2 fuzzy system, and classify new expression samples."
+  },
+  {
+    "file": "T4B-54",
+    "system_name": "Genetic Fuzzy Clinical Diagnosis",
+    "description": "Create a diagnosis system for breast cancer and heart disease that cleans the datasets and extracts reduced wavelet features. Learn fuzzy rules with adaptive vector quantization, optimize them with a genetic algorithm, tune the hybrid system under supervision, and diagnose new patient data."
+  },
+  {
+    "file": "T4B-55",
+    "system_name": "Continuously Improved Fuzzy Cognitive Support",
+    "description": "Build a real-time decision-support system where an expert creates an initial fuzzy cognitive map and existing knowledge enriches its rules. Calibrate the model with previous cases, infer advice from live patient data, and let professionals review the output so their updates can support continued improvement."
+  },
+  {
+    "file": "T4B-56",
+    "system_name": "Fuzzy Deep Respiratory Tumor Localization",
+    "description": "Create a respiratory tumor-localization system that extracts breathing features, groups patients by those features, and lets experts author fuzzy rules. Train a fuzzy deep-learning model from the patient groups and expert rules, then use it to predict tumor position from a patient's respiratory signals."
+  },
+  {
+    "file": "T4B-58",
+    "system_name": "ANFIS Brain Tumor Typing",
+    "description": "Build a brain tumor classifier that removes artifacts and noise from MRI scans, normalizes the images, and extracts numerical feature vectors. Train an adaptive neuro-fuzzy inference system on those vectors and use it to identify the tumor type in a patient's MRI."
+  },
+  {
+    "file": "T4B-59",
+    "system_name": "Rule-Guided Pulmonary Embolism Prediction",
+    "description": "Create a pulmonary embolism system that converts ventilation-perfusion scans and chest X-rays into normalized input vectors. Have radiologists adapt established diagnostic rules to modify those vectors, train a multilayer perceptron, and estimate embolism probability for a patient."
+  },
+  {
+    "file": "T4B-6",
+    "system_name": "Genomic Fuzzy Survival Risk",
+    "description": "Build a genomic survival-risk system that cleans next-generation sequencing data, learns deep feature weights, and applies a Cox proportional-hazards model to derive hazard ratios. Train a risk model from the hazard ratios and learned weights, combine it with expert fuzzy rules and patient genomic data, and translate the resulting risk score into clinical implications."
+  },
+  {
+    "file": "T4B-60",
+    "system_name": "Distributed Probabilistic Fuzzy Prediction",
+    "description": "Create a distributed medical prediction system that normalizes and divides medical data among learning agents, lets them derive local rules, and enriches those rules through neighborhood communication. Refine the combined knowledge into probabilistic fuzzy rules, train a hybrid model, and use it for patient-specific predictions such as mortality."
+  },
+  {
+    "file": "T4B-62",
+    "system_name": "Wavelet ANFIS Seizure Detection",
+    "description": "Build an epileptic-seizure detector that preprocesses EEG recordings and extracts statistical features with a discrete wavelet transform. Train an adaptive neuro-fuzzy inference system from those features and apply it to a patient's EEG signal to detect a seizure."
+  },
+  {
+    "file": "T4B-63",
+    "system_name": "Fuzzy Brain Tissue Segmentation",
+    "description": "Create a brain MRI segmentation system that preprocesses scans, extracts numerical features, and labels tissue regions with fuzzy c-means. Train an adaptive neuro-fuzzy model on those regions and use it to classify and segment a patient's MRI."
+  },
+  {
+    "file": "T4B-64",
+    "system_name": "Fuzzy Insulin Infusion Adviser",
+    "description": "Build an infusion-rate adviser that normalizes patient measurements, converts them into fuzzy inputs, and lets clinicians define a fuzzy rule base. Train a hybrid inference engine from the values and rules, then use current measurements to recommend an infusion rate."
+  },
+  {
+    "file": "T4B-65",
+    "system_name": "Fuzzy ARTMAP FISH Diagnosis",
+    "description": "Create a diagnostic image system that preprocesses FISH microscopy images, extracts quantitative features, and normalizes their representation. Train a fuzzy ARTMAP model, classify patient image vectors, and convert the raw class result into an interpretable diagnosis."
+  },
+  {
+    "file": "T4B-66",
+    "system_name": "ANFIS Mammogram Microcalcification Segmentation",
+    "description": "Build a mammography system that preprocesses images, extracts high-frequency wavelet components, and uses hysteresis thresholding to find candidate microcalcifications. Train an adaptive neuro-fuzzy model on the candidate locations, apply the same detection to a patient mammogram, and segment the suspicious regions."
+  },
+  {
+    "file": "T4B-67",
+    "system_name": "ANFIS Kidney Function Prediction",
+    "description": "Create a kidney-function predictor that preprocesses chronic-kidney-disease records and selects correlated clinical variables. Train an adaptive neuro-fuzzy inference system from those variables and use new patient data to predict glomerular filtration rate values."
+  },
+  {
+    "file": "T4B-68",
+    "system_name": "Ontology-Guided ECG Decision Support",
+    "description": "Build a cardiac decision-support system that maps ECG readings and medical records into a structured ontology representation and derives rule-based knowledge from it. Train a learning classifier system from the representation and inferred knowledge, generate patient recommendations, and let experts adjust the advice for feedback into later decisions."
+  },
+  {
+    "file": "T4B-69",
+    "system_name": "Hybrid Triglyceride Level Prediction",
+    "description": "Create a triglyceride predictor that cleans patient data, selects important variables, and derives crisp values for fuzzy regression. Train both a multilayer perceptron and a fuzzy regression model, then combine them with new patient data to predict triglyceride levels."
+  },
+  {
+    "file": "T4B-7",
+    "system_name": "Probabilistic Decision Rule Selection",
+    "description": "Build a clinical rule-selection system that trains a decision tree from a clinical dataset and extracts its best decision rules. Estimate each selected rule's accuracy against the same clinical evidence and convert those estimates into class-probability scores."
+  },
+  {
+    "file": "T4B-8",
+    "system_name": "Case-Based Diagnostic Knowledge Refinement",
+    "description": "Create a diagnostic assistant that uses symptoms and a maintained rule model to produce a preliminary diagnosis, then compares it with previous cases to calculate similarity. Let a medical professional refine the diagnosis using that similarity, and have physicians feed the reviewed result back into the diagnostic rules."
+  },
+  {
+    "file": "T4B-9",
+    "system_name": "Fractal Fuzzy COVID Forecasting",
+    "description": "Build a COVID-19 forecasting system that prepares epidemic time-series data and calculates its fractal dimensions. Train a fuzzy logic model from those measurements and use it with the fractal evidence to forecast future trends."
+  }
+]
