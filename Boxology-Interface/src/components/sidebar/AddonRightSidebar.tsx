@@ -832,7 +832,7 @@ export default function AddonRightSidebar({ selectedData, diagramRef, pages, cur
       {!evaluationsSearched && !isKgGenerated && (
         <div style={{ marginBottom: 12, padding: 12, background: '#ffffff', borderRadius: 14, border: '1px solid #e5e7eb' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left', fontSize: 14, fontWeight: 700, color: '#6b7280', marginBottom: 10}}>
-            <span>No Linked Papers found!</span>
+            <span>No KG found!</span>
             <span style={{ fontSize: 12, fontWeight: 500, color: '#64748b' }}>
                 No Knowledge Graph found! Please generate the KG before searching for linked papers.
             </span>
