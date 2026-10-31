@@ -673,28 +673,56 @@ export default function AddonRightSidebar({ selectedData, diagramRef, pages, cur
           body: JSON.stringify({ query: 
             `${PREFIXES}
 
-            SELECT ?otherLabel (SUM(?overlap) AS ?overlapSum) WHERE {
-              SELECT ?otherLabel (xsd:float(xsd:float(?countInSystemB)/xsd:float(?countInSystemA)) AS ?overlap) WHERE {
-                {SELECT ?otherLabel ?processType (COUNT(DISTINCT ?patternA) AS ?countInSystemA) (COUNT(DISTINCT ?patternB) AS ?countInSystemB) WHERE {
-                  # Get process types from the other boxologies
-                  ?boxologyB rdfs:label ?otherLabel ;
+            SELECT DISTINCT ?boxology ?otherLabel (SUM(?countInSystemA) AS ?sameCount) WHERE {
+              {SELECT DISTINCT ?boxology ?otherLabel ?inputType ?outputType ?processType
+                              (COUNT(DISTINCT ?pattern) AS ?countInSystemA) (COUNT(DISTINCT ?patternB) AS ?countInSystemB)
+              WHERE {
+                ?boxology rdfs:label ?otherLabel ;
+                          t4b:hasPattern ?pattern .
+                ?pattern rdf:type t4b:DesignPattern .
+
+                OPTIONAL { ?pattern rdfs:label ?patternLabel }
+                OPTIONAL {
+                  ?pattern t4b:hasInput ?input .
+                  OPTIONAL { ?input rdf:type ?inputType }
+                }
+                OPTIONAL {
+                  ?pattern t4b:hasOutput ?output .
+                  OPTIONAL { ?output rdf:type ?outputType }
+                }
+                OPTIONAL {
+                  ?pattern t4b:hasProcess ?process .
+                  OPTIONAL { ?process rdf:type ?processType }
+                }
+                #FILTER(?otherLabel != "${userBoxologyLabel}")
+
+                OPTIONAL {
+                  ?boxologyB rdfs:label "${userBoxologyLabel}" ;
                             t4b:hasPattern ?patternB .
-                  ?patternB t4b:hasProcess ?processB .
-                  ?processB a ?processType .
-                  # Match the corresponding process type in Diagram, if present
+                  ?patternB rdf:type t4b:DesignPattern .
+
+                  OPTIONAL { ?patternB rdfs:label ?patternLabelB }
                   OPTIONAL {
-                    ?boxologyA rdfs:label "Diagram" ;
-                              t4b:hasPattern ?patternA .
-                    ?patternA t4b:hasProcess ?processA .
-                    ?processA a ?processType .
+                    ?patternB t4b:hasInput ?inputB .
+                    OPTIONAL { ?inputB rdf:type ?inputType }
+                  }
+                  OPTIONAL {
+                    ?patternB t4b:hasOutput ?outputB .
+                    OPTIONAL { ?outputB rdf:type ?outputType }
+                  }
+                  OPTIONAL {
+                    ?patternB t4b:hasProcess ?processB .
+                    OPTIONAL { ?processB rdf:type ?processType }
                   }
                 }
-                GROUP BY ?otherLabel ?processType
-                ORDER BY ?otherLabel ?processType
-                }
-                FILTER(?countInSystemA > 0)
               }
-            }
+              GROUP BY ?boxology ?otherLabel ?processType ?inputType ?outputType
+              ORDER BY ?boxology ?otherLabel ?inputType ?outputType ?processType}
+
+              FILTER(?countInSystemA = ?countInSystemB)
+              }
+              GROUP BY ?boxology ?otherLabel
+              ORDER BY DESC(?sameCount)
             `
           }),
         });
