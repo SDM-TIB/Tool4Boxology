@@ -1,0 +1,173 @@
+{
+  "metadata": {
+    "exportId": "555e408f",
+    "userId": "user_6j7bc3lh",
+    "exportDate": "2026-11-08T14:04:36.811Z"
+  },
+  "boxologies": [
+    {
+      "id": "60a0d012-7f6f-4611-8487-a7df2bab8783",
+      "label": "60a0d012-7f6f-4611-8487-a7df2bab8783",
+      "DesignPattern": [
+        {
+          "id": "group_17941458364961",
+          "label": "1c Input",
+          "input": [
+            {
+              "id": "node_17941458364961",
+              "name": "Text",
+              "label": "Query Input"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941458364962",
+              "name": "RNN",
+              "label": "Rule Generator RNN"
+            }
+          ],
+          "process": {
+            "id": "node_17941458364966",
+            "name": "Transform",
+            "label": "Parse Query"
+          }
+        },
+        {
+          "id": "group_17941458364962",
+          "name": "DataModelDeduceSymbol",
+          "label": "2c Rule Generator",
+          "input": [
+            {
+              "id": "node_17941458364962",
+              "name": "RNN",
+              "label": "Rule Generator RNN"
+            },
+            {
+              "id": "node_17941458364961",
+              "name": "Text",
+              "label": "Query Input"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941458364963",
+              "name": "Rules",
+              "label": "Candidate Rules"
+            }
+          ],
+          "process": {
+            "id": "node_17941458364967",
+            "name": "Deduce",
+            "label": "Generate Rules"
+          }
+        },
+        {
+          "id": "group_17941458364963",
+          "name": "SymbolModelDeduceData",
+          "label": "3c Reasoning Predictor",
+          "input": [
+            {
+              "id": "node_17941458364963",
+              "name": "Rules",
+              "label": "Candidate Rules"
+            },
+            {
+              "id": "node_17941458364964",
+              "name": "StatisticalModel",
+              "label": "Reasoning Predictor"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941458364965",
+              "name": "Number",
+              "label": "Reasoning Prediction"
+            }
+          ],
+          "process": {
+            "id": "node_17941458364968",
+            "name": "Deduce",
+            "label": "Reasoning Prediction"
+          }
+        },
+        {
+          "id": "group_1794146509070",
+          "name": "SymbolModelDeduceSymbol",
+          "label": "E-Step: Identify High Quality Rules",
+          "input": [
+            {
+              "id": "node_17941458364963",
+              "name": "Rules",
+              "label": "Candidate Rules"
+            },
+            {
+              "id": "node_17941458364964",
+              "name": "StatisticalModel",
+              "label": "Reasoning Predictor"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_1794146307437",
+              "name": "Rules",
+              "label": "Rules of High Quality"
+            }
+          ],
+          "process": {
+            "id": "node_1794146283354",
+            "name": "Deduce",
+            "label": "Posterior Inference"
+          }
+        },
+        {
+          "id": "group_1794146533565",
+          "name": "SymbolTrainModel",
+          "label": "M-Step",
+          "input": [
+            {
+              "id": "node_1794146307437",
+              "name": "Rules",
+              "label": "Rules of High Quality"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941458364962",
+              "name": "RNN",
+              "label": "Rule Generator RNN"
+            }
+          ],
+          "process": {
+            "id": "node_1794146377954",
+            "name": "Train",
+            "label": "Update Rule Generator"
+          }
+        },
+        {
+          "id": "group_1794146646900",
+          "name": "SymbolTrainModel",
+          "label": "Trying Logic Rules",
+          "input": [
+            {
+              "id": "node_17941458364963",
+              "name": "Rules",
+              "label": "Candidate Rules"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941458364964",
+              "name": "StatisticalModel",
+              "label": "Reasoning Predictor"
+            }
+          ],
+          "process": {
+            "id": "node_1794146218627",
+            "name": "Train",
+            "label": "Update Resoning Predictor"
+          }
+        }
+      ]
+    }
+  ]
+}

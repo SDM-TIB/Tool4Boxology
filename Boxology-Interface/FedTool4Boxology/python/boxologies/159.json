@@ -1,0 +1,95 @@
+{
+  "metadata": {
+    "exportId": "9802f410",
+    "userId": "user_6j7bc3lh",
+    "exportDate": "2026-11-08T13:39:08.496Z"
+  },
+  "boxologies": [
+    {
+      "id": "84f0088c-e796-47a5-a0d6-baa10d94c6a3",
+      "label": "84f0088c-e796-47a5-a0d6-baa10d94c6a3",
+      "DesignPattern": [
+        {
+          "id": "group_17941450308091",
+          "label": "1 Knowledge Base Input",
+          "input": [
+            {
+              "id": "node_17941450308091",
+              "name": "KG",
+              "label": "Input Knowledge Base"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941450308092",
+              "name": "Rules",
+              "label": "Initial Rule Templates"
+            }
+          ],
+          "process": {
+            "id": "node_17941450308095",
+            "name": "Transform",
+            "label": "Parse KB and Rules"
+          }
+        },
+        {
+          "id": "group_17941450308092",
+          "label": "2 Neural Logic Controller",
+          "input": [
+            {
+              "id": "node_17941450308092",
+              "name": "Rules",
+              "label": "Initial Rule Templates"
+            },
+            {
+              "id": "node_17941450308091",
+              "name": "KG",
+              "label": "Input Knowledge Base"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941450308093",
+              "name": "NeuralModel",
+              "label": "Neural Controller System"
+            }
+          ],
+          "process": {
+            "id": "node_17941450308096",
+            "name": "Train",
+            "label": "Optimize Structure & Parameters"
+          }
+        },
+        {
+          "id": "group_17941450308093",
+          "name": "SymbolModelDeduceSymbol",
+          "label": "3 Probabilistic Reasoning",
+          "input": [
+            {
+              "id": "node_17941450308093",
+              "name": "NeuralModel",
+              "label": "Neural Controller System"
+            },
+            {
+              "id": "node_17941450308092",
+              "name": "Rules",
+              "label": "Initial Rule Templates"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941450308094",
+              "name": "Rules",
+              "label": "Learned Probabilistic Rules"
+            }
+          ],
+          "process": {
+            "id": "node_17941450308097",
+            "name": "Deduce",
+            "label": "Differentiable Rule Reasoning"
+          }
+        }
+      ]
+    }
+  ]
+}

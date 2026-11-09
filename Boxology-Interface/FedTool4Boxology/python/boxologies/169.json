@@ -1,0 +1,99 @@
+{
+  "metadata": {
+    "exportId": "60059776",
+    "userId": "user_6j7bc3lh",
+    "exportDate": "2026-11-08T17:25:46.316Z"
+  },
+  "boxologies": [
+    {
+      "id": "d30e95ab-13b8-4bcd-ae21-10ec7c59616b",
+      "label": "d30e95ab-13b8-4bcd-ae21-10ec7c59616b",
+      "DesignPattern": [
+        {
+          "id": "group_17941582476501",
+          "label": "1. Embedding Learning",
+          "input": [
+            {
+              "id": "node_17941582476501",
+              "name": "KG",
+              "label": "Base Knowledge Graph"
+            },
+            {
+              "id": "node_17941582476504",
+              "name": "KG",
+              "label": "Expanded Knowledge Graph"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941582476502",
+              "name": "NeuralModel",
+              "label": "Entity & Relation Embeddings"
+            }
+          ],
+          "process": {
+            "id": "node_17941582476505",
+            "name": "Train",
+            "label": "Embedding Learning"
+          }
+        },
+        {
+          "id": "group_17941582476502",
+          "label": "2. Axiom Induction",
+          "input": [
+            {
+              "id": "node_17941582476502",
+              "name": "NeuralModel",
+              "label": "Entity & Relation Embeddings"
+            },
+            {
+              "id": "node_17941582476501",
+              "name": "KG",
+              "label": "Base Knowledge Graph"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941582476503",
+              "name": "Rules",
+              "label": "Candidate Axioms"
+            }
+          ],
+          "process": {
+            "id": "node_17941582476506",
+            "name": "Deduce",
+            "label": "Axiom Induction"
+          }
+        },
+        {
+          "id": "group_17941582476503",
+          "label": "3. Axiom Injection",
+          "input": [
+            {
+              "id": "node_17941582476503",
+              "name": "Rules",
+              "label": "Candidate Axioms"
+            },
+            {
+              "id": "node_17941582476501",
+              "name": "KG",
+              "label": "Base Knowledge Graph"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941582476504",
+              "name": "KG",
+              "label": "Expanded Knowledge Graph"
+            }
+          ],
+          "process": {
+            "id": "node_17941582476507",
+            "name": "Transform",
+            "label": "Axiom Injection"
+          }
+        }
+      ]
+    }
+  ]
+}

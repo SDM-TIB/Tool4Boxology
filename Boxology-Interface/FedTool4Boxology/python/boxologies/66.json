@@ -1,0 +1,123 @@
+{
+  "metadata": {
+    "exportId": "3c9b321f",
+    "userId": "user_6j7bc3lh",
+    "exportDate": "2026-11-08T10:25:25.580Z"
+  },
+  "boxologies": [
+    {
+      "id": "d583d9f2-03c7-484a-b37b-699f25ec62ae",
+      "label": "d583d9f2-03c7-484a-b37b-699f25ec62ae",
+      "DesignPattern": [
+        {
+          "id": "group_17941328174092",
+          "label": "1a Rule Induction",
+          "input": [
+            {
+              "id": "node_17941328174091",
+              "name": "KG",
+              "label": "Initial Knowledge Graph"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941328174094",
+              "name": "RuleBasedModel",
+              "label": "Induced Rule Model"
+            }
+          ],
+          "process": {
+            "id": "node_17941328174098",
+            "name": "Train",
+            "label": "Induce Rules from KG"
+          }
+        },
+        {
+          "id": "group_17941328174093",
+          "label": "1c Probabilistic Extension",
+          "input": [
+            {
+              "id": "node_17941328174094",
+              "name": "RuleBasedModel",
+              "label": "Induced Rule Model"
+            },
+            {
+              "id": "node_17941328174092",
+              "name": "NeuralModel",
+              "label": "Precomputed Embedding Model"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941328174095",
+              "name": "Rules",
+              "label": "Extended Rules"
+            }
+          ],
+          "process": {
+            "id": "node_17941328174099",
+            "name": "Deduce",
+            "label": "Probabilistic Rule Extension"
+          }
+        },
+        {
+          "id": "group_1794133348694",
+          "label": "1b KG Embedding Model",
+          "input": [
+            {
+              "id": "node_17941328174093",
+              "name": "Text",
+              "label": "External Text Corpora"
+            },
+            {
+              "id": "node_17941328174091",
+              "name": "KG",
+              "label": "Initial Knowledge Graph"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941328174092",
+              "name": "NeuralModel",
+              "label": "Precomputed Embedding Model"
+            }
+          ],
+          "process": {
+            "id": "node_1794133220802",
+            "name": "Train",
+            "label": "Train KG Embedding Model"
+          }
+        },
+        {
+          "id": "group_1794133494298",
+          "name": "SymbolModelDeduceSymbol",
+          "label": "1d Validate Rules",
+          "input": [
+            {
+              "id": "node_17941328174095",
+              "name": "Rules",
+              "label": "Extended Rules"
+            },
+            {
+              "id": "node_17941328174092",
+              "name": "NeuralModel",
+              "label": "Precomputed Embedding Model"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941328174096",
+              "name": "Rules",
+              "label": "Validated & Refined Rules"
+            }
+          ],
+          "process": {
+            "id": "node_179413281740910",
+            "name": "Deduce",
+            "label": "Validate with Embeddings"
+          }
+        }
+      ]
+    }
+  ]
+}
