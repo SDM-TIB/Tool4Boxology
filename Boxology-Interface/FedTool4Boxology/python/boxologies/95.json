@@ -1,0 +1,128 @@
+{
+  "metadata": {
+    "exportId": "144cf0b5",
+    "userId": "user_6j7bc3lh",
+    "exportDate": "2026-11-06T12:19:16.876Z"
+  },
+  "boxologies": [
+    {
+      "id": "023af6a3-c06a-4c31-92f2-cd005b163308",
+      "label": "95",
+      "DesignPattern": [
+        {
+          "id": "group_17938138596071",
+          "label": "1 Relational Data Ingestion",
+          "input": [
+            {
+              "id": "node_17938138596071",
+              "name": "Table",
+              "label": "Relational Data & Possible Worlds"
+            },
+            {
+              "id": "node_17938138596072",
+              "name": "Map",
+              "label": "Entities & Constants"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17938138596071",
+              "name": "Table",
+              "label": "Relational Data & Possible Worlds"
+            }
+          ],
+          "process": {
+            "id": "node_17938138596076",
+            "name": "Transform",
+            "label": "Format Relational Fragments"
+          }
+        },
+        {
+          "id": "group_17938138596072",
+          "label": "2 NMLN Training",
+          "input": [
+            {
+              "id": "node_17938138596071",
+              "name": "Table",
+              "label": "Relational Data & Possible Worlds"
+            },
+            {
+              "id": "node_17938138596072",
+              "name": "Map",
+              "label": "Entities & Constants"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17938138596073",
+              "name": "HybridModel",
+              "label": "NMLN Potential Function Model"
+            }
+          ],
+          "process": {
+            "id": "node_17938138596077",
+            "name": "Train",
+            "label": "Train Potential Function & Embeddings"
+          }
+        },
+        {
+          "id": "group_17938138596073",
+          "name": "DataModelDeduceData",
+          "label": "3a Probability Inference",
+          "input": [
+            {
+              "id": "node_17938138596073",
+              "name": "HybridModel",
+              "label": "NMLN Potential Function Model"
+            },
+            {
+              "id": "node_17938138596071",
+              "name": "Table",
+              "label": "Relational Data & Possible Worlds"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17938138596074",
+              "name": "Number",
+              "label": "Probability Distribution"
+            }
+          ],
+          "process": {
+            "id": "node_17938138596078",
+            "name": "Deduce",
+            "label": "Compute Probability Distribution"
+          }
+        },
+        {
+          "id": "group_17938138596074",
+          "label": "3b Predictive Inference",
+          "input": [
+            {
+              "id": "node_17938138596073",
+              "name": "HybridModel",
+              "label": "NMLN Potential Function Model"
+            },
+            {
+              "id": "node_17938138596071",
+              "name": "Table",
+              "label": "Relational Data & Possible Worlds"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17938138596075",
+              "name": "Constraints",
+              "label": "Predictive Relational Inferences"
+            }
+          ],
+          "process": {
+            "id": "node_17938138596079",
+            "name": "Deduce",
+            "label": "Compute Predictive Inferences"
+          }
+        }
+      ]
+    }
+  ]
+}

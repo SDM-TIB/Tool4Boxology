@@ -1,0 +1,123 @@
+{
+  "metadata": {
+    "exportId": "1bbbb08b",
+    "userId": "user_6j7bc3lh",
+    "exportDate": "2026-11-06T12:19:51.676Z"
+  },
+  "boxologies": [
+    {
+      "id": "c9ae2160-b6bf-4d5d-bdd8-b566c3ef40fb",
+      "label": "73",
+      "DesignPattern": [
+        {
+          "id": "group_17938062356851",
+          "label": "1c Inputs",
+          "input": [
+            {
+              "id": "node_17938062356851",
+              "name": "KG",
+              "label": "Input Knowledge Graph"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17938062356853",
+              "name": "KG",
+              "label": "Prepared KG Data"
+            }
+          ],
+          "process": {
+            "id": "node_17938062356859",
+            "name": "Transform",
+            "label": "Plugin Framework Prep"
+          }
+        },
+        {
+          "id": "group_17938062356852",
+          "label": "2c Embedding Model",
+          "input": [
+            {
+              "id": "node_17938062356853",
+              "name": "KG",
+              "label": "Prepared KG Data"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17938062356854",
+              "name": "GNN",
+              "label": "KG Embeddings Model"
+            }
+          ],
+          "process": {
+            "id": "node_179380623568510",
+            "name": "Train",
+            "label": "Train KG Embeddings"
+          }
+        },
+        {
+          "id": "group_17938062356853",
+          "name": "SymbolModelDeduceSymbol",
+          "label": "3c Rule Reasoning",
+          "input": [
+            {
+              "id": "node_17938062356852",
+              "name": "Rules",
+              "label": "Domain Rules (OWL2)"
+            },
+            {
+              "id": "node_17938062356855",
+              "name": "SemanticModel",
+              "label": "Reasoning Engine"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17938062356857",
+              "name": "Rules",
+              "label": "Logical Entailments"
+            }
+          ],
+          "process": {
+            "id": "node_179380623568511",
+            "name": "Deduce",
+            "label": "Rule Mining & Reasoning"
+          }
+        },
+        {
+          "id": "group_17938062356854",
+          "label": "4c Rule-Based Integration",
+          "input": [
+            {
+              "id": "node_17938062356854",
+              "name": "GNN",
+              "label": "KG Embeddings Model"
+            },
+            {
+              "id": "node_17938062356856",
+              "name": "Classes",
+              "label": "Embedding Predictions"
+            },
+            {
+              "id": "node_17938062356857",
+              "name": "Rules",
+              "label": "Logical Entailments"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17938062356858",
+              "name": "KG",
+              "label": "Completed Knowledge Graph"
+            }
+          ],
+          "process": {
+            "id": "node_179380623568512",
+            "name": "Transform",
+            "label": "Rule-Based Integration"
+          }
+        }
+      ]
+    }
+  ]
+}

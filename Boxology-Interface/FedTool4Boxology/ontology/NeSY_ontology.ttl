@@ -1,0 +1,772 @@
+@prefix nesy: <http://neurosymbolic.org/> .
+@prefix : <http://tool4boxology.org/Tool4BoxologyOntology#> .
+@prefix easyai: <https://kastle-lab.org/easy-ai2/> .
+@prefix mls: <http://www.w3.org/ns/mls#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://neurosymbolic.org/NeSyOntology> .
+@prefix t4b: <http://tool4boxology.org/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix terms: <http://purl.org/dc/terms/> .
+@prefix schema: <http://schema.org/> .
+@prefix resource: <http://semanticscience.org/resource/> .
+@prefix cpannotationschema: <http://www.ontologydesignpatterns.org/schemas/cpannotationschema.owl#> .
+@prefix AnnotationVocabulary: <http://www.omg.org/spec/EDMC-FIBO/FND/Utilities/AnnotationVocabulary/> .
+
+
+#################################################################
+#    Object Properties
+#################################################################
+
+
+###  http://neurosymbolic.org/representedByPattern
+<http://neurosymbolic.org/representedByPattern> rdf:type owl:ObjectProperty ;
+                                      rdfs:domain <http://neurosymbolic.org/TaxonomyCategory> ;
+                                      rdfs:range <http://neurosymbolic.org/DesignPattern> ;
+                                      rdfs:comment "A Taxonomy Category that is represented by a Design Pattern." .
+
+
+###  http://neurosymbolic.org/classifiesArchitecture
+<http://neurosymbolic.org/classifiesArchitecture> rdf:type owl:ObjectProperty ;
+                                      rdfs:domain <http://neurosymbolic.org/TaxonomyCategory> ;
+                                      rdfs:range <http://neurosymbolic.org/NeSyArchitecture> ;
+                                      rdfs:comment "A Taxonomy Category that classifies a NeSy architecture." .
+
+###  http://neurosymbolic.org/hasPattern
+<http://neurosymbolic.org/hasPattern> rdf:type owl:ObjectProperty ;
+                                      rdfs:domain <http://neurosymbolic.org/NeSyArchitecture> ;
+                                      rdfs:range <http://neurosymbolic.org/DesignPattern> ;
+                                      rdfs:comment "A NeSy architecture that has a Design Pattern." .
+###  http://neurosymbolic.org/alignedWith
+<http://neurosymbolic.org/alignedWith> rdf:type owl:ObjectProperty ;
+                                       rdf:type owl:SymmetricProperty ;
+                                      rdfs:domain <http://neurosymbolic.org/DesignPattern> ;
+                                      rdfs:range <http://neurosymbolic.org/DesignPattern> ;
+                                      rdfs:comment "Relates two design-pattern instances that represent corresponding structures under different taxonomy descriptions."@en .
+
+
+###  http://neurosymbolic.org/subPatternOf
+<http://neurosymbolic.org/subPatternOf> rdf:type owl:ObjectProperty ;
+                                      rdfs:domain <http://neurosymbolic.org/DesignPattern> ;
+                                      rdfs:range <http://neurosymbolic.org/DesignPattern> ;
+                                      rdfs:comment "Relates a design pattern to a design pattern that structurally contains it. Reflexivity is restricted to design-pattern instances through the custom inference rule."@en .
+
+
+###  http://neurosymbolic.org/equivalentPattern
+<http://neurosymbolic.org/equivalentPattern> rdf:type owl:ObjectProperty, owl:SymmetricProperty,owl:TransitiveProperty ;
+                                      rdfs:domain <http://neurosymbolic.org/DesignPattern> ;
+                                      rdfs:range <http://neurosymbolic.org/DesignPattern> ;
+                                      rdfs:comment "Relates design-pattern instances that have equivalent relevant structural organization."@en .
+#################################################################
+#    Classes
+#################################################################
+
+### Generic concepts
+
+<http://neurosymbolic.org/Taxonomy> rdf:type owl:Class .
+<http://neurosymbolic.org/TaxonomyCategory> rdf:type owl:Class .
+<http://neurosymbolic.org/NeSyArchitecture> rdf:type owl:Class .
+<http://neurosymbolic.org/KautzTaxonomyCategory> rdf:type owl:Class;
+                                                 rdfs:subClassOf nesy:TaxonomyCategory,
+                                                 nesy:DesignPattern .
+<http://neurosymbolic.org/KiernerTaxonomyCategory> rdf:type owl:Class;
+                                                   rdfs:subClassOf nesy:TaxonomyCategory ,
+                                                   nesy:DesignPattern .
+<http://neurosymbolic.org/vanBekkumTaxonomyCategory> rdf:type owl:Class;
+                                                     rdfs:subClassOf nesy:TaxonomyCategory ,
+                                                     nesy:ElementaryPattern .
+
+
+###  http://neurosymbolic.org/DesignPattern
+<http://neurosymbolic.org/DesignPattern> rdf:type owl:Class ;
+                                 owl:equivalentClass <http://tool4boxology.org/BoxologyPattern> ;
+                                 rdfs:comment "An elementary or composite structural pattern occurring in a neuro-symbolic architecture."@en .
+
+<http://neurosymbolic.org/ElementaryPattern> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/DesignPattern> ;
+                                 rdfs:comment "Elementary patterns representing each primitives." .
+
+<http://neurosymbolic.org/CompositePattern> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/DesignPattern> ;
+                                 rdfs:comment "Pattern composed of one or more elementary patterns." .
+
+<http://neurosymbolic.org/KiernerTaxonomy> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/Taxonomy> ;
+                                 rdfs:comment "Representation of Kierner taxonomy" .
+
+<http://neurosymbolic.org/KautzTaxonomy> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/Taxonomy> ;
+                                 rdfs:comment "Representation of Kautz taxonomy" .
+
+<http://neurosymbolic.org/vanBekkumTaxonomy> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/Taxonomy> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy" .
+
+<http://neurosymbolic.org/NeuroEmbeddedSymbolic> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/KautzTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Neuro{symbolic} category" .
+
+<http://neurosymbolic.org/NeuroToSymbolic> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/KautzTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Neuro-->Symbolic category" .
+<http://neurosymbolic.org/NeuroBracketSymbolic> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/KautzTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Neuro[symbolic] category" .
+
+<http://neurosymbolic.org/NeuroSymbolicToNeuro> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/KautzTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Neuro:Symbolic-->Neuro category" .
+<http://neurosymbolic.org/SymbolicToNeuro> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/KautzTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Symbolic-->Neuro category" .
+
+<http://neurosymbolic.org/NeuroPlusSymbolic> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/KautzTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Neuro + Symbolic category" .
+
+<http://neurosymbolic.org/REML> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/KiernerTaxonomyCategory> ;
+                                 nesy:categoryAlignedWith <http://neurosymbolic.org/NeuroEmbeddedSymbolic> ;
+                                 rdfs:comment "Rules are embedded in the ML architectures to enhance the performance of models" .
+
+<http://neurosymbolic.org/MLRB> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/KiernerTaxonomyCategory> ;
+                                 nesy:categoryAlignedWith <http://neurosymbolic.org/NeuroToSymbolic> ;
+                                 rdfs:comment "Benchmark validate or contrain ML outputs with existing knowledge based on rules" .
+
+<http://neurosymbolic.org/RBML> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/KiernerTaxonomyCategory> ;
+                                 nesy:categoryAlignedWith <http://neurosymbolic.org/NeuroBracketSymbolic> ;
+                                 rdfs:comment "An inference pipeline with rules, solves challenging tasks and provides a pre-processing engine for more relevant features" .
+
+<http://neurosymbolic.org/RMLT> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/KiernerTaxonomyCategory> ;
+                                 nesy:categoryAlignedWith <http://neurosymbolic.org/NeuroSymbolicToNeuro> ;
+                                 nesy:categoryAlignedWith <http://neurosymbolic.org/SymbolicToNeuro> ;
+                                 rdfs:comment "Rules can help with feature selection or aactivation or pre-process training data to build a simpler ML model" .
+
+
+<http://neurosymbolic.org/PERML> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/KiernerTaxonomyCategory> ;
+                                 nesy:categoryAlignedWith <http://neurosymbolic.org/NeuroPlusSymbolic> ;
+                                 rdfs:comment "Ensemble methods improve the predictive performance of a single model by training multiple models and combining their predictions" .   
+
+
+<http://neurosymbolic.org/SymbolTrainModel> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+
+<http://neurosymbolic.org/DataTrainModel> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+
+<http://neurosymbolic.org/ModelDataTrainModel> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+
+<http://neurosymbolic.org/ModelSymbolTrainModel> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+<http://neurosymbolic.org/SymbolTransformData> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+<http://neurosymbolic.org/DataTransformData> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+<http://neurosymbolic.org/DataTransformSymbol> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+<http://neurosymbolic.org/SymbolTransformSymbol> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+<http://neurosymbolic.org/ModelTransformModel> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+<http://neurosymbolic.org/DataModelTransformData> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+<http://neurosymbolic.org/ActorEngineerModel> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+<http://neurosymbolic.org/ActorDataEngineerData> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+<http://neurosymbolic.org/ActorEngineerSymbol> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+<http://neurosymbolic.org/ActorEngineerData> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+<http://neurosymbolic.org/ActorSymbolEngineerSymbol> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+<http://neurosymbolic.org/ActorModelEngineerModel> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+<http://neurosymbolic.org/ActorModelEngineerData> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+<http://neurosymbolic.org/ActorModelEngineerSymbol> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+<http://neurosymbolic.org/ActorSymbolEngineerModel> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+<http://neurosymbolic.org/ActorDataEngineerModel> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+<http://neurosymbolic.org/ActorSymbolEngineerData> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+<http://neurosymbolic.org/ActorDataEngineerSymbol> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+<http://neurosymbolic.org/SymbolModelDeduceSymbol> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+<http://neurosymbolic.org/DataModelDeduceSymbol> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+<http://neurosymbolic.org/SymbolModelDeduceModel> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+
+<http://neurosymbolic.org/DataModelDeduceModel> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+
+<http://neurosymbolic.org/DataModelDeduceData> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" . 
+<http://neurosymbolic.org/SymbolModelDeduceData> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" .
+<http://neurosymbolic.org/SymbolDataEmbedModel> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" . 
+<http://neurosymbolic.org/SymbolDataTransformData> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://neurosymbolic.org/vanBekkumTaxonomyCategory> ;
+                                 rdfs:comment "Representation of Bekkum taxonomy category" . 
+
+
+
+#################################################################
+#    Annotation properties
+#################################################################
+
+
+<http://neurosymbolic.org/categoryAlignedWith>
+    rdf:type owl:AnnotationProperty ;
+    rdfs:comment
+        "Indicates an expert-established correspondence between taxonomy-category classes. This annotation does not imply class equivalence or equality of class extensions."@en .
+
+<http://neurosymbolic.org/isCategoryOf> rdf:type owl:AnnotationProperty;
+    rdfs:comment
+        "Indicates that a taxonomy-category class belongs to a particular taxonomy class. This annotation does not impose instance-level OWL semantics."@en .
+
+<http://neurosymbolic.org/KautzTaxonomyCategory> nesy:isCategoryOf <http://neurosymbolic.org/KautzTaxonomy>.
+<http://neurosymbolic.org/KiernerTaxonomyCategory> nesy:isCategoryOf <http://neurosymbolic.org/KiernerTaxonomy>.
+<http://neurosymbolic.org/vanBekkumTaxonomyCategory> nesy:isCategoryOf <http://neurosymbolic.org/vanBekkumTaxonomy>.
+
+###  http://purl.org/dc/elements/1.1/citation
+dc:citation rdf:type owl:AnnotationProperty ;
+            dc:identifier "citation"@en .
+
+
+###  http://purl.org/dc/elements/1.1/contributor
+dc:contributor rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/dc/elements/1.1/creator
+dc:creator rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/dc/elements/1.1/description
+dc:description rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/dc/elements/1.1/identifier
+dc:identifier rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/dc/elements/1.1/source
+dc:source rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/dc/elements/1.1/title
+dc:title rdf:type owl:AnnotationProperty ;
+         rdfs:label "dc:title"@en ;
+         rdfs:range rdfs:Literal .
+
+
+###  http://purl.org/dc/terms/bibliographicCitation
+terms:bibliographicCitation rdf:type owl:AnnotationProperty ;
+                            rdfs:range rdfs:Literal .
+
+###  http://purl.org/dc/terms/created
+terms:created rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/dc/terms/language
+terms:language rdf:type owl:AnnotationProperty ;
+               rdfs:range terms:LinguisticSystem .
+
+
+###  http://purl.org/dc/terms/license
+terms:license rdf:type owl:AnnotationProperty .
+
+
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://tool4boxology.org/hasPattern
+<http://tool4boxology.org/hasPattern> rdf:type owl:ObjectProperty ;
+                                      rdfs:domain <http://tool4boxology.org/Boxology> ;
+                                      rdfs:range <http://tool4boxology.org/BoxologyPattern> ;
+                                      rdfs:comment "Patterns (elementary or composite) used in a Boxology diagram." .
+
+
+###  http://tool4boxology.org/hasInput
+<http://tool4boxology.org/hasInput> rdf:type owl:ObjectProperty ;
+                                        rdfs:domain <http://tool4boxology.org/BoxologyPattern> ;
+                                        rdfs:range <http://tool4boxology.org/Artifact> ;
+                                        rdfs:comment "Input artifacts for a pattern." ;
+                                        rdfs:label "hasInput"^^xsd:string .
+
+
+###  http://tool4boxology.org/hasOutput
+<http://tool4boxology.org/hasOutput> rdf:type owl:ObjectProperty ;
+                                         rdfs:domain <http://tool4boxology.org/BoxologyPattern> ;
+                                         rdfs:range <http://tool4boxology.org/Artifact> ;
+                                         rdfs:comment "Output artifacts produced by a pattern." ;
+                                         rdfs:label "hasOutput"^^xsd:string .
+
+
+###  http://tool4boxology.org/patternProcess
+<http://tool4boxology.org/patternProcess> rdf:type owl:ObjectProperty ;
+                                          rdfs:domain <http://tool4boxology.org/BoxologyPattern> ;
+                                          rdfs:range <http://tool4boxology.org/Process> ;
+                                          rdfs:comment "The core process of the pattern." ;
+                                          rdfs:label "hasProcess"^^xsd:string .
+
+
+###  http://tool4boxology.org/usesAssumption
+<http://tool4boxology.org/usesAssumption> rdf:type owl:ObjectProperty ;
+                                          rdfs:domain <http://tool4boxology.org/Infer> ;
+                                          rdfs:range <http://tool4boxology.org/ReasoningAssumption> ;
+                                          rdfs:comment "Associates an inference process with a reasoning assumption." .
+
+
+###  http://tool4boxology.org/outputRoleParticipatesInProcess
+<http://tool4boxology.org/outputRoleParticipatesInProcess> rdf:type owl:ObjectProperty ;
+                                                         rdfs:subPropertyOf owl:topObjectProperty ;
+                                                         rdfs:domain <http://tool4boxology.org/Artifact> ;
+                                                         rdfs:range <http://tool4boxology.org/Artifact> ;
+                                                         rdfs:label "outputRoleParticipatesInProcess"@en .
+
+
+###  http://tool4boxology.org/inputRoleParticipatesInProcess
+<http://tool4boxology.org/inputRoleParticipatesInProcess> rdf:type owl:ObjectProperty ;
+                                                         rdfs:subPropertyOf owl:topObjectProperty ;
+                                                         rdfs:domain <http://tool4boxology.org/Artifact> ;
+                                                         rdfs:range <http://tool4boxology.org/Artifact> ;
+                                                         rdfs:label "inputRoleParticipatesInProcess"@en .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://tool4boxology.org/Actor
+<http://tool4boxology.org/Actor> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://tool4boxology.org/Artifact> ;
+                                 rdfs:comment "Human or software agent participating in a system." .
+
+
+###  http://tool4boxology.org/Artifact
+<http://tool4boxology.org/Artifact> rdf:type owl:Class ;
+                                    rdfs:comment "Any entity represented as a node in Boxology (data, symbols, models, processes, actors)." .
+
+
+###  http://tool4boxology.org/AxiomMiningModel
+<http://tool4boxology.org/AxiomMiningModel> rdf:type owl:Class ;
+                                            rdfs:subClassOf <http://tool4boxology.org/SelfSupervisedRuleMiningModel> .
+
+
+###  http://tool4boxology.org/Boxology
+<http://tool4boxology.org/Boxology> rdf:type owl:Class ;
+                                    rdfs:comment "A complete Boxology diagram describing a neuro-symbolic architecture." .
+
+
+###  http://tool4boxology.org/CNN
+<http://tool4boxology.org/CNN> rdf:type owl:Class ;
+                               rdfs:subClassOf <http://tool4boxology.org/NeuralNetwork> .
+
+
+###  http://tool4boxology.org/ClosedWorldAssumption
+<http://tool4boxology.org/ClosedWorldAssumption> rdf:type owl:Class ;
+                                                 rdfs:subClassOf <http://tool4boxology.org/ReasoningAssumption> .
+
+
+###  http://tool4boxology.org/CompositePattern
+<http://tool4boxology.org/CompositePattern> rdf:type owl:Class ;
+                                            rdfs:subClassOf <http://tool4boxology.org/BoxologyPattern> ;
+                                            rdfs:comment "A pattern composed from multiple elementary patterns." .
+
+
+###  http://tool4boxology.org/DB
+<http://tool4boxology.org/DB> rdf:type owl:Class ;
+                              rdfs:subClassOf <http://tool4boxology.org/Symbol> ;
+                              rdfs:comment "Database or table-like symbolic structure." .
+
+
+###  http://tool4boxology.org/Data
+<http://tool4boxology.org/Data> rdf:type owl:Class ;
+                                rdfs:subClassOf <http://tool4boxology.org/Artifact> ;
+                                rdfs:comment "Data instance (text, image, vector, traces, etc.)." .
+
+
+###  http://tool4boxology.org/DecoderOnlyTransformer
+<http://tool4boxology.org/DecoderOnlyTransformer> rdf:type owl:Class ;
+                                                  rdfs:subClassOf <http://tool4boxology.org/Transformer> .
+
+
+###  http://tool4boxology.org/Deduce
+<http://tool4boxology.org/Deduce> rdf:type owl:Class ;
+                                  rdfs:subClassOf <http://tool4boxology.org/Infer> ;
+                                  rdfs:comment "Symbolic deduction (rule-based, ontology reasoning)." .
+
+
+###  http://tool4boxology.org/DesignPattern
+<http://tool4boxology.org/BoxologyPattern> rdf:type owl:Class ;
+                                         rdfs:comment "Abstract building block describing a Boxology operation." .
+
+
+###  http://tool4boxology.org/ElementaryPattern
+<http://tool4boxology.org/ElementaryPattern> rdf:type owl:Class ;
+                                             rdfs:subClassOf <http://tool4boxology.org/BoxologyPattern> ;
+                                             rdfs:comment "A minimal well-typed Boxology pattern (train, transform, deduce, etc.)." .
+
+
+###  http://tool4boxology.org/EncoderDecoderTransformer
+<http://tool4boxology.org/EncoderDecoderTransformer> rdf:type owl:Class ;
+                                                     rdfs:subClassOf <http://tool4boxology.org/Transformer> .
+
+
+###  http://tool4boxology.org/EncoderOnlyTransformer
+<http://tool4boxology.org/EncoderOnlyTransformer> rdf:type owl:Class ;
+                                                  rdfs:subClassOf <http://tool4boxology.org/Transformer> .
+
+
+###  http://tool4boxology.org/GAT
+<http://tool4boxology.org/GAT> rdf:type owl:Class ;
+                               rdfs:subClassOf <http://tool4boxology.org/GNN> .
+
+
+###  http://tool4boxology.org/GCN
+<http://tool4boxology.org/GCN> rdf:type owl:Class ;
+                               rdfs:subClassOf <http://tool4boxology.org/GNN> .
+
+
+###  http://tool4boxology.org/GNN
+<http://tool4boxology.org/GNN> rdf:type owl:Class ;
+                               rdfs:subClassOf <http://tool4boxology.org/NeuralNetwork> .
+
+
+###  http://tool4boxology.org/GRU
+<http://tool4boxology.org/GRU> rdf:type owl:Class ;
+                               rdfs:subClassOf <http://tool4boxology.org/RNN> .
+
+
+###  http://tool4boxology.org/Generate
+<http://tool4boxology.org/Generate> rdf:type owl:Class ;
+                                    rdfs:subClassOf <http://tool4boxology.org/Process> .
+
+
+###  http://tool4boxology.org/InductiveModel
+<http://tool4boxology.org/InductiveModel> rdf:type owl:Class ;
+                                          rdfs:subClassOf <http://tool4boxology.org/Model> .
+
+
+###  http://tool4boxology.org/Infer
+<http://tool4boxology.org/Infer> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://tool4boxology.org/Process> ;
+                                 rdfs:comment "Inference process, symbolic or statistical." .
+
+
+###  http://tool4boxology.org/KG
+<http://tool4boxology.org/KG> rdf:type owl:Class ;
+                              rdfs:subClassOf <http://tool4boxology.org/Symbol> ;
+                              rdfs:comment "Knowledge Graph artifact." .
+
+
+###  http://tool4boxology.org/LLM
+<http://tool4boxology.org/LLM> rdf:type owl:Class ;
+                               rdfs:subClassOf <http://tool4boxology.org/NeuralModel> .
+
+
+###  http://tool4boxology.org/LSTM
+<http://tool4boxology.org/LSTM> rdf:type owl:Class ;
+                                rdfs:subClassOf <http://tool4boxology.org/RNN> .
+
+
+###  http://tool4boxology.org/Model
+<http://tool4boxology.org/Model> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://tool4boxology.org/Artifact> ;
+                                 rdfs:comment "A model used in a system (semantic, neural, inductive, etc.)." .
+
+
+###  http://tool4boxology.org/NeuralModel
+<http://tool4boxology.org/NeuralModel> rdf:type owl:Class ;
+                                       rdfs:subClassOf <http://tool4boxology.org/Model> .
+
+
+###  http://tool4boxology.org/NeuralNetwork
+<http://tool4boxology.org/NeuralNetwork> rdf:type owl:Class ;
+                                         rdfs:subClassOf <http://tool4boxology.org/NeuralModel> .
+
+
+###  http://tool4boxology.org/NumericModel
+<http://tool4boxology.org/NumericModel> rdf:type owl:Class ;
+                                        rdfs:subClassOf <http://tool4boxology.org/InductiveModel> .
+
+
+###  http://tool4boxology.org/OWLOntology
+<http://tool4boxology.org/OWLOntology> rdf:type owl:Class ;
+                                       rdfs:subClassOf <http://tool4boxology.org/SemanticModel> .
+
+
+###  http://tool4boxology.org/OpenWorldAssumption
+<http://tool4boxology.org/OpenWorldAssumption> rdf:type owl:Class ;
+                                               rdfs:subClassOf <http://tool4boxology.org/ReasoningAssumption> .
+
+
+###  http://tool4boxology.org/Process
+<http://tool4boxology.org/Process> rdf:type owl:Class ;
+                                   rdfs:subClassOf <http://tool4boxology.org/Artifact> ;
+                                   rdfs:comment "Operations such as generate, transform, or infer." .
+
+
+###  http://tool4boxology.org/RDFModel
+<http://tool4boxology.org/RDFModel> rdf:type owl:Class ;
+                                    rdfs:subClassOf <http://tool4boxology.org/SemanticModel> .
+
+
+###  http://tool4boxology.org/RDFSModel
+<http://tool4boxology.org/RDFSModel> rdf:type owl:Class ;
+                                     rdfs:subClassOf <http://tool4boxology.org/SemanticModel> .
+
+
+###  http://tool4boxology.org/RNN
+<http://tool4boxology.org/RNN> rdf:type owl:Class ;
+                               rdfs:subClassOf <http://tool4boxology.org/NeuralNetwork> .
+
+
+###  http://tool4boxology.org/ReasoningAssumption
+<http://tool4boxology.org/ReasoningAssumption> rdf:type owl:Class ;
+                                               rdfs:comment "Reasoning assumption used during an inference process." .
+
+
+###  http://tool4boxology.org/RuleBasedModel
+<http://tool4boxology.org/RuleBasedModel> rdf:type owl:Class ;
+                                          rdfs:subClassOf <http://tool4boxology.org/SemanticModel> .
+
+
+###  http://tool4boxology.org/SHACLShapesModel
+<http://tool4boxology.org/SHACLShapesModel> rdf:type owl:Class ;
+                                            rdfs:subClassOf <http://tool4boxology.org/SemanticModel> .
+
+
+###  http://tool4boxology.org/SelfSupervisedEmbeddingModel
+<http://tool4boxology.org/SelfSupervisedEmbeddingModel> rdf:type owl:Class ;
+                                                        rdfs:subClassOf <http://tool4boxology.org/NumericModel> .
+
+
+###  http://tool4boxology.org/SelfSupervisedRuleMiningModel
+<http://tool4boxology.org/SelfSupervisedRuleMiningModel> rdf:type owl:Class ;
+                                                         rdfs:subClassOf <http://tool4boxology.org/SymbolicLearningModel> .
+
+
+###  http://tool4boxology.org/SemanticModel
+<http://tool4boxology.org/SemanticModel> rdf:type owl:Class ;
+                                         rdfs:subClassOf <http://tool4boxology.org/Model> ;
+                                         rdfs:comment "Logical or symbolic representation model." .
+
+
+###  http://tool4boxology.org/SupervisedGraphNNModel
+<http://tool4boxology.org/SupervisedGraphNNModel> rdf:type owl:Class ;
+                                                  rdfs:subClassOf <http://tool4boxology.org/GNN> ,
+                                                                  <http://tool4boxology.org/NumericModel> .
+
+
+###  http://tool4boxology.org/Symbol
+<http://tool4boxology.org/Symbol> rdf:type owl:Class ;
+                                  rdfs:subClassOf <http://tool4boxology.org/Artifact> ;
+                                  rdfs:comment "Symbolic structures (labels, triples, relations, KG entities)." .
+
+
+###  http://tool4boxology.org/SymbolicLearningModel
+<http://tool4boxology.org/SymbolicLearningModel> rdf:type owl:Class ;
+                                                 rdfs:subClassOf <http://tool4boxology.org/InductiveModel> .
+
+
+###  http://tool4boxology.org/Train
+<http://tool4boxology.org/Train> rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://tool4boxology.org/Generate> ;
+                                 rdfs:comment "Process that trains a model." .
+
+
+###  http://tool4boxology.org/Transform
+<http://tool4boxology.org/Transform> rdf:type owl:Class ;
+                                     rdfs:subClassOf <http://tool4boxology.org/Process> ;
+                                     rdfs:comment "Process that transforms data or symbols (embedding, augmentation, cleaning)." .
+###  http://tool4boxology.org/Embed
+<http://tool4boxology.org/Embed> rdf:type owl:Class ;
+                                     rdfs:subClassOf <http://tool4boxology.org/Transform> ;
+                                     rdfs:comment "Process that transforms data or symbols into embedding vectors." .
+
+
+###  http://tool4boxology.org/Transformer
+<http://tool4boxology.org/Transformer> rdf:type owl:Class ;
+                                       rdfs:subClassOf <http://tool4boxology.org/NeuralNetwork> .
+
+
+###  http://tool4boxology.org/UnsupervisedCommunityDetectionModel
+<http://tool4boxology.org/UnsupervisedCommunityDetectionModel> rdf:type owl:Class ;
+                                                               rdfs:subClassOf <http://tool4boxology.org/SymbolicLearningModel> .
+
+
+###  http://tool4boxology.org/UnsupervisedGraphAnalyticsModel
+<http://tool4boxology.org/UnsupervisedGraphAnalyticsModel> rdf:type owl:Class ;
+                                                           rdfs:subClassOf <http://tool4boxology.org/NumericModel> .
+
+
+###  http://tool4boxology.org/Rules
+<http://tool4boxology.org/Rules> rdf:type owl:Class ;
+                                                        rdfs:subClassOf <http://tool4boxology.org/Symbol> ;
+                                                        rdfs:label "Rules"@en .
+
+
+###  http://tool4boxology.org/RegressionModel
+<http://tool4boxology.org/RegressionModel> rdf:type owl:Class ;
+                                                         rdfs:subClassOf <http://tool4boxology.org/StatisticalModel> ;
+                                                         rdfs:label "RegressionModel"@en .
+
+
+###  http://tool4boxology.org/ClusteringModel
+<http://tool4boxology.org/ClusteringModel> rdf:type owl:Class ;
+                                                         rdfs:subClassOf <http://tool4boxology.org/StatisticalModel> ;
+                                                         rdfs:label "ClusteringModel"@en .
+
+
+###  http://tool4boxology.org/Tensor
+<http://tool4boxology.org/Tensor> rdf:type owl:Class ;
+                                                         rdfs:subClassOf <http://tool4boxology.org/Data> ;
+                                                         rdfs:label "Tensor"@en .
+
+
+###  http://tool4boxology.org/Label
+<http://tool4boxology.org/Label> rdf:type owl:Class ;
+                                                         rdfs:subClassOf <http://tool4boxology.org/Symbol> ;
+                                                         rdfs:label "Label"@en .
+
+
+###  http://tool4boxology.org/Image
+<http://tool4boxology.org/Image> rdf:type owl:Class ;
+                                                         rdfs:subClassOf <http://tool4boxology.org/Data> ;
+                                                         rdfs:label "Image"@en .
+
+
+###  http://tool4boxology.org/StatisticalModel
+<http://tool4boxology.org/StatisticalModel> rdf:type owl:Class ;
+                                                        rdfs:subClassOf <http://tool4boxology.org/Model> ;
+                                                        rdfs:label "StatisticalModel"@en .
+
+
+###  http://tool4boxology.org/Audio
+<http://tool4boxology.org/Audio> rdf:type owl:Class ;
+                                                         rdfs:subClassOf <http://tool4boxology.org/Data> ;
+                                                         rdfs:label "Audio"@en .
+
+
+###  http://tool4boxology.org/Robot
+<http://tool4boxology.org/Robot> rdf:type owl:Class ;
+                                                         rdfs:subClassOf <http://tool4boxology.org/Actor> ;
+                                                         rdfs:label "Robot"@en .
+
+
+###  http://tool4boxology.org/ClassificationModel
+<http://tool4boxology.org/ClassificationModel> rdf:type owl:Class ;
+                                                         rdfs:subClassOf <http://tool4boxology.org/StatisticalModel> ;
+                                                         rdfs:label "ClassificationModel"@en .
+
+
+###  http://tool4boxology.org/TimeSeries
+<http://tool4boxology.org/TimeSeries> rdf:type owl:Class ;
+                                                         rdfs:subClassOf <http://tool4boxology.org/Data> ;
+                                                         rdfs:label "TimeSeries"@en .
+
+
+###  http://tool4boxology.org/Engineer
+<http://tool4boxology.org/Engineer> rdf:type owl:Class ;
+                                                         rdfs:subClassOf <http://tool4boxology.org/Generate> ;
+                                                         rdfs:label "Engineer"@en .
+
+
+###  http://tool4boxology.org/Text
+<http://tool4boxology.org/Text> rdf:type owl:Class ;
+                                                         rdfs:subClassOf <http://tool4boxology.org/Data> ;
+                                                         rdfs:label "Text"@en .
+
+
+###  http://tool4boxology.org/Number
+<http://tool4boxology.org/Number> rdf:type owl:Class ;
+                                                         rdfs:subClassOf <http://tool4boxology.org/Data> ;
+                                                         rdfs:label "Number"@en .
+
+
+###  http://tool4boxology.org/Human
+<http://tool4boxology.org/Human> rdf:type owl:Class ;
+                                                        rdfs:subClassOf <http://tool4boxology.org/Actor> ;
+                                                        rdfs:label "Human"@en .
+
+###  http://tool4boxology.org/Expert
+<http://tool4boxology.org/Expert> rdf:type owl:Class ;
+                                                        rdfs:subClassOf <http://tool4boxology.org/Human> ;
+                                                        rdfs:label "Expert"@en .
+###  http://tool4boxology.org/MedicalProfessional
+<http://tool4boxology.org/MedicalProfessional> rdf:type owl:Class ;
+                                                        rdfs:subClassOf <http://tool4boxology.org/Expert> ;
+                                                        rdfs:label "MedicalProfessional"@en .
+
+###  http://tool4boxology.org/Dataset
+<http://tool4boxology.org/Dataset> rdf:type owl:Class ;
+                                                        rdfs:subClassOf <http://tool4boxology.org/Data> ;
+                                                        rdfs:label "Dataset"@en .
+
+
+###  http://tool4boxology.org/Video
+<http://tool4boxology.org/Video> rdf:type owl:Class ;
+                                                        rdfs:subClassOf <http://tool4boxology.org/Data> ;
+                                                        rdfs:label "Video"@en .
+
+
+###  http://tool4boxology.org/Trace
+<http://tool4boxology.org/Trace> rdf:type owl:Class ;
+                                                        rdfs:subClassOf <http://tool4boxology.org/Symbol> ;
+                                                        rdfs:label "Trace"@en .
+
+
+###  http://tool4boxology.org/FuzzyModel
+<http://tool4boxology.org/FuzzyModel> rdf:type owl:Class ;
+                                                        rdfs:subClassOf <http://tool4boxology.org/StatisticalModel> ;
+                                                        rdfs:label "FuzzyModel"@en .
+

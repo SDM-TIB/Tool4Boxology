@@ -1,0 +1,31 @@
+version: '2'
+
+services:
+  my_data:
+    container_name: travshacl_my_data2
+    image: prohde/virtuoso-opensource-7:7.2.14-alpine
+    volumes:
+      - ./rdfizer_output:/database/toLoad
+      - ./virtuoso:/database
+    mem_limit: 4g
+    ports:
+      - '9092:8890'
+    networks:
+      - travshacl
+
+  my_engine:
+    container_name: travshacl_my_engine2
+    image: sdmtib/travshacl:latest
+    volumes:
+      - ./shapes:/shapes
+    mem_limit: 4g
+    ports:
+      - '9091:5000'
+    networks:
+      - travshacl
+    depends_on:
+      - my_data
+
+networks:
+  travshacl:
+    driver: bridge

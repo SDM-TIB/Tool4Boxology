@@ -1,0 +1,331 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix t4b: <http://tool4boxology.org/> .
+@prefix ft4b: <http://fedTool4boxology.org/> .
+@prefix ft4bS: <http://fedTool4boxology.org/shapes> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+@prefix orkgc: <http://orkg.org/class/> .
+@prefix orkgp: <http://orkg.org/predicate/> .
+@prefix datacite: <http://purl.org/spar/datacite/> .
+@prefix pro: <http://purl.org/spar/pro/> .
+
+# ORKG Paper Shapes
+
+ft4bS:PaperShape a sh:NodeShape ;
+    sh:targetClass orkgc:Paper ;
+    sh:property [
+        sh:path rdfs:label ; # title
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        #sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path orkgp:P26 ; # doi
+        sh:maxCount 1 ;
+        #sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path orkgp:P28 ; # publication_month
+        sh:maxCount 1 ;
+        #sh:datatype xsd:int
+    ] ;
+    sh:property [
+        sh:path orkgp:P29 ; # publication_year
+        sh:maxCount 1 ;
+        #sh:datatype xsd:int
+    ] ;
+    sh:property [
+        sh:path orkgp:url ; # url
+        sh:maxCount 1 ;
+        #sh:datatype xsd:string
+    ] ;
+    #sh:property [
+    #    sh:path ft4b:extraction_method ; # extraction_method
+    #    sh:maxCount 1 ;
+    #    #sh:datatype xsd:string
+    #] ;
+    #sh:property [
+    #    sh:path ft4b:sdg ; # sdg
+    #    #sh:datatype xsd:string
+    #] ;
+    sh:property [
+        sh:path orkgp:P6 ; # author
+        sh:minCount 1 ;
+        #sh:class orkgc:Author
+    ] ;
+    sh:property [
+        sh:path orkgp:P30 ; # research_field
+        sh:minCount 1 ;
+        #sh:class orkgc:ResearchField
+    ] ;
+    sh:property [
+        sh:path orkgp:P31 ; # contribution
+        sh:minCount 0 ;
+        #sh:qualifiedValueShape ft4bS:ContributionShape ;
+        #sh:class orkgc:Contribution
+    ] ;
+        sh:property [
+        sh:path orkgp:HAS_VENUE ; # venue
+        sh:maxCount 1 ;
+        #sh:class orkgc:Venue
+    ] ;
+    sh:property [
+        sh:path ft4b:belongsToObservatory ; # observatory
+        sh:minCount 0 ;
+        #sh:qualifiedValueShape orkgc:Observatory
+    ] ;
+    sh:property [
+        sh:path ft4b:belongsToOrganization ; # organization
+        sh:minCount 0 ;
+        #sh:class vcard:Organization
+    ] .
+
+
+ft4bS:OrkgAuthorShape a sh:NodeShape ;
+    sh:targetClass orkgc:Author ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        #sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path orkgp:HAS_ORCID ;
+        sh:maxCount 1 ;
+        #sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path owl:sameAS ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        #sh:class ft4b:ORCID
+    ] ;
+    sh:property [
+        sh:path orkgp:googleScholarID ;
+        sh:maxCount 1 ;
+        #sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path orkgp:linkedInID ;
+        sh:maxCount 1 ;
+        #sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path orkgp:researchGateID ;
+        sh:maxCount 1 ;
+        #sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path ft4b:web_of_science ;
+        sh:maxCount 1 ;
+        #sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path ft4b:wikidata ;
+        sh:maxCount 1 ;
+        #sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path orkgp:website ;
+        sh:maxCount 1 ;
+        #sh:datatype xsd:string
+    ] .
+
+ft4bS:ContributionShape a sh:NodeShape ;
+    sh:targetClass orkgc:Contribution ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        #sh:datatype xsd:string
+    ] .
+
+ft4bS:ResearchFieldShape a sh:NodeShape ;
+    sh:targetClass orkgc:ResearchField ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        #sh:datatype xsd:string
+    ] .
+
+ft4bS:VenueShape a sh:NodeShape ;
+    sh:targetClass orkgc:Venue ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        #sh:datatype xsd:string
+    ] .
+
+# LDM Dataset Shapes
+
+ft4bS:DatasetShape a sh:NodeShape ;
+    sh:targetClass dcat:Dataset ;
+    sh:property [
+        sh:path dct:title ;
+        sh:minCount 1 ;
+        #sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path dct:description ;
+        sh:minCount 1 ;
+        #sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path dct:identifier ;
+        sh:minCount 0 ;
+        #sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path dcat:keyword ;
+        sh:minCount 0 ;
+    ] ;
+    sh:property [
+        sh:path dcat:landingPage ;
+        sh:minCount 0 ;
+        #sh:class foaf:Document
+    ] ;
+    sh:property [
+        sh:path datacite:isDescribedBy ;
+        sh:minCount 0 ;
+        #sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path dcat:distribution ;
+        sh:minCount 0 ;
+        #sh:class dcat:Distribution
+    ] ;
+    sh:property [
+        sh:path dct:publisher ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        #sh:class vcard:Organization
+    ] ;
+    sh:property [
+        sh:path dct:creator ;
+        sh:minCount 0 ;
+        #sh:class pro:Author
+    ] ;
+    sh:property [
+        sh:path dct:issued ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path dct:modified ;
+        sh:maxCount 1 ;
+    ] .
+
+ft4bS:vcardOrganizationShape a sh:NodeShape ;
+    sh:targetClass vcard:Organization ;
+    sh:property [
+        sh:path pro:owner ;
+        sh:minCount 1 ;
+        #sh:datatype dcat:Dataset
+    ] .
+
+ft4bS:LdmAuthorShape a sh:NodeShape ;
+    sh:targetClass pro:Author ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 0 ; # instead of 1?
+        sh:maxCount 1 ;
+        #sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path pro:authorOf ;
+        sh:minCount 1 ;
+        #sh:class dcat:Dataset
+    ] ;
+    sh:property [
+        sh:path owl:sameAS ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        #sh:class ft4b:ORCID
+    ] .
+    
+ft4bS:DistributionShape a sh:NodeShape ;
+    sh:targetClass dcat:Distribution ;
+    sh:property [
+        sh:path dct:title ;
+        sh:minCount 0 ;
+        #sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path dct:format ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        #sh:datatype xsd:string
+    ] ;
+    sh:property [
+        sh:path dcat:mediaType ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        #sh:class dcterms:MediaType
+    ] ;
+    sh:property [
+        sh:path dcat:byteSize ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        #sh:datatype: xsd:nonNegativeInteger
+    ] ;
+    sh:property [
+        sh:path dcat:accessURL ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path dct:license ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path dct:issued ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path dct:modified ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path dct:rights ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+    ] .
+
+#ft4bS:AgentShape a sh:NodeShape ;
+#    sh:targetClass dct:Agent ;
+#    sh:property [
+#        sh:path dct:identifier ;
+#        sh:minCount 1 ;
+#        sh:maxCount 1 ;
+#        #sh:datatype xsd:string
+#    ] ;
+#    sh:property [
+#        sh:path foaf:name ;
+#        sh:minCount 1 ;
+#        #sh:maxCount 1 ;
+#        #sh:datatype xsd:string
+#    ] .
+
+#ft4bS:vcardOrganizationShape a sh:NodeShape ;
+#    sh:targetClass vcard:Organization ;
+#    sh:property [
+#        sh:path vcard:fn ; # name
+#        sh:minCount 0 ;
+#        sh:maxCount 1 ;
+#        #sh:datatype xsd:string
+#    ] ;
+#    sh:property [
+#        sh:path vcard:hasEmail ;
+#        sh:minCount 1 ;
+#        #sh:maxCount 1 ;
+#    ] .

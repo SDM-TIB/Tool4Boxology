@@ -1,0 +1,15 @@
+services:
+  rdfizer:
+    container_name: ft4b_rdfizer
+    image: sdmtib/sdmrdfizer:latest
+    volumes:
+      - type: bind
+        source: .
+        target: .
+    networks:
+      - ft4b
+
+networks:
+  ft4b:
+    external: false
+

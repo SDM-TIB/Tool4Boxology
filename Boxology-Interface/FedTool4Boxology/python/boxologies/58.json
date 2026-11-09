@@ -1,0 +1,95 @@
+{
+  "metadata": {
+    "exportId": "3f25e123",
+    "userId": "user_6j7bc3lh",
+    "exportDate": "2026-11-06T12:17:23.556Z"
+  },
+  "boxologies": [
+    {
+      "id": "fb0c654f-9f25-4a00-92f5-0ed9583763bf",
+      "label": "58",
+      "DesignPattern": [
+        {
+          "id": "group_17938322723531",
+          "label": "1 Query Parsing",
+          "input": [
+            {
+              "id": "node_17938322723531",
+              "name": "Text",
+              "label": "Input Query q"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17938322723532",
+              "name": "Map",
+              "label": "Query DAG Structure"
+            }
+          ],
+          "process": {
+            "id": "node_17938322723537",
+            "name": "Transform",
+            "label": "Parse into DAG"
+          }
+        },
+        {
+          "id": "group_17938322723532",
+          "label": "2 Embedding Generation",
+          "input": [
+            {
+              "id": "node_17938322723532",
+              "name": "Map",
+              "label": "Query DAG Structure"
+            },
+            {
+              "id": "node_17938322723533",
+              "name": "NeuralModel",
+              "label": "Anchor Node Embeddings"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17938322723534",
+              "name": "Tensor",
+              "label": "Final Query Embedding q"
+            }
+          ],
+          "process": {
+            "id": "node_17938322723538",
+            "name": "Deduce",
+            "label": "Algorithm 1: Proj & Intersect"
+          }
+        },
+        {
+          "id": "group_17938322723533",
+          "name": "DataModelDeduceData",
+          "label": "3 Prediction Component",
+          "input": [
+            {
+              "id": "node_17938322723534",
+              "name": "Tensor",
+              "label": "Final Query Embedding q"
+            },
+            {
+              "id": "node_17938322723535",
+              "name": "NeuralModel",
+              "label": "Candidate Nodes"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17938322723536",
+              "name": "Number",
+              "label": "Prediction Likelihoods"
+            }
+          ],
+          "process": {
+            "id": "node_17938322723539",
+            "name": "Deduce",
+            "label": "Nearest Neighbor Search"
+          }
+        }
+      ]
+    }
+  ]
+}

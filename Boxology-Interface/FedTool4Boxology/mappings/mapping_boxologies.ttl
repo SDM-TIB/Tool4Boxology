@@ -1,0 +1,162 @@
+@prefix rr: <http://www.w3.org/ns/r2rml#> .
+@prefix rml: <http://semweb.mmlab.be/ns/rml#> .
+@prefix ql: <http://semweb.mmlab.be/ns/ql#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rev: <http://purl.org/stuff/rev#> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix t4b: <http://tool4boxology.org/> .
+@base <http://tib.de/SDM-RDFizer/mapping#> .
+
+<BoxologyMap>	
+	rml:logicalSource [ rml:source "/databoxology.json";
+						rml:referenceFormulation ql:JSONPath;
+						rml:iterator "$.boxologies[*].boxologies[*]"
+						];
+	rr:subjectMap [
+		rr:template "http://tool4boxology.org/{id}";
+		rr:class t4b:Boxology
+	];
+	rr:predicateObjectMap [
+		rr:predicate rdfs:label;
+		rr:objectMap [
+			rml:reference "label"
+		]
+	];	
+	rr:predicateObjectMap [
+		rr:predicate t4b:hasPattern;
+		rr:objectMap [ 
+			rr:template "http://tool4boxology.org/{DesignPattern[*].id}";
+		]
+	].
+
+
+<PatternMap>
+	rml:logicalSource [ rml:source "/data/boxology.json";
+						rml:referenceFormulation ql:JSONPath;
+						rml:iterator "$.boxologies[*].boxologies[*].DesignPattern[*]"
+						];
+	rr:subjectMap [
+		rr:template "http://tool4boxology.org/{id}";
+		rr:class t4b:DesignPattern
+	];
+	rr:predicateObjectMap [
+		rr:predicate rdfs:label;
+		rr:objectMap [
+			rml:reference "label"
+		]
+	];
+	rr:predicateObjectMap [
+		rr:predicate t4b:hasInput;
+		rr:objectMap [
+			rr:template "http://tool4boxology.org/{input[*].id}";
+		]
+	];	
+	rr:predicateObjectMap [
+		rr:predicate t4b:hasOutput;
+		rr:objectMap [
+			rr:template "http://tool4boxology.org/{output[*].id}";
+		]
+	];		
+	rr:predicateObjectMap [
+		rr:predicate t4b:hasProcess;
+		rr:objectMap [ 
+			rr:template "http://tool4boxology.org/{process.id}";
+		]
+	].
+
+
+<InputComponentMap>
+	rml:logicalSource [ rml:source "/data/boxology.json";
+						rml:referenceFormulation ql:JSONPath;
+						rml:iterator "$.boxologies[*].boxologies[*].DesignPattern[*].input[*]"
+						];
+	rr:subjectMap [
+		rr:template "http://tool4boxology.org/{id}";
+	];
+	rr:predicateObjectMap [
+		rr:predicate rdfs:label;
+		rr:objectMap [
+			rml:reference "label"
+		]
+	];
+	rr:predicateObjectMap [
+		rr:predicate rdf:type;
+		rr:objectMap [
+			rr:template "http://tool4boxology.org/{name}";
+		]
+	].
+
+<OutputComponentMap>
+	rml:logicalSource [ rml:source "/data/boxology.json";
+						rml:referenceFormulation ql:JSONPath;
+						rml:iterator "$.boxologies[*].boxologies[*].DesignPattern[*].output[*]"
+						];
+	rr:subjectMap [
+		rr:template "http://tool4boxology.org/{id}";
+	];
+	rr:predicateObjectMap [
+		rr:predicate rdfs:label;
+		rr:objectMap [
+			rml:reference "label"
+		]
+	];
+	rr:predicateObjectMap [
+		rr:predicate rdf:type;
+		rr:objectMap [
+			rr:template "http://tool4boxology.org/{name}";
+		]
+	].
+
+<ProcessComponentMap>
+	rml:logicalSource [ rml:source "/data/boxology.json";
+						rml:referenceFormulation ql:JSONPath;
+						rml:iterator "$.boxologies[*].boxologies[*].DesignPattern[*].process"
+						];
+	rr:subjectMap [
+		rr:template "http://tool4boxology.org/{id}";
+	];
+	rr:predicateObjectMap [
+		rr:predicate rdfs:label;
+		rr:objectMap [
+			rml:reference "label"
+		]
+	];
+	rr:predicateObjectMap [
+		rr:predicate rdf:type;
+		rr:objectMap [
+			rr:template "http://tool4boxology.org/{name}";
+		]
+	].
+
+<InputRoleMap>
+	rml:logicalSource [ rml:source "/data/boxology.json";
+						rml:referenceFormulation ql:JSONPath;
+						rml:iterator "$.boxologies[*].boxologies[*].DesignPattern[*]"
+						];
+	rr:subjectMap [
+		rr:template "http://tool4boxology.org/{input[*].id}";
+	];
+	rr:predicateObjectMap [
+		rr:predicate t4b:inputRoleParticipatesInProcess;
+		rr:objectMap [
+			rr:template "http://tool4boxology.org/{process.id}";
+		]
+	].
+
+<OutputRoleMap>
+	rml:logicalSource [ rml:source "/data/boxology.json";
+						rml:referenceFormulation ql:JSONPath;
+						rml:iterator "$.boxologies[*].boxologies[*].DesignPattern[*]"
+						];
+	rr:subjectMap [
+		rr:template "http://tool4boxology.org/{process.id}";
+	];
+	rr:predicateObjectMap [
+		rr:predicate t4b:outputRoleParticipatesInProcess;
+		rr:objectMap [
+			rr:template "http://tool4boxology.org/{output[*].id}";
+		]
+	].								
