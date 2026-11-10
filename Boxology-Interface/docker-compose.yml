@@ -55,6 +55,19 @@ services:
     networks:
       - boxology-network
 
+  detrusty:
+    image: sdmtib/detrusty:latest
+    container_name: detrusty
+    volumes:
+      - ./FedTool4Boxology/rdfizer_output:/data
+    ports:
+      - "5000:5000"
+    environment:
+      - JOIN_STARS_LOCALLY=False
+      - FEDERATION_ADMIN_KEY=changemeplease
+    networks:
+      - boxology-network
+
 
 networks:
   boxology-network:

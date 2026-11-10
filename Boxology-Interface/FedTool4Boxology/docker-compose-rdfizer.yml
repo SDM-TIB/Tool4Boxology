@@ -3,9 +3,8 @@ services:
     container_name: ft4b_rdfizer
     image: sdmtib/sdmrdfizer:latest
     volumes:
-      - type: bind
-        source: .
-        target: .
+      - .:/data
+        
     networks:
       - ft4b
 

@@ -17,7 +17,7 @@
 
 
 <PapersMap>	a rr:TriplesMap;
-	rml:logicalSource [ rml:source "/data/papers.json";
+	rml:logicalSource [ rml:source "/data/data/papers.json";
 						rml:referenceFormulation ql:JSONPath;
 						rml:iterator "$.papers[*]"
 						];
@@ -109,7 +109,7 @@
 	#rr:predicateObjectMap [
 	#	rr:predicate ft4b:hasBenchmark;
 	#	rr:objectMap [ 
-	#		rr:template "http://fedTool4boxology.org/Dataset/{benchmark}";
+	#		rr:template "http://fedTool4boxology.org/data/dataset/{benchmark}";
 	#	]
 	#];
 	#rr:predicateObjectMap [
@@ -120,7 +120,7 @@
 	].
 
 <AuthorsMap> a rr:TriplesMap;
-    rml:logicalSource [ rml:source "/data/papers.json";
+    rml:logicalSource [ rml:source "/data/data/papers.json";
 						rml:referenceFormulation ql:JSONPath;
 						rml:iterator "$.papers[*].authors[*]"
 						];
@@ -184,7 +184,7 @@
   	].
 
 <ContributionsMap> a rr:TriplesMap;
-    rml:logicalSource [ rml:source "/data/papers.json";
+    rml:logicalSource [ rml:source "/data/data/papers.json";
 						rml:referenceFormulation ql:JSONPath;
 						rml:iterator "$.papers[*].contributions[*]"
 						];
@@ -200,7 +200,7 @@
 	].	
 
 <ResearchFieldsMap> a rr:TriplesMap;
-    rml:logicalSource [ rml:source "/data/papers.json";
+    rml:logicalSource [ rml:source "/data/data/papers.json";
 						rml:referenceFormulation ql:JSONPath;
 						rml:iterator "$.papers[*].research_fields[*]"
 						];
@@ -216,7 +216,7 @@
 	].	
 
 <ObservatoriesMap> a rr:TriplesMap;
-	rml:logicalSource [ rml:source "/data/papers.json";
+	rml:logicalSource [ rml:source "/data/data/papers.json";
 						rml:referenceFormulation ql:JSONPath;
 						rml:iterator "$.papers[*]"
 						];
@@ -226,7 +226,7 @@
 	].
 
 <OrganizationsMap> a rr:TriplesMap;
-    rml:logicalSource [ rml:source "/data/papers.json";
+    rml:logicalSource [ rml:source "/data/data/papers.json";
 						rml:referenceFormulation ql:JSONPath;
 						rml:iterator "$.papers[*]"
 						];
@@ -236,7 +236,7 @@
 	].
 
 <VenuesMap> a rr:TriplesMap;
-	rml:logicalSource [ rml:source "/data/papers.json";
+	rml:logicalSource [ rml:source "/data/data/papers.json";
 						rml:referenceFormulation ql:JSONPath;
 						rml:iterator "$.papers[*].publication_info.published_in"
 						];
@@ -253,7 +253,7 @@
 
 <BoxologiesDatasetsMap> a rr:TriplesMap;
 	rml:logicalSource [ 
-		rml:source "/data/evaluations2.csv";
+		rml:source "/data/data/evaluations2.csv";
     	rml:referenceFormulation ql:CSV;
 	];
 	rr:subjectMap [
@@ -275,7 +275,7 @@
 
 <EvaluationsMap> a rr:TriplesMap;
 	rml:logicalSource [ 
-		rml:source "/data/evaluations2.csv";
+		rml:source "/data/data/evaluations2.csv";
     	rml:referenceFormulation ql:CSV;
 	];
 	rr:subjectMap [

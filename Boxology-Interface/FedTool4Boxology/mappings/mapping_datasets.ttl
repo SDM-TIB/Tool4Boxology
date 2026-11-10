@@ -11,7 +11,7 @@
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
-@prefix datacite: <http://purl.org/spar/datacite/> .
+@prefix datacite: <http://purl.org/spar/data/datacite/> .
 @prefix pro: <http://purl.org/spar/pro/>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @prefix adms: <http://www.w3.org/ns/adms#> .
@@ -21,7 +21,7 @@
 
 <DatasetMapping> a rr:TriplesMap;
 	rml:logicalSource [
-		rml:source "/data/metadata.json";
+		rml:source "/data/data/metadata.json";
 		rml:referenceFormulation ql:JSONPath;
 		rml:iterator "$.[*]";
 	];
@@ -131,7 +131,7 @@
 
 <KeywordsMapping> a rr:TriplesMap;
 	rml:logicalSource [
-		rml:source "/data/tags.csv";
+		rml:source "/data/data/tags.csv";
 		rml:referenceFormulation ql:CSV;
 	];
 	rr:subjectMap [
@@ -161,7 +161,7 @@
 
 <DistributionMapping> a rr:TriplesMap;
 	rml:logicalSource [
-		rml:source "/data/metadata.json";
+		rml:source "/data/data/metadata.json";
 		rml:referenceFormulation ql:JSONPath;
 		rml:iterator "$.[*].resources[*]";
 	];
@@ -249,7 +249,7 @@
 
 <Author> a rr:TriplesMap;
 	rml:logicalSource [
-		rml:source "/data/authors.csv";
+		rml:source "/data/data/authors.csv";
 		rml:referenceFormulation ql:CSV;
 	];
 	rr:subjectMap [
@@ -271,7 +271,7 @@
 
 <AuthorORCID> a rr:TriplesMap;
 	rml:logicalSource [
-		rml:source "/data/authors.csv";
+		rml:source "/data/data/authors.csv";
 		rml:referenceFormulation ql:CSV;
 	];
 	rr:subjectMap [
@@ -281,7 +281,7 @@
 
 <DatasetAuthors> a rr:TriplesMap;
 	rml:logicalSource [
-		rml:source "/data/data/dataset_authors.csv";
+		rml:source "/data/data/data/data/data/dataset_authors.csv";
 		rml:referenceFormulation ql:CSV;
 	];
 	rr:subjectMap [
@@ -297,7 +297,7 @@
 
 <AuthorDataset> a rr:TriplesMap;
 	rml:logicalSource [
-		rml:source "/data/dataset_authors.csv";
+		rml:source "/data/data/data/dataset_authors.csv";
 		rml:referenceFormulation ql:CSV;
 	];
 	rr:subjectMap [
@@ -313,7 +313,7 @@
   
 <Organization> a rr:TriplesMap;
 	rml:logicalSource [
-		rml:source "/data/metadata.json";
+		rml:source "/data/data/metadata.json";
 		rml:referenceFormulation ql:JSONPath;
 		rml:iterator "$.[*]";
 	];

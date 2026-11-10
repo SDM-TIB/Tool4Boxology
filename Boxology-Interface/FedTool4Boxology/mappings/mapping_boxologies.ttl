@@ -11,7 +11,7 @@
 @base <http://tib.de/SDM-RDFizer/mapping#> .
 
 <BoxologyMap>	
-	rml:logicalSource [ rml:source "/databoxology.json";
+	rml:logicalSource [ rml:source "/data/databoxology.json";
 						rml:referenceFormulation ql:JSONPath;
 						rml:iterator "$.boxologies[*].boxologies[*]"
 						];
@@ -34,7 +34,7 @@
 
 
 <PatternMap>
-	rml:logicalSource [ rml:source "/data/boxology.json";
+	rml:logicalSource [ rml:source "/data/data/boxology.json";
 						rml:referenceFormulation ql:JSONPath;
 						rml:iterator "$.boxologies[*].boxologies[*].DesignPattern[*]"
 						];
@@ -69,7 +69,7 @@
 
 
 <InputComponentMap>
-	rml:logicalSource [ rml:source "/data/boxology.json";
+	rml:logicalSource [ rml:source "/data/data/boxology.json";
 						rml:referenceFormulation ql:JSONPath;
 						rml:iterator "$.boxologies[*].boxologies[*].DesignPattern[*].input[*]"
 						];
@@ -90,7 +90,7 @@
 	].
 
 <OutputComponentMap>
-	rml:logicalSource [ rml:source "/data/boxology.json";
+	rml:logicalSource [ rml:source "/data/data/boxology.json";
 						rml:referenceFormulation ql:JSONPath;
 						rml:iterator "$.boxologies[*].boxologies[*].DesignPattern[*].output[*]"
 						];
@@ -111,7 +111,7 @@
 	].
 
 <ProcessComponentMap>
-	rml:logicalSource [ rml:source "/data/boxology.json";
+	rml:logicalSource [ rml:source "/data/data/boxology.json";
 						rml:referenceFormulation ql:JSONPath;
 						rml:iterator "$.boxologies[*].boxologies[*].DesignPattern[*].process"
 						];
@@ -132,7 +132,7 @@
 	].
 
 <InputRoleMap>
-	rml:logicalSource [ rml:source "/data/boxology.json";
+	rml:logicalSource [ rml:source "/data/data/boxology.json";
 						rml:referenceFormulation ql:JSONPath;
 						rml:iterator "$.boxologies[*].boxologies[*].DesignPattern[*]"
 						];
@@ -147,7 +147,7 @@
 	].
 
 <OutputRoleMap>
-	rml:logicalSource [ rml:source "/data/boxology.json";
+	rml:logicalSource [ rml:source "/data/data/boxology.json";
 						rml:referenceFormulation ql:JSONPath;
 						rml:iterator "$.boxologies[*].boxologies[*].DesignPattern[*]"
 						];
