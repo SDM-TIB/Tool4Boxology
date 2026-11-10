@@ -1,0 +1,133 @@
+{
+  "metadata": {
+    "exportId": "b8085633",
+    "userId": "user_6j7bc3lh",
+    "exportDate": "2026-11-06T12:19:37.321Z"
+  },
+  "boxologies": [
+    {
+      "id": "35bb4984-c066-4c39-8f5f-fd7c4f4cff09",
+      "label": "71",
+      "DesignPattern": [
+        {
+          "id": "group_17938071112321",
+          "label": "1a Initialization",
+          "input": [
+            {
+              "id": "node_17938071112321",
+              "name": "Dataset",
+              "label": "Knowledge Graph Data"
+            },
+            {
+              "id": "node_17938071112322",
+              "name": "Ontology",
+              "label": "Ontology Axioms"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17938071112323",
+              "name": "NeuralModel",
+              "label": "Embedding Model"
+            }
+          ],
+          "process": {
+            "id": "node_17938071112326",
+            "name": "Transform",
+            "label": "Base KGE Initialization"
+          }
+        },
+        {
+          "id": "group_17938071112322",
+          "label": "1b Symbolic Reasoning",
+          "input": [
+            {
+              "id": "node_17938071112323",
+              "name": "NeuralModel",
+              "label": "Embedding Model"
+            },
+            {
+              "id": "node_17938071112322",
+              "name": "Ontology",
+              "label": "Ontology Axioms"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17938071112324",
+              "name": "Rules",
+              "label": "Inconsistent Predictions"
+            }
+          ],
+          "process": {
+            "id": "node_17938071112327",
+            "name": "Deduce",
+            "label": "Symbolic Reasoning Engine"
+          }
+        },
+        {
+          "id": "group_17938071112323",
+          "label": "1c Ontological Generalization",
+          "input": [
+            {
+              "id": "node_17938071112324",
+              "name": "Rules",
+              "label": "Inconsistent Predictions"
+            },
+            {
+              "id": "node_17938071112322",
+              "name": "Ontology",
+              "label": "Ontology Axioms"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17938071112325",
+              "name": "Dataset",
+              "label": "Negative Samples"
+            }
+          ],
+          "process": {
+            "id": "node_17938071112328",
+            "name": "Transform",
+            "label": "Ontological Generalization"
+          }
+        },
+        {
+          "id": "group_17938071112324",
+          "name": "ModelDataTrainModel",
+          "label": "1d Retraining Loop",
+          "input": [
+            {
+              "id": "node_17938071112325",
+              "name": "Dataset",
+              "label": "Negative Samples"
+            },
+            {
+              "id": "node_17938071112323",
+              "name": "NeuralModel",
+              "label": "Embedding Model"
+            },
+            {
+              "id": "node_17938071112321",
+              "name": "Dataset",
+              "label": "Knowledge Graph Data"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17938071112323",
+              "name": "NeuralModel",
+              "label": "Embedding Model"
+            }
+          ],
+          "process": {
+            "id": "node_17938071112329",
+            "name": "Train",
+            "label": "Retraining Loop"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "metadata": {
+    "exportId": "832733ac",
+    "userId": "user_6j7bc3lh",
+    "exportDate": "2026-11-06T12:19:09.616Z"
+  },
+  "boxologies": [
+    {
+      "id": "b22944c8-ebbd-4de9-92d8-abb7c728c981",
+      "label": "56",
+      "DesignPattern": [
+        {
+          "id": "group_17938265953541",
+          "label": "1a KG and Rules",
+          "input": [
+            {
+              "id": "node_17938265953541",
+              "name": "KG",
+              "label": "KG Entities and Relations"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17938265953541",
+              "name": "KG",
+              "label": "KG Entities and Relations"
+            }
+          ],
+          "process": {
+            "id": "node_17938265953545",
+            "name": "Transform",
+            "label": "Extract KG Features"
+          }
+        },
+        {
+          "id": "group_17938265953542",
+          "label": "1b Relation Representation",
+          "input": [
+            {
+              "id": "node_17938265953541",
+              "name": "KG",
+              "label": "KG Entities and Relations"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17938265953543",
+              "name": "NeuralModel",
+              "label": "Entity and Relation Embeddings"
+            }
+          ],
+          "process": {
+            "id": "node_17938265953546",
+            "name": "Transform",
+            "label": "Bilinear Form Mapping"
+          }
+        },
+        {
+          "id": "group_17938265953543",
+          "name": "SymbolModelDeduceData",
+          "label": "1c Rule-Based Regularization",
+          "input": [
+            {
+              "id": "node_17938265953543",
+              "name": "NeuralModel",
+              "label": "Entity and Relation Embeddings"
+            },
+            {
+              "id": "node_17938265953542",
+              "name": "Rules",
+              "label": "Soft Logical Rules"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17938265953544",
+              "name": "Number",
+              "label": "Rule Penalties"
+            }
+          ],
+          "process": {
+            "id": "node_17938265953547",
+            "name": "Deduce",
+            "label": "Compute Soft Rule Penalties"
+          }
+        },
+        {
+          "id": "group_17938265953544",
+          "name": "ModelDataTrainModel",
+          "label": "1d Embedding Training",
+          "input": [
+            {
+              "id": "node_17938265953544",
+              "name": "Number",
+              "label": "Rule Penalties"
+            },
+            {
+              "id": "node_17938265953543",
+              "name": "NeuralModel",
+              "label": "Entity and Relation Embeddings"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17938265953543",
+              "name": "NeuralModel",
+              "label": "Entity and Relation Embeddings"
+            }
+          ],
+          "process": {
+            "id": "node_17938265953548",
+            "name": "Train",
+            "label": "Trained Embeddings"
+          }
+        }
+      ]
+    }
+  ]
+}

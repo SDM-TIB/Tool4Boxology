@@ -1,0 +1,76 @@
+{
+  "metadata": {
+    "exportId": "42418fa9",
+    "userId": "user_6j7bc3lh",
+    "exportDate": "2026-11-08T15:57:07.063Z"
+  },
+  "boxologies": [
+    {
+      "id": "72a394d7-cda4-4f2c-9259-83f294925299",
+      "label": "72a394d7-cda4-4f2c-9259-83f294925299",
+      "DesignPattern": [
+        {
+          "id": "group_17941301186901",
+          "label": "1c Inputs",
+          "input": [
+            {
+              "id": "node_17941301186901",
+              "name": "KG",
+              "label": "Knowledge Graph"
+            },
+            {
+              "id": "node_17941301186902",
+              "name": "Rules",
+              "label": "Background Knowledge Axioms"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941301186903",
+              "name": "NeuralModel",
+              "label": "Initial KG Embeddings"
+            }
+          ],
+          "process": {
+            "id": "node_17941301186905",
+            "name": "Transform",
+            "label": "Prepare Inputs"
+          }
+        },
+        {
+          "id": "group_17941301186902",
+          "label": "2c Training",
+          "input": [
+            {
+              "id": "node_17941301186903",
+              "name": "NeuralModel",
+              "label": "Initial KG Embeddings"
+            },
+            {
+              "id": "node_17941301186901",
+              "name": "KG",
+              "label": "Knowledge Graph"
+            },
+            {
+              "id": "node_17941301186902",
+              "name": "Rules",
+              "label": "Background Knowledge Axioms"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941301186904",
+              "name": "NeuralModel",
+              "label": "Regularized KG Embedding Model"
+            }
+          ],
+          "process": {
+            "id": "node_17941301186906",
+            "name": "Train",
+            "label": "Background Knowledge Regularization"
+          }
+        }
+      ]
+    }
+  ]
+}

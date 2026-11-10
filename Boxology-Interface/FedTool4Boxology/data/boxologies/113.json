@@ -1,0 +1,99 @@
+{
+  "metadata": {
+    "exportId": "499ccc0f",
+    "userId": "user_6j7bc3lh",
+    "exportDate": "2026-11-08T10:47:40.683Z"
+  },
+  "boxologies": [
+    {
+      "id": "b397d6c0-3bde-468e-af55-76e508347a60",
+      "label": "b397d6c0-3bde-468e-af55-76e508347a60",
+      "DesignPattern": [
+        {
+          "id": "group_17941342558252",
+          "label": "1b E-Step Inference",
+          "input": [
+            {
+              "id": "node_17941342558252",
+              "name": "KG",
+              "label": "Observed Triplets"
+            },
+            {
+              "id": "node_17941342558254",
+              "name": "NeuralModel",
+              "label": "KG Embedding Model"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941342558255",
+              "name": "KG",
+              "label": "Inferred Missing Triplets"
+            }
+          ],
+          "process": {
+            "id": "node_17941342558258",
+            "name": "Deduce",
+            "label": "E-Step: Infer Missing Triplets"
+          }
+        },
+        {
+          "id": "group_17941342558253",
+          "label": "1c M-Step Optimization",
+          "input": [
+            {
+              "id": "node_17941342558255",
+              "name": "KG",
+              "label": "Inferred Missing Triplets"
+            },
+            {
+              "id": "node_17941342558252",
+              "name": "KG",
+              "label": "Observed Triplets"
+            },
+            {
+              "id": "node_17941342558253",
+              "name": "Rules",
+              "label": "First-Order Logic Rules"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941342558256",
+              "name": "HybridModel",
+              "label": "Markov Logic Network (pLogicNet)"
+            }
+          ],
+          "process": {
+            "id": "node_17941342558259",
+            "name": "Train",
+            "label": "M-Step: Update Rule Weights"
+          }
+        },
+        {
+          "id": "group_1794134412026",
+          "label": "1a Input Data",
+          "input": [
+            {
+              "id": "node_1794134367542",
+              "name": "KG",
+              "label": "Incomplete Knowledge Graph"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941342558252",
+              "name": "KG",
+              "label": "Observed Triplets"
+            }
+          ],
+          "process": {
+            "id": "node_17941342558257",
+            "name": "Transform",
+            "label": "Parse KG Data"
+          }
+        }
+      ]
+    }
+  ]
+}

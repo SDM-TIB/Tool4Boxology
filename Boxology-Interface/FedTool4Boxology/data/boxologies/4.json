@@ -1,0 +1,99 @@
+{
+  "metadata": {
+    "exportId": "b3181ba4",
+    "userId": "user_6j7bc3lh",
+    "exportDate": "2026-11-06T12:21:00.514Z"
+  },
+  "boxologies": [
+    {
+      "id": "5d361a54-4ba7-4a03-8ac9-81bf84ed8c67",
+      "label": "4",
+      "DesignPattern": [
+        {
+          "id": "group_17938054873781",
+          "label": "1c Logical Reasoning",
+          "input": [
+            {
+              "id": "node_17938054873781",
+              "name": "KG",
+              "label": "Biological Knowledge Graph"
+            },
+            {
+              "id": "node_17938054873782",
+              "name": "Rules",
+              "label": "Symbolic Logical Rules"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17938054873785",
+              "name": "Explanation",
+              "label": "Logical Deductions"
+            }
+          ],
+          "process": {
+            "id": "node_17938054873787",
+            "name": "Transform",
+            "label": "Automated Reasoning Engine"
+          }
+        },
+        {
+          "id": "group_17938054873782",
+          "label": "2c GNN Embedding",
+          "input": [
+            {
+              "id": "node_17938054873781",
+              "name": "KG",
+              "label": "Biological Knowledge Graph"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17938054873784",
+              "name": "NeuralModel",
+              "label": "Knowledge Graph Embeddings"
+            }
+          ],
+          "process": {
+            "id": "node_17938054873788",
+            "name": "Train",
+            "label": "GNN Feature Learning"
+          }
+        },
+        {
+          "id": "group_17938054873783",
+          "label": "3c Edge Prediction",
+          "input": [
+            {
+              "id": "node_17938054873784",
+              "name": "NeuralModel",
+              "label": "Knowledge Graph Embeddings"
+            },
+            {
+              "id": "node_17938054873785",
+              "name": "Explanation",
+              "label": "Logical Deductions"
+            },
+            {
+              "id": "node_17938054873783",
+              "name": "GNN",
+              "label": "GNN Encoder"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17938054873786",
+              "name": "Table",
+              "label": "Biological Predictions"
+            }
+          ],
+          "process": {
+            "id": "node_17938054873789",
+            "name": "Deduce",
+            "label": "Edge Prediction Network"
+          }
+        }
+      ]
+    }
+  ]
+}

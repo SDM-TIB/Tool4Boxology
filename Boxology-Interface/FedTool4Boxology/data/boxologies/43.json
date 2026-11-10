@@ -1,0 +1,115 @@
+{
+  "metadata": {
+    "exportId": "aba4e724",
+    "userId": "user_6j7bc3lh",
+    "exportDate": "2026-11-08T09:23:32.583Z"
+  },
+  "boxologies": [
+    {
+      "id": "72a394d7-cda4-4f2c-9259-83f294925299",
+      "label": "72a394d7-cda4-4f2c-9259-83f294925299",
+      "DesignPattern": [
+        {
+          "id": "group_17941294034751",
+          "name": "DataTransformData",
+          "label": "1c Input Data",
+          "input": [
+            {
+              "id": "node_17941294034751",
+              "name": "Dataset",
+              "label": "Knowledge Graph Data"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941294034753",
+              "name": "Tensor",
+              "label": "Processed KG Triplets"
+            }
+          ],
+          "process": {
+            "id": "node_17941294034757",
+            "name": "Transform",
+            "label": "Prepare KG & Taxonomy"
+          }
+        },
+        {
+          "id": "group_17941294034752",
+          "name": "DataTrainModel",
+          "label": "2c Base Embeddings",
+          "input": [
+            {
+              "id": "node_17941294034753",
+              "name": "Tensor",
+              "label": "Processed KG Triplets"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941294034754",
+              "name": "NeuralModel",
+              "label": "SimplE Tensor Factorization Model"
+            }
+          ],
+          "process": {
+            "id": "node_17941294034758",
+            "name": "Train",
+            "label": "Train SimplE Factorization"
+          }
+        },
+        {
+          "id": "group_17941294034753",
+          "name": "ModelTransformModel",
+          "label": "3c Constraint Enforcer",
+          "input": [
+            {
+              "id": "node_17941294034754",
+              "name": "NeuralModel",
+              "label": "SimplE Tensor Factorization Model"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941294034755",
+              "name": "NeuralModel",
+              "label": "Non-Negativity Constrained Model"
+            }
+          ],
+          "process": {
+            "id": "node_17941294034759",
+            "name": "Transform",
+            "label": "Apply Non-Negativity Constraints"
+          }
+        },
+        {
+          "id": "group_17941294034754",
+          "label": "4c Verification Engine",
+          "input": [
+            {
+              "id": "node_17941294034755",
+              "name": "NeuralModel",
+              "label": "Non-Negativity Constrained Model"
+            },
+            {
+              "id": "node_17941294034752",
+              "name": "Ontology",
+              "label": "Taxonomic Background Information"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941294034756",
+              "name": "Dataset",
+              "label": "Completed KG Triplets"
+            }
+          ],
+          "process": {
+            "id": "node_179412940347510",
+            "name": "Deduce",
+            "label": "SimplE+ Verification Engine"
+          }
+        }
+      ]
+    }
+  ]
+}

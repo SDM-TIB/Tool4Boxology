@@ -1,0 +1,132 @@
+{
+  "metadata": {
+    "exportId": "8c5b2835",
+    "userId": "user_6j7bc3lh",
+    "exportDate": "2026-11-08T17:03:36.998Z"
+  },
+  "boxologies": [
+    {
+      "id": "77790fc3-0c2c-4f2c-8112-a37bd8f3bae8",
+      "label": "77790fc3-0c2c-4f2c-8112-a37bd8f3bae8",
+      "DesignPattern": [
+        {
+          "id": "group_17941569290862",
+          "label": "2 Rule Learning",
+          "input": [
+            {
+              "id": "node_17941569290861",
+              "name": "KG",
+              "label": "Initial Knowledge Graph"
+            },
+            {
+              "id": "node_17941569290865",
+              "name": "KG",
+              "label": "Enriched Knowledge Graph"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941569290862",
+              "name": "RuleBasedModel",
+              "label": "Mined Logical Rules Model"
+            }
+          ],
+          "process": {
+            "id": "node_17941569290866",
+            "name": "Train",
+            "label": "Mine Logical Rules"
+          }
+        },
+        {
+          "id": "group_17941569290863",
+          "label": "3 Embedding Learner",
+          "input": [
+            {
+              "id": "node_17941569290861",
+              "name": "KG",
+              "label": "Initial Knowledge Graph"
+            },
+            {
+              "id": "node_17941569290865",
+              "name": "KG",
+              "label": "Enriched Knowledge Graph"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941569290863",
+              "name": "NeuralModel",
+              "label": "Entity & Relation Embeddings"
+            }
+          ],
+          "process": {
+            "id": "node_17941569290867",
+            "name": "Train",
+            "label": "Generate Embeddings"
+          }
+        },
+        {
+          "id": "group_17941569290864",
+          "label": "4 Triple Discriminator",
+          "input": [
+            {
+              "id": "node_17941569290862",
+              "name": "RuleBasedModel",
+              "label": "Mined Logical Rules Model"
+            },
+            {
+              "id": "node_17941569290863",
+              "name": "NeuralModel",
+              "label": "Entity & Relation Embeddings"
+            },
+            {
+              "id": "node_17941569290861",
+              "name": "KG",
+              "label": "Initial Knowledge Graph"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941569290864",
+              "name": "Constraints",
+              "label": "Candidate Hidden Triples"
+            }
+          ],
+          "process": {
+            "id": "node_17941569290868",
+            "name": "Deduce",
+            "label": "GCN Triple Discriminator"
+          }
+        },
+        {
+          "id": "group_17941569290865",
+          "label": "5 Iterative Complementation",
+          "input": [
+            {
+              "id": "node_17941569290864",
+              "name": "Constraints",
+              "label": "Candidate Hidden Triples"
+            },
+            {
+              "id": "node_17941569290861",
+              "name": "KG",
+              "label": "Initial Knowledge Graph"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17941569290865",
+              "name": "KG",
+              "label": "Enriched Knowledge Graph"
+            }
+          ],
+          "process": {
+            "id": "node_17941569290869",
+            "name": "Transform",
+            "label": "Iterative Complementation Loop"
+          }
+        }
+      ]
+    }
+  ]
+}
