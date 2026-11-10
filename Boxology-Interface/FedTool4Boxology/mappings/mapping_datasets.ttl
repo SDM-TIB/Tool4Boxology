@@ -281,7 +281,7 @@
 
 <DatasetAuthors> a rr:TriplesMap;
 	rml:logicalSource [
-		rml:source "/data/data/data/data/data/dataset_authors.csv";
+		rml:source "/data/data/dataset_authors.csv";
 		rml:referenceFormulation ql:CSV;
 	];
 	rr:subjectMap [
@@ -297,7 +297,7 @@
 
 <AuthorDataset> a rr:TriplesMap;
 	rml:logicalSource [
-		rml:source "/data/data/data/dataset_authors.csv";
+		rml:source "/data/data/dataset_authors.csv";
 		rml:referenceFormulation ql:CSV;
 	];
 	rr:subjectMap [

@@ -11,7 +11,7 @@
 @base <http://tib.de/SDM-RDFizer/mapping#> .
 
 <BoxologyMap>	
-	rml:logicalSource [ rml:source "/data/databoxology.json";
+	rml:logicalSource [ rml:source "/data/data/boxology.json";
 						rml:referenceFormulation ql:JSONPath;
 						rml:iterator "$.boxologies[*].boxologies[*]"
 						];
