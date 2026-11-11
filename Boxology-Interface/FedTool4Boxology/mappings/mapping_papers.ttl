@@ -79,7 +79,7 @@
 	rr:predicateObjectMap [
 		rr:predicate orkgp:P6; # author
 		rr:objectMap [ 
-			rr:template "http://orkg.org/authors/{authors[*].id}";
+			rr:template "http://orkg.org/authors/{authors[*].name}";
 		]
 	];
 	rr:predicateObjectMap [
