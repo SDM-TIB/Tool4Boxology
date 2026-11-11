@@ -31,7 +31,7 @@ def get_paper_by_title(title):
         return None
 
 # get titles of paper from csv file
-with open('Papers.csv') as f:
+with open('../data/papers.csv') as f:
     data = f.readlines()[1:]
     print(data)
 
