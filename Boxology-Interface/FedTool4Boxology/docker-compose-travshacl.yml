@@ -1,20 +1,20 @@
 version: '2'
 
 services:
-  my_data:
-    container_name: travshacl_my_data2
+  ft4b_travshacl_data:
+    container_name: ft4b_travshacl_data
     image: prohde/virtuoso-opensource-7:7.2.14-alpine
     volumes:
-      - ./rdfizer_output:/database/toLoad
-      - ./virtuoso:/database
+      - ./ntfiles:/database/toLoad
+      - ./virtuoso-travshacl:/database
     mem_limit: 4g
     ports:
       - '9092:8890'
     networks:
-      - travshacl
+      - boxology-network
 
-  my_engine:
-    container_name: travshacl_my_engine2
+  ft4b_travshacl_engine:
+    container_name: ft4b_travshacl_engine
     image: sdmtib/travshacl:latest
     volumes:
       - ./shapes:/shapes
@@ -22,10 +22,10 @@ services:
     ports:
       - '9091:5000'
     networks:
-      - travshacl
+      - boxology-network
     depends_on:
-      - my_data
+      - ft4b_travshacl_data
 
 networks:
-  travshacl:
+  boxology-network:
     driver: bridge

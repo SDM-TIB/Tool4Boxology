@@ -1,0 +1,2 @@
+http://boxology_kg:8890/sparql/
+http://ft4bkg:8890/sparql/

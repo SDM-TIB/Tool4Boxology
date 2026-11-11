@@ -4,9 +4,16 @@ services:
     image: sdmtib/sdmrdfizer:latest
     volumes:
       - .:/data
-        
     networks:
       - ft4b
+    environment:
+      - SPARQL_ENDPOINT_IP=ft4bkg
+      - SPARQL_ENDPOINT_USER=dba
+      - SPARQL_ENDPOINT_PASSWD=dba
+      - SPARQL_ENDPOINT_PORT=1111
+      - SPARQL_ENDPOINT_GRAPH=http://ft4bkg:8890/sparql/
+      - RDF_DUMP_FOLDER_PATH=/data/rdf-dump/
+      - SPARQL_MAPPINGS_ENDPOINT_IP=ft4b_mappings
 
 networks:
   ft4b:

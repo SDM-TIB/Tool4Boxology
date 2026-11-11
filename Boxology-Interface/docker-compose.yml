@@ -59,7 +59,8 @@ services:
     image: sdmtib/detrusty:latest
     container_name: detrusty
     volumes:
-      - ./FedTool4Boxology/rdfizer_output:/data
+      - ./FedTool4Boxology/source_descriptors:/DeTrusty/Config/
+      - ./logs:/var/log/detrusty
     ports:
       - "5000:5000"
     environment:
@@ -68,6 +69,59 @@ services:
     networks:
       - boxology-network
 
+  ft4b_rdfizer:
+    container_name: ft4b_rdfizer
+    image: sdmtib/sdmrdfizer:latest
+    volumes:
+      - ./FedTool4Boxology:/data
+    networks:
+      - boxology-network
+    environment:
+      - SPARQL_ENDPOINT_IP=ft4bkg
+      - SPARQL_ENDPOINT_USER=dba
+      - SPARQL_ENDPOINT_PASSWD=dba
+      - SPARQL_ENDPOINT_PORT=1111
+      - SPARQL_ENDPOINT_GRAPH=http://ft4bkg:8890/sparql/
+      - RDF_DUMP_FOLDER_PATH=/data/rdf-dump/
+      - SPARQL_MAPPINGS_ENDPOINT_IP=ft4b_mappings
+
+  ft4bkg:
+    image: kemele/virtuoso:7-stable
+    hostname: ft4bkg
+    container_name: ft4bkg
+    domainname: ft4b
+    volumes:
+      - ./FedTool4Boxology/virtuoso-travshacl:/data
+      - ./FedTool4Boxology:/data/rdf-dump
+    ports:
+      - "18001:8890"
+    networks:
+      - boxology-network
+  
+  ft4b_travshacl_data:
+    container_name: ft4b_travshacl_data
+    image: prohde/virtuoso-opensource-7:7.2.14-alpine
+    volumes:
+      - ./FedTool4Boxology/ntfiles:/database/toLoad
+      - ./FedTool4Boxology/virtuoso-travshacl:/database
+    mem_limit: 4g
+    ports:
+      - '9092:8890'
+    networks:
+      - boxology-network
+
+  ft4b_travshacl_engine:
+    container_name: ft4b_travshacl_engine
+    image: sdmtib/travshacl:latest
+    volumes:
+      - ./FedTool4Boxology/shapes:/shapes
+    mem_limit: 4g
+    ports:
+      - '9091:5000'
+    networks:
+      - boxology-network
+    depends_on:
+      - ft4b_travshacl_data
 
 networks:
   boxology-network:

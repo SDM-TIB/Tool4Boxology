@@ -1,0 +1,292 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix semsd: <https://research.tib.eu/semantic-source-description#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://tool4boxology.org/Boxology> a rdfs:Class ;
+    semsd:hasProperty <http://tool4boxology.org/hasPattern>,
+        rdf:type,
+        rdfs:label ;
+    semsd:hasSource <http://boxology_kg:8890/sparql/> .
+
+<http://tool4boxology.org/CNN> a rdfs:Class ;
+    semsd:hasProperty <http://tool4boxology.org/inputRoleParticipatesInProcess>,
+        rdf:type,
+        rdfs:label ;
+    semsd:hasSource <http://boxology_kg:8890/sparql/> .
+
+<http://tool4boxology.org/Component> a rdfs:Class ;
+    semsd:hasProperty <http://tool4boxology.org/inputRoleParticipatesInProcess>,
+        <http://tool4boxology.org/outputRoleParticipatesInProcess>,
+        rdf:type,
+        rdfs:label ;
+    semsd:hasSource <http://boxology_kg:8890/sparql/> .
+
+<http://tool4boxology.org/Data> a rdfs:Class ;
+    semsd:hasProperty <http://tool4boxology.org/inputRoleParticipatesInProcess>,
+        rdf:type,
+        rdfs:label ;
+    semsd:hasSource <http://boxology_kg:8890/sparql/> .
+
+<http://tool4boxology.org/Dataset> a rdfs:Class ;
+    semsd:hasProperty <http://tool4boxology.org/inputRoleParticipatesInProcess>,
+        rdf:type,
+        rdfs:label ;
+    semsd:hasSource <http://boxology_kg:8890/sparql/> .
+
+<http://tool4boxology.org/Deduce> a rdfs:Class ;
+    semsd:hasProperty <http://tool4boxology.org/outputRoleParticipatesInProcess>,
+        rdf:type,
+        rdfs:label ;
+    semsd:hasSource <http://boxology_kg:8890/sparql/> .
+
+<http://tool4boxology.org/DesignPattern> a rdfs:Class ;
+    semsd:hasProperty <http://tool4boxology.org/hasInput>,
+        <http://tool4boxology.org/hasOutput>,
+        <http://tool4boxology.org/hasProcess>,
+        rdf:type,
+        rdfs:label ;
+    semsd:hasSource <http://boxology_kg:8890/sparql/> .
+
+<http://tool4boxology.org/KG> a rdfs:Class ;
+    semsd:hasProperty rdf:type,
+        rdfs:label ;
+    semsd:hasSource <http://boxology_kg:8890/sparql/> .
+
+<http://tool4boxology.org/Model> a rdfs:Class ;
+    semsd:hasProperty <http://tool4boxology.org/inputRoleParticipatesInProcess>,
+        rdf:type,
+        rdfs:label ;
+    semsd:hasSource <http://boxology_kg:8890/sparql/> .
+
+<http://tool4boxology.org/Symbol> a rdfs:Class ;
+    semsd:hasProperty rdf:type,
+        rdfs:label ;
+    semsd:hasSource <http://boxology_kg:8890/sparql/> .
+
+<http://tool4boxology.org/Train> a rdfs:Class ;
+    semsd:hasProperty <http://tool4boxology.org/outputRoleParticipatesInProcess>,
+        rdf:type,
+        rdfs:label ;
+    semsd:hasSource <http://boxology_kg:8890/sparql/> .
+
+<http://tool4boxology.org/Transform> a rdfs:Class ;
+    semsd:hasProperty <http://tool4boxology.org/outputRoleParticipatesInProcess>,
+        rdf:type,
+        rdfs:label ;
+    semsd:hasSource <http://boxology_kg:8890/sparql/> .
+
+<http://ft4bkg:8890/sparql/> a semsd:DataSource ;
+    semsd:hasURL "http://ft4bkg:8890/sparql/"^^xsd:anyURI .
+
+<http://tool4boxology.org/hasInput> a rdf:Property ;
+    semsd:hasSource <http://boxology_kg:8890/sparql/> ;
+    semsd:propertyRange [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/DesignPattern> ;
+            rdfs:range <http://tool4boxology.org/Component> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/DesignPattern> ;
+            rdfs:range <http://tool4boxology.org/CNN> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/DesignPattern> ;
+            rdfs:range <http://tool4boxology.org/Model> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/DesignPattern> ;
+            rdfs:range <http://tool4boxology.org/Dataset> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/DesignPattern> ;
+            rdfs:range <http://tool4boxology.org/Data> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ] .
+
+<http://tool4boxology.org/hasOutput> a rdf:Property ;
+    semsd:hasSource <http://boxology_kg:8890/sparql/> ;
+    semsd:propertyRange [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/DesignPattern> ;
+            rdfs:range <http://tool4boxology.org/Component> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/DesignPattern> ;
+            rdfs:range <http://tool4boxology.org/Model> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/DesignPattern> ;
+            rdfs:range <http://tool4boxology.org/Dataset> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/DesignPattern> ;
+            rdfs:range <http://tool4boxology.org/Data> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/DesignPattern> ;
+            rdfs:range <http://tool4boxology.org/Symbol> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/DesignPattern> ;
+            rdfs:range <http://tool4boxology.org/KG> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ] .
+
+<http://tool4boxology.org/hasPattern> a rdf:Property ;
+    semsd:hasSource <http://boxology_kg:8890/sparql/> ;
+    semsd:propertyRange [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Boxology> ;
+            rdfs:range <http://tool4boxology.org/DesignPattern> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ] .
+
+<http://tool4boxology.org/hasProcess> a rdf:Property ;
+    semsd:hasSource <http://boxology_kg:8890/sparql/> ;
+    semsd:propertyRange [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/DesignPattern> ;
+            rdfs:range <http://tool4boxology.org/Component> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/DesignPattern> ;
+            rdfs:range <http://tool4boxology.org/Deduce> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/DesignPattern> ;
+            rdfs:range <http://tool4boxology.org/Transform> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/DesignPattern> ;
+            rdfs:range <http://tool4boxology.org/Train> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ] .
+
+<http://tool4boxology.org/outputRoleParticipatesInProcess> a rdf:Property ;
+    semsd:hasSource <http://boxology_kg:8890/sparql/> ;
+    semsd:propertyRange [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Transform> ;
+            rdfs:range <http://tool4boxology.org/Model> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Component> ;
+            rdfs:range <http://tool4boxology.org/Symbol> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Component> ;
+            rdfs:range <http://tool4boxology.org/KG> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Train> ;
+            rdfs:range <http://tool4boxology.org/Model> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Transform> ;
+            rdfs:range <http://tool4boxology.org/Dataset> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Deduce> ;
+            rdfs:range <http://tool4boxology.org/Symbol> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Deduce> ;
+            rdfs:range <http://tool4boxology.org/Component> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Transform> ;
+            rdfs:range <http://tool4boxology.org/Data> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Train> ;
+            rdfs:range <http://tool4boxology.org/Component> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Component> ;
+            rdfs:range <http://tool4boxology.org/Dataset> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Transform> ;
+            rdfs:range <http://tool4boxology.org/Component> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Component> ;
+            rdfs:range <http://tool4boxology.org/Component> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Transform> ;
+            rdfs:range <http://tool4boxology.org/KG> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Component> ;
+            rdfs:range <http://tool4boxology.org/Model> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Component> ;
+            rdfs:range <http://tool4boxology.org/Data> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ] .
+
+<http://tool4boxology.org/inputRoleParticipatesInProcess> a rdf:Property ;
+    semsd:hasSource <http://boxology_kg:8890/sparql/> ;
+    semsd:propertyRange [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Model> ;
+            rdfs:range <http://tool4boxology.org/Deduce> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Data> ;
+            rdfs:range <http://tool4boxology.org/Deduce> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/CNN> ;
+            rdfs:range <http://tool4boxology.org/Component> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Dataset> ;
+            rdfs:range <http://tool4boxology.org/Transform> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Data> ;
+            rdfs:range <http://tool4boxology.org/Train> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Data> ;
+            rdfs:range <http://tool4boxology.org/Component> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Component> ;
+            rdfs:range <http://tool4boxology.org/Deduce> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Component> ;
+            rdfs:range <http://tool4boxology.org/Train> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Model> ;
+            rdfs:range <http://tool4boxology.org/Component> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Component> ;
+            rdfs:range <http://tool4boxology.org/Component> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/CNN> ;
+            rdfs:range <http://tool4boxology.org/Transform> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Component> ;
+            rdfs:range <http://tool4boxology.org/Transform> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Data> ;
+            rdfs:range <http://tool4boxology.org/Transform> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Model> ;
+            rdfs:range <http://tool4boxology.org/Transform> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ],
+        [ a semsd:PropertyRange ;
+            rdfs:domain <http://tool4boxology.org/Dataset> ;
+            rdfs:range <http://tool4boxology.org/Component> ;
+            semsd:hasSource <http://boxology_kg:8890/sparql/> ] .
+
+rdf:type a rdf:Property ;
+    semsd:hasSource <http://boxology_kg:8890/sparql/> .
+
+rdfs:label a rdf:Property ;
+    semsd:hasSource <http://boxology_kg:8890/sparql/> .
+
+<http://boxology_kg:8890/sparql/> a semsd:DataSource ;
+    semsd:hasURL "http://boxology_kg:8890/sparql/"^^xsd:anyURI .
+
