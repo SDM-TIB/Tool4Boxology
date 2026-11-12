@@ -10,5 +10,5 @@ except ImportError:
     sys.path.remove(PACKAGE_DETRUSTY)
 
 if __name__ == '__main__':
-    create_rdfmts(['http://boxology_kg:8890/sparql/', 'http://ft4bkg:9092/sparql/'],
+    create_rdfmts(['http://boxology_kg:8890/sparql/', 'http://ft4bkg:8890/sparql/'],
                   '../source_descriptors/rdfmts.ttl')
