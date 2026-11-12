@@ -1,0 +1,18 @@
+version: "3.3"
+services:
+
+  ldmkg:
+    image: kemele/virtuoso:7-stable
+    hostname: ldmkg
+    container_name: ldmkg
+    domainname: ldm
+    volumes:
+      - ./rdf:/data/rdf-dump
+    ports:
+      - "18001:8890"
+    networks:
+      - ldm
+      
+networks:
+  ldm:
+    external: false
