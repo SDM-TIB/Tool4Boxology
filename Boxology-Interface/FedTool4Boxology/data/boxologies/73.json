@@ -1,0 +1,189 @@
+{
+  "metadata": {
+    "exportId": "93560587",
+    "userId": "user_6j7bc3lh",
+    "exportDate": "2026-11-09T20:41:03.049Z"
+  },
+  "boxologies": [
+    {
+      "id": "c5c91d87-789c-4844-a4da-c3e9460fe372",
+      "label": "c5c91d87-789c-4844-a4da-c3e9460fe372",
+      "DesignPattern": [
+        {
+          "id": "group_17942551704052",
+          "label": "2 KGE Inference",
+          "input": [
+            {
+              "id": "node_17942551704054",
+              "name": "NeuralModel",
+              "label": "KGE Engine"
+            },
+            {
+              "id": "node_1794255390448",
+              "name": "KG",
+              "label": "Canditate Triples"
+            },
+            {
+              "id": "node_17942551704057",
+              "name": "KG",
+              "label": "Reasoner Inferred Triples"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17942551704056",
+              "name": "KG",
+              "label": "KGE Inferred Triples"
+            }
+          ],
+          "process": {
+            "id": "node_179425517040510",
+            "name": "Deduce",
+            "label": "KGE Link Prediction"
+          }
+        },
+        {
+          "id": "group_1794256149431",
+          "label": "4 Triple Extraction",
+          "input": [
+            {
+              "id": "node_17942551704056",
+              "name": "KG",
+              "label": "KGE Inferred Triples"
+            },
+            {
+              "id": "node_17942551704057",
+              "name": "KG",
+              "label": "Reasoner Inferred Triples"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_1794256067205",
+              "name": "KG",
+              "label": "Final Triples"
+            }
+          ],
+          "process": {
+            "id": "node_1794256043615",
+            "name": "Transform",
+            "label": "Extract Triples"
+          }
+        },
+        {
+          "id": "group_1794256254793",
+          "name": "SymbolTransformSymbol",
+          "label": "Rule Simplification",
+          "input": [
+            {
+              "id": "node_1794255535445",
+              "name": "Rules",
+              "label": "Rules"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_1794255458379",
+              "name": "Rules",
+              "label": "Linear Rules"
+            }
+          ],
+          "process": {
+            "id": "node_1794255546763",
+            "name": "Transform",
+            "label": "Rule Simplification"
+          }
+        },
+        {
+          "id": "group_1794256294419",
+          "label": "KGE Training",
+          "input": [
+            {
+              "id": "node_17942551704051",
+              "name": "KG",
+              "label": "Input Knowledge Graph"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17942551704054",
+              "name": "NeuralModel",
+              "label": "KGE Engine"
+            }
+          ],
+          "process": {
+            "id": "node_1794255332814",
+            "name": "Train",
+            "label": "KGE Training"
+          }
+        },
+        {
+          "id": "group_1794256365132",
+          "label": "3 Ontology Reasoning",
+          "input": [
+            {
+              "id": "node_17942551704055",
+              "name": "SemanticModel",
+              "label": "OWL2 Reasoner Engine"
+            },
+            {
+              "id": "node_1794255458379",
+              "name": "Rules",
+              "label": "Linear Rules"
+            },
+            {
+              "id": "node_17942551704056",
+              "name": "KG",
+              "label": "KGE Inferred Triples"
+            },
+            {
+              "id": "node_17942551704051",
+              "name": "KG",
+              "label": "Input Knowledge Graph"
+            },
+            {
+              "id": "node_17942551704052",
+              "name": "Ontology",
+              "label": "OWL2 Ontology"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17942551704057",
+              "name": "KG",
+              "label": "Reasoner Inferred Triples"
+            }
+          ],
+          "process": {
+            "id": "node_1794255584812",
+            "name": "Deduce",
+            "label": "Forward Chaining inference"
+          }
+        },
+        {
+          "id": "group_1794256854136",
+          "label": "Canditate Triple Generator",
+          "input": [
+            {
+              "id": "node_17942551704051",
+              "name": "KG",
+              "label": "Input Knowledge Graph"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_1794255390448",
+              "name": "KG",
+              "label": "Canditate Triples"
+            }
+          ],
+          "process": {
+            "id": "node_1794256775137",
+            "name": "Transform",
+            "label": "Triple Generator"
+          }
+        }
+      ]
+    }
+  ]
+}

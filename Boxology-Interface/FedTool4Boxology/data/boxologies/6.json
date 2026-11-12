@@ -1,0 +1,124 @@
+{
+  "metadata": {
+    "exportId": "c5d5065c",
+    "userId": "user_6j7bc3lh",
+    "exportDate": "2026-11-09T17:10:10.621Z"
+  },
+  "boxologies": [
+    {
+      "id": "ef711ac0-a69e-4605-ad6e-be518e794a0c",
+      "label": "ef711ac0-a69e-4605-ad6e-be518e794a0c",
+      "DesignPattern": [
+        {
+          "id": "group_17942440409611",
+          "name": "SymbolTransformSymbol",
+          "label": "1a Input Parsing",
+          "input": [
+            {
+              "id": "node_17942440409612",
+              "name": "Rules",
+              "label": "EPFO Logical Queries"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17942440409614",
+              "name": "Rules",
+              "label": "Structured Sub-queries"
+            }
+          ],
+          "process": {
+            "id": "node_17942440409618",
+            "name": "Transform",
+            "label": "Query Decomposition Engine"
+          }
+        },
+        {
+          "id": "group_17942440409612",
+          "label": "1b Neural Prediction",
+          "input": [
+            {
+              "id": "node_17942440409611",
+              "name": "KG",
+              "label": "Incomplete Knowledge Graph"
+            },
+            {
+              "id": "node_17942440409613",
+              "name": "NeuralModel",
+              "label": "Neural Link Predictor"
+            },
+            {
+              "id": "node_17942440409614",
+              "name": "Rules",
+              "label": "Structured Sub-queries"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17942440409615",
+              "name": "NeuralModel",
+              "label": "Entity & Relation Embeddings"
+            }
+          ],
+          "process": {
+            "id": "node_17942440409619",
+            "name": "Deduce",
+            "label": "Atomic Query Evaluation"
+          }
+        },
+        {
+          "id": "group_17942440409613",
+          "label": "1c T-norm Aggregation",
+          "input": [
+            {
+              "id": "node_17942440409615",
+              "name": "NeuralModel",
+              "label": "Entity & Relation Embeddings"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17942440409616",
+              "name": "Tensor",
+              "label": "Sub-query Scores"
+            }
+          ],
+          "process": {
+            "id": "node_179424404096110",
+            "name": "Transform",
+            "label": "T-norm Aggregation Module"
+          }
+        },
+        {
+          "id": "group_17942440409614",
+          "name": "DataModelDeduceData",
+          "label": "1d Dual Optimization",
+          "input": [
+            {
+              "id": "node_17942440409613",
+              "name": "NeuralModel",
+              "label": "Neural Link Predictor"
+            },
+            {
+              "id": "node_17942440409616",
+              "name": "Tensor",
+              "label": "Sub-query Scores"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17942440409617",
+              "name": "Table",
+              "label": "Ranked Answer Entities"
+            }
+          ],
+          "process": {
+            "id": "node_179424404096111",
+            "name": "Deduce",
+            "label": "Optimization Module"
+          }
+        }
+      ]
+    }
+  ]
+}

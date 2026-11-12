@@ -1,0 +1,118 @@
+{
+  "metadata": {
+    "exportId": "f15e702a",
+    "userId": "user_6j7bc3lh",
+    "exportDate": "2026-11-09T09:56:36.559Z"
+  },
+  "boxologies": [
+    {
+      "id": "132f420d-28e5-4d61-b2ad-35113062e82e",
+      "label": "132f420d-28e5-4d61-b2ad-35113062e82e",
+      "DesignPattern": [
+        {
+          "id": "group_17942175129391",
+          "label": "1a Ingestion and KG Construction",
+          "input": [
+            {
+              "id": "node_17942175129391",
+              "name": "Dataset",
+              "label": "NuScenes & Lyft Driving Segments"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17942175129392",
+              "name": "KG",
+              "label": "Mini Knowledge Graphs"
+            }
+          ],
+          "process": {
+            "id": "node_17942175129396",
+            "name": "Transform",
+            "label": "Build Knowledge Graphs"
+          }
+        },
+        {
+          "id": "group_17942175129393",
+          "name": "DataTransformData",
+          "label": "1c Dimensionality Reduction",
+          "input": [
+            {
+              "id": "node_1794217802413",
+              "name": "Data",
+              "label": "KG Embeddings"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17942175129394",
+              "name": "Tensor",
+              "label": "2D t-SNE Projections"
+            }
+          ],
+          "process": {
+            "id": "node_17942175129398",
+            "name": "Transform",
+            "label": "t-SNE Projection"
+          }
+        },
+        {
+          "id": "group_1794217901681",
+          "label": "1b Embedding Generation",
+          "input": [
+            {
+              "id": "node_17942175129392",
+              "name": "KG",
+              "label": "Mini Knowledge Graphs"
+            },
+            {
+              "id": "node_17942175129393",
+              "name": "NeuralModel",
+              "label": "KG Embedding Model"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_1794217802413",
+              "name": "Data",
+              "label": "KG Embeddings"
+            }
+          ],
+          "process": {
+            "id": "node_17942175129397",
+            "name": "Transform",
+            "label": "Generate 100D Embeddings"
+          }
+        },
+        {
+          "id": "group_1794218178909",
+          "label": "1d Scenario Clustering",
+          "input": [
+            {
+              "id": "node_17942175129394",
+              "name": "Tensor",
+              "label": "2D t-SNE Projections"
+            },
+            {
+              "id": "node_1794218091349",
+              "name": "ClusteringModel",
+              "label": "Clustering Model"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17942175129395",
+              "name": "Classes",
+              "label": "Driving Scenario Clusters"
+            }
+          ],
+          "process": {
+            "id": "node_17942175129399",
+            "name": "Deduce",
+            "label": "Cluster Scenarios"
+          }
+        }
+      ]
+    }
+  ]
+}

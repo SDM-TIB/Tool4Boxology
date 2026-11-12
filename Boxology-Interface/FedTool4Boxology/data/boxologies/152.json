@@ -1,0 +1,94 @@
+{
+  "metadata": {
+    "exportId": "da7b1d41",
+    "userId": "user_6j7bc3lh",
+    "exportDate": "2026-11-09T16:48:42.213Z"
+  },
+  "boxologies": [
+    {
+      "id": "41e6ffff-c9f8-40b1-872e-a1f97c997e4c",
+      "label": "41e6ffff-c9f8-40b1-872e-a1f97c997e4c",
+      "DesignPattern": [
+        {
+          "id": "group_17942424863802",
+          "label": "2c Base GNN",
+          "input": [
+            {
+              "id": "node_17942424863802",
+              "name": "Tensor",
+              "label": "Processed Graph Tensors"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17942424863804",
+              "name": "GNN",
+              "label": "Base GCN/GAT Model"
+            }
+          ],
+          "process": {
+            "id": "node_17942424863809",
+            "name": "Train",
+            "label": "Train Base GNN"
+          }
+        },
+        {
+          "id": "group_1794242857177",
+          "label": "1c Inputs",
+          "input": [
+            {
+              "id": "node_1794242731908",
+              "name": "KG",
+              "label": "Graph Data"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17942424863802",
+              "name": "Tensor",
+              "label": "Processed Graph Tensors"
+            }
+          ],
+          "process": {
+            "id": "node_17942424863808",
+            "name": "Transform",
+            "label": "Prepare Graph and Rules"
+          }
+        },
+        {
+          "id": "group_1794242917511",
+          "label": "3c Knowledge Enhancement",
+          "input": [
+            {
+              "id": "node_17942424863804",
+              "name": "GNN",
+              "label": "Base GCN/GAT Model"
+            },
+            {
+              "id": "node_17942424863805",
+              "name": "Classes",
+              "label": "Initial Node Class Predictions"
+            },
+            {
+              "id": "node_17942424863803",
+              "name": "Rules",
+              "label": "First-Order Logic Rules"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17942424863806",
+              "name": "Classes",
+              "label": "Refined Node Class Predictions"
+            }
+          ],
+          "process": {
+            "id": "node_179424248638010",
+            "name": "Deduce",
+            "label": "Fuzzy Logic Knowledge Enhancement"
+          }
+        }
+      ]
+    }
+  ]
+}

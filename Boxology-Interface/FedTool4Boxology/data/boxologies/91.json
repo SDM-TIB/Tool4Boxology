@@ -1,0 +1,119 @@
+{
+  "metadata": {
+    "exportId": "4f276d48",
+    "userId": "user_6j7bc3lh",
+    "exportDate": "2026-11-09T21:36:09.201Z"
+  },
+  "boxologies": [
+    {
+      "id": "295879cc-3ad6-4d21-9730-ebbdaf10966b",
+      "label": "295879cc-3ad6-4d21-9730-ebbdaf10966b",
+      "DesignPattern": [
+        {
+          "id": "group_17942598487651",
+          "label": "1 Temporal KG Ingestion",
+          "input": [
+            {
+              "id": "node_17942598487651",
+              "name": "KG",
+              "label": "Temporal Knowledge Graph"
+            },
+            {
+              "id": "node_17942598487652",
+              "name": "Constraints",
+              "label": "Complex Logical Queries"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17942598487653",
+              "name": "Rules",
+              "label": "Structured TKG & Queries"
+            }
+          ],
+          "process": {
+            "id": "node_17942598487656",
+            "name": "Transform",
+            "label": "Process TKG and Queries"
+          }
+        },
+        {
+          "id": "group_17942598487652",
+          "name": "SymbolTrainModel",
+          "label": "2 TFLEX Embedding Module",
+          "input": [
+            {
+              "id": "node_17942598487653",
+              "name": "Rules",
+              "label": "Structured TKG & Queries"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17942598487654",
+              "name": "NeuralModel",
+              "label": "Joint Feature-Logic Embeddings"
+            }
+          ],
+          "process": {
+            "id": "node_17942598487657",
+            "name": "Train",
+            "label": "TFLEX Embedding Generation"
+          }
+        },
+        {
+          "id": "group_17942598487653",
+          "name": "SymbolModelDeduceData",
+          "label": "3 Logical Operators & Deduce",
+          "input": [
+            {
+              "id": "node_17942598487654",
+              "name": "NeuralModel",
+              "label": "Joint Feature-Logic Embeddings"
+            },
+            {
+              "id": "node_17942598487653",
+              "name": "Rules",
+              "label": "Structured TKG & Queries"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17942598487655",
+              "name": "Number",
+              "label": "Scored Candidate Answers"
+            }
+          ],
+          "process": {
+            "id": "node_17942598487658",
+            "name": "Deduce",
+            "label": "Logical Operators & Distance Scoring"
+          }
+        },
+        {
+          "id": "group_17942598487654",
+          "label": "4 Training Module",
+          "input": [
+            {
+              "id": "node_17942598487654",
+              "name": "NeuralModel",
+              "label": "Joint Feature-Logic Embeddings"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17942598487654",
+              "name": "NeuralModel",
+              "label": "Joint Feature-Logic Embeddings"
+            }
+          ],
+          "process": {
+            "id": "node_17942598487659",
+            "name": "Train",
+            "label": "Negative Sampling Optimization"
+          }
+        }
+      ]
+    }
+  ]
+}

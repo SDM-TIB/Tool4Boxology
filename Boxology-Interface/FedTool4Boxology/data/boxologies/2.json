@@ -1,0 +1,100 @@
+{
+  "metadata": {
+    "exportId": "1609545c",
+    "userId": "user_6j7bc3lh",
+    "exportDate": "2026-11-09T17:35:09.805Z"
+  },
+  "boxologies": [
+    {
+      "id": "eccd5b44-e742-4602-995d-e652f66e56f0",
+      "label": "eccd5b44-e742-4602-995d-e652f66e56f0",
+      "DesignPattern": [
+        {
+          "id": "group_17942455242101",
+          "name": "SymbolDataTransformData",
+          "label": "1 Data and Constraints",
+          "input": [
+            {
+              "id": "node_17942455242101",
+              "name": "Dataset",
+              "label": "Labeled Examples"
+            },
+            {
+              "id": "node_17942455242102",
+              "name": "Dataset",
+              "label": "Unlabeled Examples"
+            },
+            {
+              "id": "node_17942455242103",
+              "name": "Rules",
+              "label": "Tractable Logic Circuit"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17942455242104",
+              "name": "Dataset",
+              "label": "Prepared Data & Constraints"
+            }
+          ],
+          "process": {
+            "id": "node_17942455242107",
+            "name": "Transform",
+            "label": "Prepare Dataset & Constraints"
+          }
+        },
+        {
+          "id": "group_17942455242102",
+          "label": "2 Neuro-Symbolic Training",
+          "input": [
+            {
+              "id": "node_17942455242104",
+              "name": "Dataset",
+              "label": "Prepared Data & Constraints"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17942455242105",
+              "name": "NeuralNetwork",
+              "label": "Neural Network Model"
+            }
+          ],
+          "process": {
+            "id": "node_17942455242108",
+            "name": "Train",
+            "label": "Neuro-Symbolic Entropy Regularization Training"
+          }
+        },
+        {
+          "id": "group_17942455242103",
+          "label": "3 Structured Prediction",
+          "input": [
+            {
+              "id": "node_17942455242105",
+              "name": "NeuralNetwork",
+              "label": "Neural Network Model"
+            },
+            {
+              "id": "node_17942455242104",
+              "name": "Dataset",
+              "label": "Prepared Data & Constraints"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17942455242106",
+              "name": "Dataset",
+              "label": "Structured Predictions"
+            }
+          ],
+          "process": {
+            "id": "node_17942455242109",
+            "name": "Deduce",
+            "label": "Structured Output Inference"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "metadata": {
+    "exportId": "89fc2121",
+    "userId": "user_6j7bc3lh",
+    "exportDate": "2026-11-09T21:17:40.483Z"
+  },
+  "boxologies": [
+    {
+      "id": "9f038646-794e-4b3b-9f78-c3827f6b2079",
+      "label": "9f038646-794e-4b3b-9f78-c3827f6b2079",
+      "DesignPattern": [
+        {
+          "id": "group_17942588790713",
+          "label": "3 KGE Training",
+          "input": [
+            {
+              "id": "node_17942588790711",
+              "name": "KG",
+              "label": "Observed Triples (O)"
+            },
+            {
+              "id": "node_17942588790714",
+              "name": "Map",
+              "label": "Truth Assignments vTH & vFH"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17942588790715",
+              "name": "NeuralModel",
+              "label": "Entity/Relation Embeddings"
+            }
+          ],
+          "process": {
+            "id": "node_17942588790719",
+            "name": "Train",
+            "label": "KGE Training"
+          }
+        },
+        {
+          "id": "group_17942588790714",
+          "label": "4 Embedding Inference",
+          "input": [
+            {
+              "id": "node_17942588790715",
+              "name": "NeuralModel",
+              "label": "Entity/Relation Embeddings"
+            },
+            {
+              "id": "node_17942588790711",
+              "name": "KG",
+              "label": "Observed Triples (O)"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17942588790716",
+              "name": "KG",
+              "label": "Final Updated Knowledge Graph"
+            }
+          ],
+          "process": {
+            "id": "node_179425887907110",
+            "name": "Deduce",
+            "label": "Embedding-based Inference"
+          }
+        },
+        {
+          "id": "group_1794259055757",
+          "label": "2 Logical Reasoning",
+          "input": [
+            {
+              "id": "node_17942588790713",
+              "name": "RuleBasedModel",
+              "label": "Rule-Based Engine"
+            },
+            {
+              "id": "node_17942588790712",
+              "name": "Rules",
+              "label": "Definite Horn Rules"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17942588790714",
+              "name": "Map",
+              "label": "Truth Assignments vTH & vFH"
+            }
+          ],
+          "process": {
+            "id": "node_17942588790718",
+            "name": "Deduce",
+            "label": "Forward Chaining Reasoning"
+          }
+        }
+      ]
+    }
+  ]
+}

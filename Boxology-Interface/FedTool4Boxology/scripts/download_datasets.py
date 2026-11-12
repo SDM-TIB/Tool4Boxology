@@ -5,7 +5,7 @@ import json
 global organization
 organization = "Leibniz Universität Hannover"
 global group
-group = "Tool4Boxology Semantic Ecosystem "
+group = "Tool4Boxology Semantic Ecosystem"
 
 user_token = ""
 
@@ -23,7 +23,7 @@ def download_metadata():
 
 	while True:
 		params = {
-			"fq": f"organization:leibniz-universitat-hannover",
+			"fq": f"groups:tool4boxology-semantic-ecosystem",
 			"rows": ROWS,
 			"start": start
 		}
