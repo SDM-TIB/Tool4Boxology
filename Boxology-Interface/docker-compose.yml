@@ -97,31 +97,6 @@ services:
       - "18001:8890"
     networks:
       - boxology-network
-  
-  ft4b_travshacl_data:
-    container_name: ft4b_travshacl_data
-    image: prohde/virtuoso-opensource-7:7.2.14-alpine
-    volumes:
-      - ./FedTool4Boxology/ntfiles:/database/toLoad
-      - ./FedTool4Boxology/virtuoso-travshacl:/database
-    mem_limit: 4g
-    ports:
-      - '9092:8890'
-    networks:
-      - boxology-network
-
-  ft4b_travshacl_engine:
-    container_name: ft4b_travshacl_engine
-    image: sdmtib/travshacl:latest
-    volumes:
-      - ./FedTool4Boxology/shapes:/shapes
-    mem_limit: 4g
-    ports:
-      - '9091:5000'
-    networks:
-      - boxology-network
-    depends_on:
-      - ft4b_travshacl_data
 
 networks:
   boxology-network:

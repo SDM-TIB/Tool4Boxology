@@ -47,13 +47,13 @@ def sub_queries_generation(data):
 
 def execute_sparql_sentence(sparql_query):
 
-	sparql = SPARQLWrapper("http://localhost:18001/sparql")
-
+	sparql = SPARQLWrapper("http://localhost:8890/sparql-auth", defaultGraph="http://tool4boxology.org/")
+	sparql.setHTTPAuth(DIGEST)
+	sparql.setCredentials("dba", "dba")
+	sparql.setMethod(POST)
 	sparql.setReturnFormat(JSON)
 
 	sparql.setQuery(sparql_query)
-
-	results = sparql.query()
 
 	try:
 		results = sparql.query()

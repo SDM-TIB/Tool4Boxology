@@ -6,7 +6,7 @@ import GoDiagram from './GoDiagram';
 import { saveWithPicker } from './utils/fs-save';
 import * as go from 'gojs';
 import RightSidebar from './components/sidebar/RightSidebar';
-import AddonRightSidebar from './components/sidebar/AddonRightSidebar';
+import AddonRightSidebar from './components/sidebar/AddonRightSidebar_old';
 import ContextMenu from './components/ContextMenu';
 import { validateElementaryOnlyDiagram, validateGoJSDiagram } from './plugin/GoJSBoxologyValidation';
 import { v4 as uuidv4 } from 'uuid';

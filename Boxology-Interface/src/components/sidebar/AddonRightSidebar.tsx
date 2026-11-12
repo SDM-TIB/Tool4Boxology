@@ -1,16 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import * as go from 'gojs';
-import { v4 as uuidv4 } from 'uuid';
-import ExCls from '../../Examples/Pain-Cls-Example.json';
-import ExSeg from '../../Examples/MRI-seg-Example.json';
-import InstructionDialog from '../dialogs/InstructionDialog';
-import QueryExplorerDialog from '../dialogs/QueryExplorerDialog';
-import WorkflowImg from '../../assets/WorkFlow.png';
-import { generateMultiPageRMLExport } from '../../utils/exportHelpers';
-import { shapes, shapeTypesMin } from '../../data/shape';
+import React, { useEffect, useRef, useState } from 'react';
+import type * as go from 'gojs';
 import { getButtonStyle, getMenuButtonStyle } from '../../styles/buttonStyles';
-import { colors } from '../../styles/theme';
-import { API_BASE } from '../../config';
 
 interface RightSidebarProps {
   selectedData: {
@@ -27,107 +17,49 @@ interface RightSidebarProps {
   currentPageId: string;
   setPages: (pages: any[]) => void;
   setCurrentPageId: (id: string) => void;
+  isKgGenerated: boolean;
+  showToast: (message: string, type: 'warning') => void;
 }
 
 interface Paper {
   id: string;
   label: string;
-  paper_url: string;
+  matchingCount: string;
   authors: string[];
   dataset_urls: string[];
-  matchingCount: string;
+  paper_url: string;
+  description: string;
+  year: string;
+}
+interface Binding {
+  type: string;
+  value: string;
 }
 
-  const PREFIXES = `PREFIX t4b: <http://tool4boxology.org/>
-  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
-  PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>`;
-
-  const DEFAULT_QUERY = `${PREFIXES}
-
-  SELECT ?boxology ?label
-  WHERE {
-    ?boxology a t4b:Boxology ;
-              rdfs:label ?label .
+// Only render web links. The current query does not select publication metadata.
+function safeUrl(value?: string): string {
+  if (!value) return '';
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' || url.protocol === 'http:' ? url.href : '';
+  } catch {
+    return '';
   }
-  LIMIT 100`;
+}
 
-export default function AddonRightSidebar({ selectedData, diagramRef, pages, currentPageId, setPages, setCurrentPageId, isKgGenerated, showToast }: RightSidebarProps) {
-  const [activeSection, setActiveSection] = useState<string | null>(null);
-  const [evaluationsSearched, setEvaluationsSearched] = useState(false);
-  const [evaluationsFound, setEvaluationsFound] = useState(false);
-  const [isRunning, setIsRunning] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [hasRun, setHasRun] = useState(false);
-  const [userBoxologyLabel, setUserBoxologyLabel] = useState('');
-  const [paperBoxologyLabel, setPaperBoxologyLabel] = useState('');
-  const [papers, setPapers] = useState<Paper[]>([]);
+const PREFIXES = `PREFIX t4b: <http://tool4boxology.org/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>`;
 
-  // Check how many objects are selected and detect links
+// JSON string escapes also protect quotes, backslashes and newlines in SPARQL literals.
+function escapeLiteral(value: string): string {
+  return JSON.stringify(value).slice(1, -1);
+}
 
-  const processTypeQuery = `${PREFIXES}
-
-  SELECT ?processType (COUNT(DISTINCT ?patternA) AS ?countInSystemA) (COUNT(DISTINCT ?patternB) AS ?countInSystemB) WHERE {
-    {
-      ?boxologyA rdfs:label "${userBoxologyLabel}" ;
-                t4b:hasPattern ?patternA .
-      ?patternA t4b:hasProcess ?processA .
-      ?processA a ?processType .
-    }
-    UNION
-    {
-      ?boxologyB rdfs:label "${paperBoxologyLabel}" ;
-                t4b:hasPattern ?patternB .
-      ?patternB t4b:hasProcess ?processB .
-      ?processB a ?processType .
-    }
-  }
-  GROUP BY ?processType
-  FILTER(?countInSystemA == ?countInSystemB)`
-
-  const sharedPatternTypesQuery =  `${PREFIXES}
-
-            SELECT ?otherBoxology ?otherLabel (COUNT(DISTINCT ?sharedType) AS ?sharedPatternTypes) WHERE {
-              ?refBoxology rdfs:label "${userBoxologyLabel}" ;
-                          t4b:hasPattern ?refPattern .
-              ?refPattern t4b:hasProcess ?refProcess .
-              ?refProcess a ?sharedType .
-
-              ?otherBoxology t4b:hasPattern ?otherPattern ;
-                            rdfs:label ?otherLabel .
-              ?otherPattern t4b:hasProcess ?otherProcess .
-              ?otherProcess a ?sharedType .
-
-              FILTER(?otherBoxology != ?refBoxology)
-            }
-            GROUP BY ?otherBoxology ?otherLabel
-            ORDER BY DESC(?sharedPatternTypes)`
-
-  function shortenUri(uri: string): string {
-    if (uri.startsWith('http://tool4boxology.org/')) return 't4b:' + uri.slice('http://tool4boxology.org/'.length);
-    if (uri.startsWith('http://www.w3.org/2000/01/rdf-schema#')) return 'rdfs:' + uri.slice('http://www.w3.org/2000/01/rdf-schema#'.length);
-    return uri;
-  }
-
-  function formatBindingValue(binding?: { type: string; value: string }): string {
-    if (!binding) return '';
-    return binding.type === 'uri' ? shortenUri(binding.value) : binding.value;
-  }
-
-  useEffect(() => {
-    console.log("Active Section:", activeSection); 
-  }, [activeSection]); 
-
-  const runQuery = async (userBoxologyLabel: any, paperBoxologyLabel: string) => {
-      setIsRunning(true);
-      setError(null);
-      console.log(userBoxologyLabel)
-      try {
-        const res = await fetch(`http://localhost:5000/sparql`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: 
-            `${PREFIXES}
+// Preserve the original count-based pattern comparison.
+// This score describes matching type combinations, not complete graph equivalence.
+function buildQuery(label: string): string {
+  return `${PREFIXES}
 
             SELECT DISTINCT ?boxology ?otherLabel (SUM(?countInSystemA) AS ?sameCount) WHERE {
               {SELECT DISTINCT ?boxology ?otherLabel ?inputType ?outputType ?processType
@@ -150,10 +82,10 @@ export default function AddonRightSidebar({ selectedData, diagramRef, pages, cur
                   ?pattern t4b:hasProcess ?process .
                   OPTIONAL { ?process rdf:type ?processType }
                 }
-                #FILTER(?otherLabel != "${userBoxologyLabel}")
+                FILTER(?otherLabel != "${escapeLiteral(label)}")
 
                 OPTIONAL {
-                  ?boxologyB rdfs:label "${userBoxologyLabel}" ;
+                  ?boxologyB rdfs:label "${escapeLiteral(label)}" ;
                             t4b:hasPattern ?patternB .
                   ?patternB rdf:type t4b:DesignPattern .
 
@@ -179,260 +111,161 @@ export default function AddonRightSidebar({ selectedData, diagramRef, pages, cur
               }
               GROUP BY ?boxology ?otherLabel
               ORDER BY DESC(?sameCount)
-            `
-          }),
-        });
-        if (!res.ok) {
-          const text = await res.text().catch(() => '');
-          throw new Error(`Query failed (${res.status}): ${text || res.statusText}`);
-        }
-        const data = await res.json();
-        setHasRun(true);
-        setEvaluationsSearched(true);
-  
-        if (typeof data?.boolean === 'boolean') {
-          console.log(['result'])//setColumns(['result']);
-          console.log([{ result: String(data.boolean) }])//setRows([{ result: String(data.boolean) }]);
-          return;
-        }
-  
-        const vars: string[] = data?.head?.vars || [];
-        console.log(data?.results?.bindings)
-        const bindings: Record<string, { type: string; value: string }>[] = data?.results?.bindings || [];
-        console.log(vars) // setColumns(vars);
-        const unique = new Map<string, Paper>();
-        //TODO: group bindings together
-        for (const binding of bindings) {
-          const id = binding.boxology?.value;
-          if (!id) continue;
-          
-          unique.set(id, {
-            id,
-            label: binding.otherLabel?.value || id,
-            matchingCount: binding.sameCount?.value || '0',
-            paper_url: binding.paper_url?.value || '',
-            authors: [],
-            dataset_urls: [],
-          });
-        }
-        setPapers(Array.from(unique.values()));
-        console.log(papers)
+            `;
+}
 
-      } catch (err: any) {
-        setError(err?.message || 'Query failed. Is the backend / Virtuoso endpoint reachable?');
-        setEvaluationsFound(false);
-        setEvaluationsSearched(true);
-        setHasRun(true);
-      } finally {
+export default function AddonRightSidebar({
+  diagramRef, pages, currentPageId, isKgGenerated, showToast,
+}: RightSidebarProps) {
+  const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [papers, setPapers] = useState<Paper[]>([]);
+  const [isRunning, setIsRunning] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const requestRef = useRef<AbortController | null>(null);
+  const currentPage = pages.find((page) => page.id === currentPageId);
+  const pageLabel = currentPage?.boxologyLabel;
+
+  useEffect(() => {
+    requestRef.current?.abort();
+    requestRef.current = null;
+    setActiveSection(null);
+    setPapers([]);
+    setIsRunning(false);
+    setHasSearched(false);
+    setError(null);
+    return () => {
+      requestRef.current?.abort();
+      requestRef.current = null;
+    };
+  }, [currentPageId, pageLabel, isKgGenerated]);
+
+  const searchForEvaluations = async () => {
+    if (!isKgGenerated) {
+      showToast('No Knowledge Graph is available. Create the KG first.', 'warning');
+      return;
+    }
+    const label = pageLabel || diagramRef.current?.model.modelData?.boxologyLabel;
+    if (typeof label !== 'string' || !label.trim()) {
+      setError('No Boxology label is available for the current page.');
+      return;
+    }
+
+    requestRef.current?.abort();
+    const controller = new AbortController();
+    requestRef.current = controller;
+    setIsRunning(true);
+    setError(null);
+    setHasSearched(false);
+    setPapers([]);
+    setActiveSection(null);
+    try {
+      const response = await fetch('/detrusty/sparql', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Accept: 'application/sparql-results+json, application/json',
+        },
+        signal: controller.signal,
+        body: new URLSearchParams({ query: buildQuery(label) }),
+      });
+      if (!response.ok) {
+        const detail = await response.text();
+        throw new Error(`Query failed (${response.status}): ${detail || response.statusText}`);
+      }
+      const responseText = await response.text();
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch {
+        throw new Error('DeTrusty returned a non-JSON response. Check the Vite proxy and /sparql route.');
+      }
+      if (data?.error) {
+        throw new Error(typeof data.error === 'string' ? data.error : JSON.stringify(data.error));
+      }
+      if (!Array.isArray(data?.results?.bindings)) {
+        throw new Error('The endpoint did not return SPARQL SELECT results.');
+      }
+      if (requestRef.current !== controller) return;
+      const bindings = data.results.bindings as Record<string, Binding>[];
+      const unique = new Map<string, Paper>();
+      for (const binding of bindings) {
+        const id = binding.boxology?.value;
+        if (!id) continue;
+        unique.set(id, {
+          id,
+          label: binding.otherLabel?.value || id,
+          matchingCount: binding.sameCount?.value || '0',
+          authors: Array.from(new Set([...(unique.get(id)?.authors || []), ...(binding.author?.value ? [binding.author.value] : [])])),
+          dataset_urls: Array.from(new Set([...(unique.get(id)?.dataset_urls || []), ...(safeUrl(binding.dataset_url?.value) ? [safeUrl(binding.dataset_url?.value)] : [])])),
+          paper_url: safeUrl(binding.paper_url?.value) || unique.get(id)?.paper_url || '',
+          description: binding.description?.value || unique.get(id)?.description || '',
+          year: binding.year?.value || unique.get(id)?.year || '',
+        });
+      }
+      setPapers(Array.from(unique.values()));
+      setHasSearched(true);
+    } catch (cause: unknown) {
+      if (controller.signal.aborted || requestRef.current !== controller) return;
+      setError(cause instanceof Error ? cause.message : 'Failed to query the knowledge graph.');
+    } finally {
+      if (requestRef.current === controller) {
+        requestRef.current = null;
         setIsRunning(false);
       }
-    };
-
-  const searchForEvaluations = () => {
-    setEvaluationsSearched(true);
-    setEvaluationsFound(true);
-    setUserBoxologyLabel(diagramRef.current.model.label);
-    //console.log(diagramRef.current);
-    //console.log(diagramRef.current.model);
-    //console.log(diagramRef.current.model.label);
-    console.log(currentPageId);
-    // Get current page
-    const currentPage = pages.find((p) => p.id === currentPageId);
-    console.log(currentPage.boxologyLabel)
-
-    setPaperBoxologyLabel('Pain-Classification');
-    //setQueryText(processTypeQuery);
-    //console.log(queryText)
-    runQuery(currentPage.boxologyLabel, 'Pain-Classification');
-
-    //TODO: Run queries and display results
-    /*python file with 
-    query = "ASK WHERE { " + query + " .}"
-		sparql.setReturnFormat(JSON)
-		sparql.setQuery(query)
-		results = sparql.query().convert()*/
-  }
-
-  const displayNoKgError = () => {
-    showToast('No Knowledge Graph is available to search for linked Papers. Create the KG first.', 'warning');
-  }
-
-  const activePaperSection: any[] = [];
-
-  /*setPaperButtons(
-    
-  ); */
+    }
+  };
 
   return (
-    <div
-      style={{
-        width: 300,
-        background: '#f9f9f9',
-        padding: 12,
-        overflowY: 'auto',
-        height: '100%',
-        borderLeft: '1px solid #ddd',
-        fontSize: '13px'
-      }}
-    >
-      {!evaluationsSearched && !isKgGenerated && (
-        <div style={{ marginBottom: 12, padding: 12, background: '#ffffff', borderRadius: 14, border: '1px solid #e5e7eb' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left', fontSize: 14, fontWeight: 700, color: '#6b7280', marginBottom: 10}}>
-            <span>No KG found!</span>
-            <span style={{ fontSize: 12, fontWeight: 500, color: '#64748b' }}>
-                No Knowledge Graph found! Please generate the KG before searching for linked papers.
-            </span>
-          </div>
-          <button onClick={() => displayNoKgError()} style={getButtonStyle()}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <span>Search</span>
-            </div>
-          </button>
-        </div>
-      )}
-      {!evaluationsSearched && isKgGenerated && (
-        <div style={{ marginBottom: 12, padding: 12, background: '#ffffff', borderRadius: 14, border: '1px solid #e5e7eb' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left', fontSize: 14, fontWeight: 700, color: '#6b7280', marginBottom: 10}}>
-            <span>KG ready!</span>
-            <span style={{ fontSize: 12, fontWeight: 500, color: '#64748b' }}>
-                Knowledge Graph is generated. You can now search for linked papers.
-            </span>
-          </div>
-          <button onClick={() => searchForEvaluations()} style={getButtonStyle()}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <span>Search</span>
-            </div>
-          </button>
-        </div>
-      )}
-      {(evaluationsSearched && evaluationsFound) && (
-        <div style={{ marginBottom: 12, padding: 12, background: '#ffffff', borderRadius: 14, border: '1px solid #e5e7eb' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#6b7280', marginBottom: 10, letterSpacing: 0.6 }}>
-            LINKED PAPERS
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {papers.map((paper) => {
-              const isOpen = activeSection === paper.id;
-              return(
-              <React.Fragment key={paper.id}>
-                <button onClick={() => setActiveSection(paper.id)} style={getMenuButtonStyle(isOpen)}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
-                    <span>Example Paper Title {paper.label}</span>
-                    <span style={{ fontSize: 11, fontWeight: 500, color: isOpen ? '#cbd5f5' : '#64748b' }}>
-                      Example Paper Description {paper.label}
-                    </span>
-                  </div>
+    <div style={{ width: 300, background: '#f9f9f9', padding: 12,
+      overflowY: 'auto', height: '100%', borderLeft: '1px solid #ddd', fontSize: 13 }}>
+      <div style={{ padding: 12, background: '#fff', borderRadius: 14, border: '1px solid #e5e7eb' }}>
+        <strong style={{ display: 'block', marginBottom: 10, color: '#6b7280' }}>
+          LINKED PAPERS / BOXOLOGIES
+        </strong>
+        {!isKgGenerated && <p>Generate the Knowledge Graph before searching for linked papers.</p>}
+        {isKgGenerated && !hasSearched && !isRunning && !error && (
+          <p>The Knowledge Graph is ready. Search for matching Boxologies.</p>
+        )}
+        {error && <p role="alert" style={{ color: '#b91c1c', overflowWrap: 'anywhere' }}>{error}</p>}
+        {isRunning && <p role="status">Searching for matching Boxologies…</p>}
+        {hasSearched && papers.length === 0 && (
+          <p>No matching Boxologies were found in the database. This does not mean that no relevant paper exists.</p>
+        )}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {papers.map((paper) => {
+            const isOpen = activeSection === paper.id;
+            return (
+              <div key={paper.id}>
+                <button type="button" aria-expanded={isOpen}
+                  onClick={() => setActiveSection(isOpen ? null : paper.id)}
+                  style={getMenuButtonStyle(isOpen)}>
+                  {paper.label}
                 </button>
                 {isOpen && (
-                  <div style={{ marginBottom: 12, padding: 8, background: '#fff', borderRadius: 6, border: '1px solid #eee' }}>
-                    <strong style={{ display: 'block', marginBottom: 6, fontWeight: '600', fontSize: '14px', color: '#1b1b1bff' }}>Example Paper Titel {paper.label}</strong>
-                    <p style={{ fontSize: 12, color: '#555', marginBottom: 10 }}>
-                      {paper.description}
-                    </p>
-                    {papers.authors.map((author) => {
-                      return(
-                        <p style={{ fontSize: 12, color: '#555'}}>
-                          <strong>Author:</strong> {author}
-                        </p>
-                      );
-                    })}
-                    <p style={{ fontSize: 12, color: '#555'}}>
-                      <strong>Year:</strong> {paper.year}
-                    </p>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <a style={getButtonStyle()} href={paper.paper_url}>Link to Paper</a>
-                    </div>
-                    {papers.dataset_urls.map((dataset_url) => {
-                      return(
-                        <div style={{ display: 'flex', gap: 8 }}>
-                          <a style={getButtonStyle()} href={dataset_url}>Link to Dataset</a>
-                        </div>
-                      );
-                    })}
+                  <div style={{ padding: 8, marginTop: 6, border: '1px solid #eee', borderRadius: 6 }}>
+                    <strong>{paper.label}</strong>
+                    <p>Matching count: {paper.matchingCount}</p>
+                    <p style={{ overflowWrap: 'anywhere' }}>Boxology: {paper.id}</p>
+                    {paper.description && <p>{paper.description}</p>}
+                    {paper.authors.map((author) => <p key={author}>Author: {author}</p>)}
+                    {paper.year && <p>Year: {paper.year}</p>}
+                    {paper.paper_url && <p><a href={paper.paper_url} target="_blank" rel="noopener noreferrer">Open paper</a></p>}
+                    {paper.dataset_urls.map((url) => (
+                      <p key={url}><a href={url} target="_blank" rel="noopener noreferrer">Open dataset</a></p>
+                    ))}
+                    {!paper.paper_url && <p>Publication metadata is not returned by the current query.</p>}
                   </div>
                 )}
-                </React.Fragment>
-              );
-            })}
-            <>//Example begins here
-              <button onClick={() => setActiveSection('paper1')} style={getMenuButtonStyle(activeSection === 'paper1')}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
-                  <span>Example Paper Title 1</span>
-                  <span style={{ fontSize: 11, fontWeight: 500, color: activeSection === 'paper1' ? '#cbd5f5' : '#64748b' }}>
-                    Example Paper Description 1
-                  </span>
-                </div>
-              </button>
-              {(activeSection === 'paper1') && (
-                <div style={{ marginBottom: 12, padding: 8, background: '#fff', borderRadius: 6, border: '1px solid #eee' }}>
-                  <strong style={{ display: 'block', marginBottom: 6, fontWeight: '600', fontSize: '14px', color: '#1b1b1bff' }}>Example Paper Titel 1</strong>
-                  <p style={{ fontSize: 12, color: '#555', marginBottom: 10 }}>
-                    Here information about the paper will be displayed, such as:
-                  </p>
-                  <p style={{ fontSize: 12, color: '#555'}}>
-                    <strong>Authors: </strong>Author Name
-                  </p>
-                  <p style={{ fontSize: 12, color: '#555'}}>
-                    <strong>Year: </strong>2016
-                  </p>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <button style={getButtonStyle()}>Link to Paper</button>
-                    <button style={getButtonStyle()}>Link to Dataset</button>
-                  </div>
-                </div>
-              )}
-              <button onClick={() => setActiveSection('paper2')} style={getMenuButtonStyle(activeSection === 'paper2')}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
-                  <span>Example Paper Title 2</span>
-                  <span style={{ fontSize: 11, fontWeight: 500, color: activeSection === 'paper2' ? '#cbd5f5' : '#64748b' }}>
-                    Example Paper Description 2
-                  </span>
-                </div>
-              </button>
-              <button onClick={() => setActiveSection('paper3')} style={getMenuButtonStyle(activeSection === 'paper3')}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
-                  <span>Example Paper Title 3</span>
-                  <span style={{ fontSize: 11, fontWeight: 500, color: activeSection === 'paper3' ? '#cbd5f5' : '#64748b' }}>
-                    Example Paper Description 3
-                  </span>
-                </div>
-              </button>
-              <button onClick={() => setActiveSection('paper4')} style={getMenuButtonStyle(activeSection === 'paper4')}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
-                  <span>Example Paper Title 4</span>
-                  <span style={{ fontSize: 11, fontWeight: 500, color: activeSection === 'paper4' ? '#cbd5f5' : '#64748b' }}>
-                    Example Paper Description 4
-                  </span>
-                </div>
-              </button>
-              <button onClick={() => setActiveSection('paper5')} style={getMenuButtonStyle(activeSection === 'paper5')}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
-                  <span>Example Paper Title 5</span>
-                  <span style={{ fontSize: 11, fontWeight: 500, color: activeSection === 'paper5' ? '#cbd5f5' : '#64748b' }}>
-                    Example Paper Description 5
-                  </span>
-                </div>
-              </button>
-            </>//Example ends here
-          </div>
-        </div>
-      )}
-      {(evaluationsSearched && !evaluationsFound) && (
-        <div style={{ marginBottom: 12, padding: 12, background: '#ff4f4f', borderRadius: 14, border: '1px solid #e5e7eb' }}>
-            <div style={{display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left', fontSize: 14, fontWeight: 700, color: '#7a0000', marginBottom: 10}}>
-              <span>No Linked Papers found!</span>
-              <span style={{ fontSize: 12, fontWeight: 500, color: '#f5cbcb' }}>
-                  It seems no similar Boxology has been evaluated in a paper in the database. 
-                  This does not mean that no such paper exists.
-              </span>
-            </div>
-            <button onClick={() => searchForEvaluations()} style={getButtonStyle()}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <span>Search again</span>
               </div>
-            </button>
-          </div>
-      )}
+            );
+          })}
+        </div>
+        <button type="button" disabled={isRunning} onClick={() => void searchForEvaluations()}
+          style={{ ...getButtonStyle(), marginTop: 10 }}>
+          {isRunning ? 'Searching…' : hasSearched || error ? 'Search again' : 'Search'}
+        </button>
+      </div>
     </div>
   );
 }
