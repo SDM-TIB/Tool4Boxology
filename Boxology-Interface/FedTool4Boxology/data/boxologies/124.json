@@ -1,13 +1,13 @@
 {
   "metadata": {
-    "exportId": "0bf3d55c",
+    "exportId": "8b7b7e33",
     "userId": "user_6j7bc3lh",
-    "exportDate": "2026-11-08T15:15:24.697Z"
+    "exportDate": "2026-11-12T21:39:05.571Z"
   },
   "boxologies": [
     {
       "id": "47bfbbe9-bc45-45b3-90e0-9ed9a00aad7d",
-      "label": "47bfbbe9-bc45-45b3-90e0-9ed9a00aad7d",
+      "label": "124",
       "DesignPattern": [
         {
           "id": "group_17941502700871",
@@ -75,7 +75,7 @@
           "output": [
             {
               "id": "node_17941502700875",
-              "name": "Table",
+              "name": "Dataset",
               "label": "Link Predictions with Interpretability Scores"
             }
           ],

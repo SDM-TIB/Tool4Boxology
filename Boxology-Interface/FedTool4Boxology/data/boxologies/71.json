@@ -1,42 +1,14 @@
 {
   "metadata": {
-    "exportId": "b8085633",
+    "exportId": "1d2d91cd",
     "userId": "user_6j7bc3lh",
-    "exportDate": "2026-11-06T12:19:37.321Z"
+    "exportDate": "2026-11-12T22:39:36.098Z"
   },
   "boxologies": [
     {
       "id": "35bb4984-c066-4c39-8f5f-fd7c4f4cff09",
       "label": "71",
       "DesignPattern": [
-        {
-          "id": "group_17938071112321",
-          "label": "1a Initialization",
-          "input": [
-            {
-              "id": "node_17938071112321",
-              "name": "Dataset",
-              "label": "Knowledge Graph Data"
-            },
-            {
-              "id": "node_17938071112322",
-              "name": "Ontology",
-              "label": "Ontology Axioms"
-            }
-          ],
-          "output": [
-            {
-              "id": "node_17938071112323",
-              "name": "NeuralModel",
-              "label": "Embedding Model"
-            }
-          ],
-          "process": {
-            "id": "node_17938071112326",
-            "name": "Transform",
-            "label": "Base KGE Initialization"
-          }
-        },
         {
           "id": "group_17938071112322",
           "label": "1b Symbolic Reasoning",
@@ -48,7 +20,7 @@
             },
             {
               "id": "node_17938071112322",
-              "name": "Ontology",
+              "name": "KG",
               "label": "Ontology Axioms"
             }
           ],
@@ -76,7 +48,7 @@
             },
             {
               "id": "node_17938071112322",
-              "name": "Ontology",
+              "name": "KG",
               "label": "Ontology Axioms"
             }
           ],
@@ -95,7 +67,6 @@
         },
         {
           "id": "group_17938071112324",
-          "name": "ModelDataTrainModel",
           "label": "1d Retraining Loop",
           "input": [
             {
@@ -109,8 +80,8 @@
               "label": "Embedding Model"
             },
             {
-              "id": "node_17938071112321",
-              "name": "Dataset",
+              "id": "node_1794523058336",
+              "name": "KG",
               "label": "Knowledge Graph Data"
             }
           ],
@@ -125,6 +96,34 @@
             "id": "node_17938071112329",
             "name": "Train",
             "label": "Retraining Loop"
+          }
+        },
+        {
+          "id": "group_1794523172520",
+          "label": "1a Initialization",
+          "input": [
+            {
+              "id": "node_17938071112322",
+              "name": "KG",
+              "label": "Ontology Axioms"
+            },
+            {
+              "id": "node_1794523058336",
+              "name": "KG",
+              "label": "Knowledge Graph Data"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17938071112323",
+              "name": "NeuralModel",
+              "label": "Embedding Model"
+            }
+          ],
+          "process": {
+            "id": "node_17938071112326",
+            "name": "Transform",
+            "label": "Base KGE Initialization"
           }
         }
       ]

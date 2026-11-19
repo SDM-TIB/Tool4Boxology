@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "exportId": "18e59f73",
+    "exportId": "2e7d596f",
     "userId": "user_6j7bc3lh",
-    "exportDate": "2026-11-06T12:12:58.520Z"
+    "exportDate": "2026-11-12T22:14:23.314Z"
   },
   "boxologies": [
     {
@@ -10,54 +10,24 @@
       "label": "120",
       "DesignPattern": [
         {
-          "id": "group_17938343033181",
-          "name": "SymbolDataTransformData",
-          "label": "1a Inputs",
-          "input": [
-            {
-              "id": "node_17938343033181",
-              "name": "Dataset",
-              "label": "Factual Training Data"
-            },
-            {
-              "id": "node_17938343033182",
-              "name": "Rules",
-              "label": "First-Order Logic Rules"
-            }
-          ],
-          "output": [
-            {
-              "id": "node_17938343033181",
-              "name": "Dataset",
-              "label": "Factual Training Data"
-            }
-          ],
-          "process": {
-            "id": "node_17938343033186",
-            "name": "Transform",
-            "label": "Load Inputs"
-          }
-        },
-        {
-          "id": "group_17938343033182",
-          "name": "DataModelDeduceData",
+          "id": "group_1794521612868",
           "label": "1b Logical Inference",
           "input": [
-            {
-              "id": "node_17938343033181",
-              "name": "Dataset",
-              "label": "Factual Training Data"
-            },
             {
               "id": "node_17938343033183",
               "name": "StatisticalModel",
               "label": "Initial Embeddings / Prior Model"
+            },
+            {
+              "id": "node_1794521221423",
+              "name": "KG",
+              "label": "Factual Training Data"
             }
           ],
           "output": [
             {
-              "id": "node_17938343033184",
-              "name": "Dataset",
+              "id": "node_1794521474472",
+              "name": "KG",
               "label": "Inferred Training Facts"
             }
           ],
@@ -68,14 +38,9 @@
           }
         },
         {
-          "id": "group_17938343033183",
+          "id": "group_1794521646843",
           "label": "1c Joint Training",
           "input": [
-            {
-              "id": "node_17938343033184",
-              "name": "Dataset",
-              "label": "Inferred Training Facts"
-            },
             {
               "id": "node_17938343033182",
               "name": "Rules",
@@ -85,6 +50,11 @@
               "id": "node_17938343033183",
               "name": "StatisticalModel",
               "label": "Initial Embeddings / Prior Model"
+            },
+            {
+              "id": "node_1794521474472",
+              "name": "KG",
+              "label": "Inferred Training Facts"
             }
           ],
           "output": [

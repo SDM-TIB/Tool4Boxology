@@ -1,13 +1,13 @@
 {
   "metadata": {
-    "exportId": "8c5b2835",
+    "exportId": "ecff1026",
     "userId": "user_6j7bc3lh",
-    "exportDate": "2026-11-08T17:03:36.998Z"
+    "exportDate": "2026-11-12T21:33:11.043Z"
   },
   "boxologies": [
     {
       "id": "77790fc3-0c2c-4f2c-8112-a37bd8f3bae8",
-      "label": "77790fc3-0c2c-4f2c-8112-a37bd8f3bae8",
+      "label": "90",
       "DesignPattern": [
         {
           "id": "group_17941569290862",
@@ -88,7 +88,7 @@
           "output": [
             {
               "id": "node_17941569290864",
-              "name": "Constraints",
+              "name": "KG",
               "label": "Candidate Hidden Triples"
             }
           ],
@@ -104,7 +104,7 @@
           "input": [
             {
               "id": "node_17941569290864",
-              "name": "Constraints",
+              "name": "KG",
               "label": "Candidate Hidden Triples"
             },
             {

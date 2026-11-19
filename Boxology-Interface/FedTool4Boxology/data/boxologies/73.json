@@ -1,186 +1,120 @@
 {
   "metadata": {
-    "exportId": "93560587",
+    "exportId": "135e4d7e",
     "userId": "user_6j7bc3lh",
-    "exportDate": "2026-11-09T20:41:03.049Z"
+    "exportDate": "2026-11-12T22:40:34.491Z"
   },
   "boxologies": [
     {
-      "id": "c5c91d87-789c-4844-a4da-c3e9460fe372",
-      "label": "c5c91d87-789c-4844-a4da-c3e9460fe372",
+      "id": "c9ae2160-b6bf-4d5d-bdd8-b566c3ef40fb",
+      "label": "73",
       "DesignPattern": [
         {
-          "id": "group_17942551704052",
-          "label": "2 KGE Inference",
+          "id": "group_17938062356851",
+          "label": "1c Inputs",
           "input": [
             {
-              "id": "node_17942551704054",
-              "name": "NeuralModel",
-              "label": "KGE Engine"
-            },
-            {
-              "id": "node_1794255390448",
-              "name": "KG",
-              "label": "Canditate Triples"
-            },
-            {
-              "id": "node_17942551704057",
-              "name": "KG",
-              "label": "Reasoner Inferred Triples"
-            }
-          ],
-          "output": [
-            {
-              "id": "node_17942551704056",
-              "name": "KG",
-              "label": "KGE Inferred Triples"
-            }
-          ],
-          "process": {
-            "id": "node_179425517040510",
-            "name": "Deduce",
-            "label": "KGE Link Prediction"
-          }
-        },
-        {
-          "id": "group_1794256149431",
-          "label": "4 Triple Extraction",
-          "input": [
-            {
-              "id": "node_17942551704056",
-              "name": "KG",
-              "label": "KGE Inferred Triples"
-            },
-            {
-              "id": "node_17942551704057",
-              "name": "KG",
-              "label": "Reasoner Inferred Triples"
-            }
-          ],
-          "output": [
-            {
-              "id": "node_1794256067205",
-              "name": "KG",
-              "label": "Final Triples"
-            }
-          ],
-          "process": {
-            "id": "node_1794256043615",
-            "name": "Transform",
-            "label": "Extract Triples"
-          }
-        },
-        {
-          "id": "group_1794256254793",
-          "name": "SymbolTransformSymbol",
-          "label": "Rule Simplification",
-          "input": [
-            {
-              "id": "node_1794255535445",
-              "name": "Rules",
-              "label": "Rules"
-            }
-          ],
-          "output": [
-            {
-              "id": "node_1794255458379",
-              "name": "Rules",
-              "label": "Linear Rules"
-            }
-          ],
-          "process": {
-            "id": "node_1794255546763",
-            "name": "Transform",
-            "label": "Rule Simplification"
-          }
-        },
-        {
-          "id": "group_1794256294419",
-          "label": "KGE Training",
-          "input": [
-            {
-              "id": "node_17942551704051",
+              "id": "node_17938062356851",
               "name": "KG",
               "label": "Input Knowledge Graph"
             }
           ],
           "output": [
             {
-              "id": "node_17942551704054",
-              "name": "NeuralModel",
-              "label": "KGE Engine"
+              "id": "node_17938062356853",
+              "name": "KG",
+              "label": "Prepared KG Data"
             }
           ],
           "process": {
-            "id": "node_1794255332814",
+            "id": "node_17938062356859",
+            "name": "Transform",
+            "label": "Plugin Framework Prep"
+          }
+        },
+        {
+          "id": "group_17938062356852",
+          "label": "2c Embedding Model",
+          "input": [
+            {
+              "id": "node_17938062356853",
+              "name": "KG",
+              "label": "Prepared KG Data"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17938062356854",
+              "name": "GNN",
+              "label": "KG Embeddings Model"
+            }
+          ],
+          "process": {
+            "id": "node_179380623568510",
             "name": "Train",
-            "label": "KGE Training"
+            "label": "Train KG Embeddings"
           }
         },
         {
-          "id": "group_1794256365132",
-          "label": "3 Ontology Reasoning",
+          "id": "group_17938062356853",
+          "name": "SymbolModelDeduceSymbol",
+          "label": "3c Rule Reasoning",
           "input": [
             {
-              "id": "node_17942551704055",
-              "name": "SemanticModel",
-              "label": "OWL2 Reasoner Engine"
-            },
-            {
-              "id": "node_1794255458379",
+              "id": "node_17938062356852",
               "name": "Rules",
-              "label": "Linear Rules"
+              "label": "Domain Rules (OWL2)"
             },
             {
-              "id": "node_17942551704056",
-              "name": "KG",
-              "label": "KGE Inferred Triples"
-            },
-            {
-              "id": "node_17942551704051",
-              "name": "KG",
-              "label": "Input Knowledge Graph"
-            },
-            {
-              "id": "node_17942551704052",
-              "name": "Ontology",
-              "label": "OWL2 Ontology"
+              "id": "node_17938062356855",
+              "name": "SemanticModel",
+              "label": "Reasoning Engine"
             }
           ],
           "output": [
             {
-              "id": "node_17942551704057",
-              "name": "KG",
-              "label": "Reasoner Inferred Triples"
+              "id": "node_17938062356857",
+              "name": "Rules",
+              "label": "Logical Entailments"
             }
           ],
           "process": {
-            "id": "node_1794255584812",
+            "id": "node_179380623568511",
             "name": "Deduce",
-            "label": "Forward Chaining inference"
+            "label": "Rule Mining & Reasoning"
           }
         },
         {
-          "id": "group_1794256854136",
-          "label": "Canditate Triple Generator",
+          "id": "group_17938062356854",
+          "label": "4c Rule-Based Integration",
           "input": [
             {
-              "id": "node_17942551704051",
-              "name": "KG",
-              "label": "Input Knowledge Graph"
+              "id": "node_17938062356854",
+              "name": "GNN",
+              "label": "KG Embeddings Model"
+            },
+            {
+              "id": "node_17938062356856",
+              "name": "Symbol",
+              "label": "Embedding Predictions"
+            },
+            {
+              "id": "node_17938062356857",
+              "name": "Rules",
+              "label": "Logical Entailments"
             }
           ],
           "output": [
             {
-              "id": "node_1794255390448",
+              "id": "node_17938062356858",
               "name": "KG",
-              "label": "Canditate Triples"
+              "label": "Completed Knowledge Graph"
             }
           ],
           "process": {
-            "id": "node_1794256775137",
+            "id": "node_179380623568512",
             "name": "Transform",
-            "label": "Triple Generator"
+            "label": "Rule-Based Integration"
           }
         }
       ]

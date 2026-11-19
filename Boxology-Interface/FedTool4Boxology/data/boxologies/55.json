@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "exportId": "0c0ae114",
+    "exportId": "8e61d972",
     "userId": "user_6j7bc3lh",
-    "exportDate": "2026-11-06T12:18:27.397Z"
+    "exportDate": "2026-11-15T14:30:35.387Z"
   },
   "boxologies": [
     {
@@ -10,36 +10,8 @@
       "label": "55",
       "DesignPattern": [
         {
-          "id": "group_17938291571431",
-          "label": "1c Input Data",
-          "input": [
-            {
-              "id": "node_17938291571431",
-              "name": "KG",
-              "label": "Knowledge Graph Triples"
-            },
-            {
-              "id": "node_17938291571432",
-              "name": "Rules",
-              "label": "Logical Rules"
-            }
-          ],
-          "output": [
-            {
-              "id": "node_17938291571431",
-              "name": "KG",
-              "label": "Knowledge Graph Triples"
-            },
-            {
-              "id": "node_17938291571432",
-              "name": "Rules",
-              "label": "Logical Rules"
-            }
-          ]
-        },
-        {
-          "id": "group_17938291571432",
-          "label": "2c Neural Encoding",
+          "id": "group_1794751845131",
+          "label": "Triple Encoder",
           "input": [
             {
               "id": "node_17938291571431",
@@ -61,8 +33,32 @@
           }
         },
         {
-          "id": "group_17938291571433",
-          "label": "3c Joint Output",
+          "id": "group_1794751855539",
+          "name": "SymbolTrainModel",
+          "label": "Rule Encoder",
+          "input": [
+            {
+              "id": "node_17938291571432",
+              "name": "Rules",
+              "label": "Logical Rules"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17938291571434",
+              "name": "NeuralModel",
+              "label": "Rule Encoder"
+            }
+          ],
+          "process": {
+            "id": "node_17938291571437",
+            "name": "Train",
+            "label": "Train Rule Encoder"
+          }
+        },
+        {
+          "id": "group_1794751889218",
+          "label": "Cluster3",
           "input": [
             {
               "id": "node_17938291571433",

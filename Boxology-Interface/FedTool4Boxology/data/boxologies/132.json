@@ -1,13 +1,13 @@
 {
   "metadata": {
-    "exportId": "a58f6931",
+    "exportId": "a28336e7",
     "userId": "user_6j7bc3lh",
-    "exportDate": "2026-11-08T13:28:56.700Z"
+    "exportDate": "2026-11-12T21:49:07.066Z"
   },
   "boxologies": [
     {
       "id": "98da2671-684d-4f86-94e6-cfff9833d5af",
-      "label": "Diagram 15",
+      "label": "132",
       "DesignPattern": [
         {
           "id": "group_1794144064158",
@@ -51,7 +51,7 @@
           "output": [
             {
               "id": "node_1794143658871",
-              "name": "Data",
+              "name": "Number",
               "label": "Truth Scores"
             }
           ],
@@ -90,7 +90,7 @@
           "input": [
             {
               "id": "node_1794143658871",
-              "name": "Data",
+              "name": "Number",
               "label": "Truth Scores"
             },
             {

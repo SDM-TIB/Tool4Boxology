@@ -1,13 +1,13 @@
 {
   "metadata": {
-    "exportId": "a60f5de4",
+    "exportId": "dea83bf3",
     "userId": "user_6j7bc3lh",
-    "exportDate": "2026-11-08T18:38:37.353Z"
+    "exportDate": "2026-11-12T21:32:19.361Z"
   },
   "boxologies": [
     {
       "id": "ca7794ad-deb1-4e23-bb50-17ac157125f3",
-      "label": "ca7794ad-deb1-4e23-bb50-17ac157125f3",
+      "label": "64",
       "DesignPattern": [
         {
           "id": "group_17941626326931",
@@ -88,7 +88,7 @@
           "output": [
             {
               "id": "node_17941626326936",
-              "name": "Table",
+              "name": "Dataset",
               "label": "Filtered Top-N Triplets"
             }
           ],
@@ -104,7 +104,7 @@
           "input": [
             {
               "id": "node_17941626326936",
-              "name": "Table",
+              "name": "Dataset",
               "label": "Filtered Top-N Triplets"
             },
             {

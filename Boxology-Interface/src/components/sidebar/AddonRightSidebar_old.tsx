@@ -130,7 +130,6 @@ export default function AddonRightSidebar({ selectedData, diagramRef, pages, cur
             `${PREFIXES}
 
             
-
             SELECT DISTINCT ?boxology ?otherLabel (SUM(?countInSystemA) AS ?sameCount) WHERE {
               {SELECT DISTINCT ?boxology ?otherLabel ?inputType ?outputType ?processType
                               (COUNT(DISTINCT ?pattern) AS ?countInSystemA) (COUNT(DISTINCT ?patternB) AS ?countInSystemB)
@@ -152,7 +151,12 @@ export default function AddonRightSidebar({ selectedData, diagramRef, pages, cur
                   ?pattern t4b:hasProcess ?process .
                   OPTIONAL { ?process rdf:type ?processType }
                 }
+                
                 FILTER(?otherLabel != "${userBoxologyLabel}")
+                
+                FILTER(?inputType != t4b:Component)
+                FILTER(?outputType != t4b:Component)
+                FILTER(?processType != t4b:Component)
 
                 OPTIONAL {
                   ?boxologyB rdfs:label "${userBoxologyLabel}" ;
@@ -197,6 +201,9 @@ export default function AddonRightSidebar({ selectedData, diagramRef, pages, cur
           console.log([{ result: String(data.boolean) }])//setRows([{ result: String(data.boolean) }]);
           return;
         }
+        /*if (!Array.isArray(data?.results?.bindings)) {
+          throw new Error('The endpoint did not return SPARQL SELECT results.');
+        }*/
   
         const vars: string[] = data?.head?.vars || [];
         console.log(data?.results?.bindings)
@@ -417,13 +424,18 @@ export default function AddonRightSidebar({ selectedData, diagramRef, pages, cur
               </button>
             </>//Example ends here
           </div>
+          <button onClick={() => searchForEvaluations()} style={getButtonStyle()}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <span>Search again</span>
+              </div>
+            </button>
         </div>
       )}
       {(evaluationsSearched && !evaluationsFound) && (
         <div style={{ marginBottom: 12, padding: 12, background: '#ff4f4f', borderRadius: 14, border: '1px solid #e5e7eb' }}>
             <div style={{display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left', fontSize: 14, fontWeight: 700, color: '#7a0000', marginBottom: 10}}>
               <span>No Linked Papers found!</span>
-              <span style={{ fontSize: 12, fontWeight: 500, color: '#f5cbcb' }}>
+              <span style={{ fontSize: 12, fontWeight: 500, color: '#fff3f3' }}>
                   It seems no similar Boxology has been evaluated in a paper in the database. 
                   This does not mean that no such paper exists.
               </span>

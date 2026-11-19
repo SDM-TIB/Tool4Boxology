@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "exportId": "0f79b486",
+    "exportId": "47fbdc8f",
     "userId": "user_6j7bc3lh",
-    "exportDate": "2026-11-06T12:17:47.902Z"
+    "exportDate": "2026-11-12T22:18:42.691Z"
   },
   "boxologies": [
     {
@@ -20,19 +20,19 @@
             },
             {
               "id": "node_17938306650812",
-              "name": "Ontology",
+              "name": "KG",
               "label": "Ontology View KG"
             },
             {
               "id": "node_17938306650813",
-              "name": "Constraints",
+              "name": "KG",
               "label": "Cross-View Links"
             }
           ],
           "output": [
             {
-              "id": "node_17938306650814",
-              "name": "Dataset",
+              "id": "node_1794521835991",
+              "name": "KG",
               "label": "Parsed Knowledge Bases"
             }
           ],
@@ -53,7 +53,7 @@
             },
             {
               "id": "node_17938306650812",
-              "name": "Ontology",
+              "name": "KG",
               "label": "Ontology View KG"
             }
           ],
@@ -76,7 +76,7 @@
           "input": [
             {
               "id": "node_17938306650813",
-              "name": "Constraints",
+              "name": "KG",
               "label": "Cross-View Links"
             },
             {
@@ -127,8 +127,7 @@
           }
         },
         {
-          "id": "group_17938306650815",
-          "name": "DataModelDeduceData",
+          "id": "group_1794521907076",
           "label": "5c Multi-View Embeddings",
           "input": [
             {
@@ -137,15 +136,15 @@
               "label": "Joint Multi-View Embeddings"
             },
             {
-              "id": "node_17938306650814",
-              "name": "Dataset",
+              "id": "node_1794521835991",
+              "name": "KG",
               "label": "Parsed Knowledge Bases"
             }
           ],
           "output": [
             {
               "id": "node_17938306650818",
-              "name": "Table",
+              "name": "Dataset",
               "label": "Classification & Entity Recognition Results"
             }
           ],

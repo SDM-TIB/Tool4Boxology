@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "exportId": "3f25e123",
+    "exportId": "6f850ed5",
     "userId": "user_6j7bc3lh",
-    "exportDate": "2026-11-06T12:17:23.556Z"
+    "exportDate": "2026-11-12T22:15:44.907Z"
   },
   "boxologies": [
     {
@@ -22,7 +22,7 @@
           "output": [
             {
               "id": "node_17938322723532",
-              "name": "Map",
+              "name": "KG",
               "label": "Query DAG Structure"
             }
           ],
@@ -38,7 +38,7 @@
           "input": [
             {
               "id": "node_17938322723532",
-              "name": "Map",
+              "name": "KG",
               "label": "Query DAG Structure"
             },
             {

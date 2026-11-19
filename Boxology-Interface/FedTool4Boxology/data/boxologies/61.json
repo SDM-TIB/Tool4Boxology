@@ -1,47 +1,23 @@
 {
   "metadata": {
-    "exportId": "bc342f38",
+    "exportId": "5de1802a",
     "userId": "user_6j7bc3lh",
-    "exportDate": "2026-11-08T12:35:02.386Z"
+    "exportDate": "2026-11-12T21:51:28.183Z"
   },
   "boxologies": [
     {
       "id": "c30ad8b1-ef12-4448-b69c-28ea32a34fbd",
-      "label": "c30ad8b1-ef12-4448-b69c-28ea32a34fbd_2026-11-08",
+      "label": "61",
       "DesignPattern": [
         {
-          "id": "group_17941364599401",
-          "name": "DataTransformData",
-          "label": "1a Input Data",
-          "input": [
-            {
-              "id": "node_17941364599401",
-              "name": "Dataset",
-              "label": "Observed Triplets"
-            }
-          ],
-          "output": [
-            {
-              "id": "node_17941364599404",
-              "name": "Dataset",
-              "label": "Augmented Triplets"
-            }
-          ],
-          "process": {
-            "id": "node_17941364599406",
-            "name": "Transform",
-            "label": "Prepare Triplets"
-          }
-        },
-        {
           "id": "group_17941364599402",
-          "name": "DataTrainModel",
+          "name": "SymbolTrainModel",
           "label": "1b KGE Training",
           "input": [
             {
-              "id": "node_17941364599404",
-              "name": "Dataset",
-              "label": "Augmented Triplets"
+              "id": "node_1794520192848",
+              "name": "Symbol",
+              "label": "Augmented Triples"
             }
           ],
           "output": [
@@ -59,13 +35,12 @@
         },
         {
           "id": "group_17941364599403",
-          "name": "DataTransformSymbol",
           "label": "1c Rule Mining",
           "input": [
             {
-              "id": "node_17941364599401",
-              "name": "Dataset",
-              "label": "Observed Triplets"
+              "id": "node_1794520170774",
+              "name": "KG",
+              "label": "Observed Triples"
             }
           ],
           "output": [
@@ -108,6 +83,29 @@
             "id": "node_17941364599409",
             "name": "Deduce",
             "label": "MLN Inference"
+          }
+        },
+        {
+          "id": "group_1794520281365",
+          "label": "1a Input Data",
+          "input": [
+            {
+              "id": "node_1794520170774",
+              "name": "KG",
+              "label": "Observed Triples"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_1794520192848",
+              "name": "Symbol",
+              "label": "Augmented Triples"
+            }
+          ],
+          "process": {
+            "id": "node_17941364599406",
+            "name": "Transform",
+            "label": "Prepare Triplets"
           }
         }
       ]

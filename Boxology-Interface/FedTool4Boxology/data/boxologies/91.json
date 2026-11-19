@@ -1,13 +1,13 @@
 {
   "metadata": {
-    "exportId": "4f276d48",
+    "exportId": "14149fe0",
     "userId": "user_6j7bc3lh",
-    "exportDate": "2026-11-09T21:36:09.201Z"
+    "exportDate": "2026-11-12T21:18:02.415Z"
   },
   "boxologies": [
     {
       "id": "295879cc-3ad6-4d21-9730-ebbdaf10966b",
-      "label": "295879cc-3ad6-4d21-9730-ebbdaf10966b",
+      "label": "91",
       "DesignPattern": [
         {
           "id": "group_17942598487651",
@@ -20,7 +20,7 @@
             },
             {
               "id": "node_17942598487652",
-              "name": "Constraints",
+              "name": "Rules",
               "label": "Complex Logical Queries"
             }
           ],

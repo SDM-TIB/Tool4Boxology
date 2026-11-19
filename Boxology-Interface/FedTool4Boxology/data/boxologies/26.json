@@ -1,42 +1,14 @@
 {
   "metadata": {
-    "exportId": "89fc2121",
+    "exportId": "fe723b09",
     "userId": "user_6j7bc3lh",
-    "exportDate": "2026-11-09T21:17:40.483Z"
+    "exportDate": "2026-11-12T21:23:51.033Z"
   },
   "boxologies": [
     {
       "id": "9f038646-794e-4b3b-9f78-c3827f6b2079",
-      "label": "9f038646-794e-4b3b-9f78-c3827f6b2079",
+      "label": "26",
       "DesignPattern": [
-        {
-          "id": "group_17942588790713",
-          "label": "3 KGE Training",
-          "input": [
-            {
-              "id": "node_17942588790711",
-              "name": "KG",
-              "label": "Observed Triples (O)"
-            },
-            {
-              "id": "node_17942588790714",
-              "name": "Map",
-              "label": "Truth Assignments vTH & vFH"
-            }
-          ],
-          "output": [
-            {
-              "id": "node_17942588790715",
-              "name": "NeuralModel",
-              "label": "Entity/Relation Embeddings"
-            }
-          ],
-          "process": {
-            "id": "node_17942588790719",
-            "name": "Train",
-            "label": "KGE Training"
-          }
-        },
         {
           "id": "group_17942588790714",
           "label": "4 Embedding Inference",
@@ -82,15 +54,43 @@
           ],
           "output": [
             {
-              "id": "node_17942588790714",
-              "name": "Map",
-              "label": "Truth Assignments vTH & vFH"
+              "id": "node_1794518548458",
+              "name": "Number",
+              "label": "Truth Assignments"
             }
           ],
           "process": {
             "id": "node_17942588790718",
             "name": "Deduce",
             "label": "Forward Chaining Reasoning"
+          }
+        },
+        {
+          "id": "group_1794518619634",
+          "label": "3 KGE Training",
+          "input": [
+            {
+              "id": "node_17942588790711",
+              "name": "KG",
+              "label": "Observed Triples (O)"
+            },
+            {
+              "id": "node_1794518548458",
+              "name": "Number",
+              "label": "Truth Assignments"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_17942588790715",
+              "name": "NeuralModel",
+              "label": "Entity/Relation Embeddings"
+            }
+          ],
+          "process": {
+            "id": "node_17942588790719",
+            "name": "Train",
+            "label": "KGE Training"
           }
         }
       ]

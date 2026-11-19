@@ -1,23 +1,177 @@
 author_id,author_name,orcid
-39993,Tim Dettmers,
-39994,Pasquale Minervini,0000-0002-8442-602X
-39995,Pontus Stenetorp,
-39996,Sebastian Riedel,0000-0002-9971-0218
-40004,Kristina Toutanova,
-40005,Danqi Chen,0000-0001-5308-2634
-40014,Yuanbo Guo,0000-0001-6804-4884
-40015,Zhengxiang Pan,0000-0001-6818-553X
-40016,Jeff Heflin,0000-0002-7290-1495
-40025,Antoine Bordes,
-40025,Antoine Bordes,
-40026,Nicolas Usunier,
-40026,Nicolas Usunier,
-40027,Alberto Garcia-Duran,
-40027,Alberto Garcia-Duran,
-40028,Jason Weston,
-40028,Jason Weston,
-40029,Oksana Yakhnenko,
-40029,Oksana Yakhnenko,
-40030,Farzaneh Mahdisoltani,
-40031,Joanna Biega,
-40032,Fabian Martin Suchanek,0000-0001-7189-2796
+1,Evan Sandhaus,
+19,Weihua Hu,
+20,Matthias Fey,
+21,Marinka Zitnik,0000-0001-8530-7228
+22,Yuxiao Dong,
+23,Hongyu Ren,
+24,Bowen Liu,
+25,Michele Catasta,
+26,Jure Leskovec,0000-0002-5411-923X
+27,Mona Alshahrani,
+28,Mohammad Asif Khan,
+29,Omar Maddouri,
+30,Akira Kinjo,
+31,Núria Queralt-Rosinach,
+32,Robert Hoehndorf,
+34,Kristina Toutanova,
+35,Danqi Chen,0000-0001-5308-2634
+36,Rudolph J. Rummel ,
+37,Marina Boudin,0000-0002-5681-8958
+38,Fleur Mougin,0000-0002-7436-3010
+39,Gayo Diallo,0000-0002-9799-9484
+40,Martin Drancé,0000-0001-6365-531X
+41,Daniel Scott Himmelstein,0000-0002-3012-7446
+42,Antoine Lizee,
+43,Christine Hessler,
+44,Leo Brueggeman,
+45,Sabrina L Chen,
+46,Dexter Hadley,
+47,Ari Green,
+48,Pouya Khankhanian,
+49,Sergio E Baranzini,0000-0003-0067-194X
+50,Zoi Kaoudi,0000-0003-4520-5360
+51,Abelardo Carlos Martinez Lorenzo,0000-0003-0587-632X
+52,Volker Markl,0009-0009-0964-026X
+53,Holger Caesar,0000-0001-5099-6297
+54,Varun Bankiti,
+55,Alex H. Lang,
+56,Sourabh Vora,
+57,Venice Erin Liong,
+58,Qiang Xu,
+59,Anush Krishnan,
+60,Yu Pan,
+61,Giancarlo Baldan,
+62,Oscar Beijbom,
+63,Ye Liu,
+64,Hui Li,
+65,Alberto Garcia-Duran,
+66,Mathias Niepert,
+67,Daniel Onoro-Rubio,
+68,David S. Rosenblum,
+69,Boyang Ding,
+70,Quan Wang,0000-0001-6102-3407
+71,Bin Wang,0000-0001-7374-3786
+72,Li Guo,0000-0001-6277-8289
+73,Julian John McAuley,0000-0003-0955-7588
+74,Christopher Targett,
+75,Qingfeng Shi,
+76,Anton van den Hengel,0000-0003-3027-8364
+77,William L Hamilton,
+78,Payal Bajaj,
+79,Dan Saul Jurafsky,0000-0002-6459-7745
+80,Junheng Hao,
+81,Muhao Chen,0000-0003-0118-3147
+82,Wenchao Yu,0000-0002-2480-448X
+83,Yizhou Sun,0000-0003-1812-6843
+84,Wei Wang,0000-0002-8180-2886
+85,Kalev Leetaru,
+86,Philip A. Schrodt,
+87,Elizabeth	Boschee,
+88,Jennifer Lautenschlager,
+89,Sean O'Brien,
+90,Steve Shellman,
+91,James Starz,
+92,Michael Ward,
+93,Farzaneh Mahdisoltani,
+94,Joanna Biega,
+95,Fabian Suchanek,
+96,Denis Krompass,
+97,Volker Tresp,
+98,Alexander Miller,
+99,Adam Fisch,
+100,Jesse Dodge,
+101,Amir-Hossein Karimi,
+102,Antoine Bordes,
+103,Jason Weston,
+104,Wenhan Xiong,
+105,Thien Hoang,
+106,William Yang Wang,0000-0001-6938-0361
+107,Tara Safavi,
+108,Danai Koutra,0000-0002-3206-8179
+109,Julian McAuley,
+110,Shu Guo,
+111,Lihong Wang,
+112,Lucy Lu Wang,0000-0001-8752-6635
+113,Kyle Lo,0000-0002-1804-2853
+114,Yoganand Chandrasekhar,
+115,Alex D. Wade,
+116,Kuansan Wang,
+117,Russell Reas,
+118,Nancy Xin Ru Wang,
+119,Christopher Wilhelm,
+120,Boya Xie,
+121,Douglas M. Raymond,
+122,Daniel S. Weld,0000-0002-3255-0109
+123,Oren Etzioni,
+124,Sebastian Kohlmeier,
+125,Ziyang Liu,
+126,Jiangjiang Yang,
+127,Doug Burdick,
+128,Darrin Eide,
+129,Kathryn Funk,
+130,Yannis Katsis,
+131,Rodney Michael Kinney,
+132,Yunyao Li,
+133,William Merrill,
+134,Paul Mooney,
+135,Dewey A. Murdick,
+136,Devvret Rishi,
+137,Jerry Sheehan,
+138,Zhihong Shen,0009-0007-1083-1683
+139,Brandon Stilson,
+140,Luis Antonio Galárraga,0000-0002-0241-5379
+141,Christina Teflioudi,
+142,Katja Hose,0000-0001-7025-8099
+143,Profile Avatar Fabian M Suchanek,0000-0001-7189-2796
+144,Matthew Richardson,
+145,Pedro Domingos,
+146,Mikhail Bilenko,
+147,Raymond Joseph Mooney,0000-0002-4504-0490
+148,Alexa T. McCray,
+149,Harsha Gurulingappa,
+150,Abdul Mateen Rajput,
+151,Angus Roberts,
+152,Juliane Fluck,
+153,Martin Hofmann-Apitius,
+154,Luca Toldo,
+155,R. Kesten,
+156,M. Usman,
+157,J. Houston,
+158,K. Nadhamuni,
+159,A. Ferreira,
+160,M. Yuan,
+161,B. Low,
+162,A. Jain,
+163,P. Ondruska,
+164,S. Omari,
+165,S. Shah,
+166,A. Kulkarni,
+167,A. Kazakova,
+168,C. Tao,
+169,L. Platinsky,
+170,W. Jiang,
+171,V. Shet,
+172,T. Pandya,
+173,Rui Xing,
+174,Jie Luo,0000-0002-4157-9931
+175,Tengwei Song,
+176,Christopher Walker,
+177,Stephanie Strassel,
+178,Julie Medero,
+179,Kazuaki Maeda,
+180,Yi Luan,
+181,Luheng He,
+182,Mari Ostendorf,
+183,Hannaneh Hajishirzi,
+184,Woodrow W. Denham,
+40186,Tim Dettmers,
+40187,Pasquale Minervini,0000-0002-8442-602X
+40188,Pontus Stenetorp,
+40189,Sebastian Riedel,0000-0002-9971-0218
+40204,Yuanbo Guo,0000-0001-6804-4884
+40205,Zhengxiang Pan,0000-0001-6818-553X
+40206,Jeff Heflin,0000-0002-7290-1495
+40215,Nicolas Usunier,
+40216,Oksana Yakhnenko,
+40217,Fabian Martin Suchanek,0000-0001-7189-2796

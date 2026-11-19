@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "exportId": "116ae4be",
+    "exportId": "6e154d54",
     "userId": "user_6j7bc3lh",
-    "exportDate": "2026-11-06T12:18:44.570Z"
+    "exportDate": "2026-11-15T14:04:13.269Z"
   },
   "boxologies": [
     {
@@ -43,7 +43,7 @@
             },
             {
               "id": "node_17938284816412",
-              "name": "Constraints",
+              "name": "Symbol",
               "label": "Logical & Non-Negativity Constraints"
             }
           ],
@@ -71,7 +71,7 @@
             },
             {
               "id": "node_17938284816412",
-              "name": "Constraints",
+              "name": "Symbol",
               "label": "Logical & Non-Negativity Constraints"
             }
           ],

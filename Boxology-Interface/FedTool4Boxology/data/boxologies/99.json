@@ -1,93 +1,110 @@
 {
   "metadata": {
-    "exportId": "96af1acc",
+    "exportId": "bf657f6a",
     "userId": "user_6j7bc3lh",
-    "exportDate": "2026-11-08T09:43:43.180Z"
+    "exportDate": "2026-11-12T22:24:05.794Z"
   },
   "boxologies": [
     {
       "id": "44720d7f-b780-42a1-a4cd-b7cab174403d",
-      "label": "44720d7f-b780-42a1-a4cd-b7cab174403d",
+      "label": "99",
       "DesignPattern": [
         {
-          "id": "group_17941304049661",
-          "name": "DataTransformData",
-          "label": "1c Data Preprocessing",
+          "id": "group_17941294034752",
+          "label": "2c Base Embeddings",
           "input": [
             {
-              "id": "node_17941304049661",
-              "name": "Dataset",
-              "label": "Raw Knowledge Graph"
+              "id": "node_1794520848780",
+              "name": "KG",
+              "label": "Processed KG Triplets"
             }
           ],
           "output": [
             {
-              "id": "node_17941304049662",
-              "name": "Dataset",
-              "label": "Preprocessed KG"
-            }
-          ],
-          "process": {
-            "id": "node_17941304049667",
-            "name": "Transform",
-            "label": "Data Preprocessing"
-          }
-        },
-        {
-          "id": "group_17941304049662",
-          "label": "2c Background Knowledge Embeddings",
-          "input": [
-            {
-              "id": "node_17941304049662",
-              "name": "Dataset",
-              "label": "Preprocessed KG"
-            },
-            {
-              "id": "node_17941304049663",
-              "name": "Rules",
-              "label": "Equivalence & Inversion Rules"
-            }
-          ],
-          "output": [
-            {
-              "id": "node_17941304049664",
+              "id": "node_17941294034754",
               "name": "NeuralModel",
-              "label": "Relation Embeddings"
+              "label": "SimplE Tensor Factorization Model"
             }
           ],
           "process": {
-            "id": "node_17941304049668",
+            "id": "node_17941294034758",
             "name": "Train",
-            "label": "Background Regularizer Train"
+            "label": "Train SimplE Factorization"
           }
         },
         {
-          "id": "group_1794131018996",
-          "name": "SymbolModelDeduceModel",
-          "label": "3c Model-Dependent Soft Constraints",
+          "id": "group_17941294034753",
+          "name": "ModelTransformModel",
+          "label": "3c Constraint Enforcer",
           "input": [
             {
-              "id": "node_17941304049664",
+              "id": "node_17941294034754",
               "name": "NeuralModel",
-              "label": "Relation Embeddings"
-            },
-            {
-              "id": "node_17941304049663",
-              "name": "Rules",
-              "label": "Equivalence & Inversion Rules"
+              "label": "SimplE Tensor Factorization Model"
             }
           ],
           "output": [
             {
-              "id": "node_17941304049665",
+              "id": "node_17941294034755",
               "name": "NeuralModel",
-              "label": "Regularized KG Embedding Model"
+              "label": "Non-Negativity Constrained Model"
             }
           ],
           "process": {
-            "id": "node_17941304049669",
+            "id": "node_17941294034759",
+            "name": "Transform",
+            "label": "Apply Non-Negativity Constraints"
+          }
+        },
+        {
+          "id": "group_1794521032017",
+          "label": "4c Verification Engine",
+          "input": [
+            {
+              "id": "node_17941294034755",
+              "name": "NeuralModel",
+              "label": "Non-Negativity Constrained Model"
+            },
+            {
+              "id": "node_17941294034752",
+              "name": "KG",
+              "label": "Taxonomic Background Information"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_1794521001306",
+              "name": "KG",
+              "label": "Completed KG Triplets"
+            }
+          ],
+          "process": {
+            "id": "node_179412940347510",
             "name": "Deduce",
-            "label": "Impose Soft Constraints"
+            "label": "SimplE+ Verification Engine"
+          }
+        },
+        {
+          "id": "group_1794521059050",
+          "label": "1c Input Data",
+          "input": [
+            {
+              "id": "node_1794520821262",
+              "name": "KG",
+              "label": "Knowledge Graph Data"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_1794520848780",
+              "name": "KG",
+              "label": "Processed KG Triplets"
+            }
+          ],
+          "process": {
+            "id": "node_17941294034757",
+            "name": "Transform",
+            "label": "Prepare KG & Taxonomy"
           }
         }
       ]

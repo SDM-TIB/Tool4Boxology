@@ -1,46 +1,21 @@
 {
   "metadata": {
-    "exportId": "aba4e724",
+    "exportId": "75a29c46",
     "userId": "user_6j7bc3lh",
-    "exportDate": "2026-11-08T09:23:32.583Z"
+    "exportDate": "2026-11-12T22:04:33.764Z"
   },
   "boxologies": [
     {
       "id": "72a394d7-cda4-4f2c-9259-83f294925299",
-      "label": "72a394d7-cda4-4f2c-9259-83f294925299",
+      "label": "43",
       "DesignPattern": [
         {
-          "id": "group_17941294034751",
-          "name": "DataTransformData",
-          "label": "1c Input Data",
-          "input": [
-            {
-              "id": "node_17941294034751",
-              "name": "Dataset",
-              "label": "Knowledge Graph Data"
-            }
-          ],
-          "output": [
-            {
-              "id": "node_17941294034753",
-              "name": "Tensor",
-              "label": "Processed KG Triplets"
-            }
-          ],
-          "process": {
-            "id": "node_17941294034757",
-            "name": "Transform",
-            "label": "Prepare KG & Taxonomy"
-          }
-        },
-        {
           "id": "group_17941294034752",
-          "name": "DataTrainModel",
           "label": "2c Base Embeddings",
           "input": [
             {
-              "id": "node_17941294034753",
-              "name": "Tensor",
+              "id": "node_1794520848780",
+              "name": "KG",
               "label": "Processed KG Triplets"
             }
           ],
@@ -82,7 +57,7 @@
           }
         },
         {
-          "id": "group_17941294034754",
+          "id": "group_1794521032017",
           "label": "4c Verification Engine",
           "input": [
             {
@@ -92,14 +67,14 @@
             },
             {
               "id": "node_17941294034752",
-              "name": "Ontology",
+              "name": "KG",
               "label": "Taxonomic Background Information"
             }
           ],
           "output": [
             {
-              "id": "node_17941294034756",
-              "name": "Dataset",
+              "id": "node_1794521001306",
+              "name": "Symbol",
               "label": "Completed KG Triplets"
             }
           ],
@@ -107,6 +82,29 @@
             "id": "node_179412940347510",
             "name": "Deduce",
             "label": "SimplE+ Verification Engine"
+          }
+        },
+        {
+          "id": "group_1794521059050",
+          "label": "1c Input Data",
+          "input": [
+            {
+              "id": "node_1794520821262",
+              "name": "KG",
+              "label": "Knowledge Graph Data"
+            }
+          ],
+          "output": [
+            {
+              "id": "node_1794520848780",
+              "name": "KG",
+              "label": "Processed KG Triplets"
+            }
+          ],
+          "process": {
+            "id": "node_17941294034757",
+            "name": "Transform",
+            "label": "Prepare KG & Taxonomy"
           }
         }
       ]

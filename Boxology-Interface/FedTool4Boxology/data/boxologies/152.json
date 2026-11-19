@@ -1,13 +1,13 @@
 {
   "metadata": {
-    "exportId": "da7b1d41",
+    "exportId": "b0c38b31",
     "userId": "user_6j7bc3lh",
-    "exportDate": "2026-11-09T16:48:42.213Z"
+    "exportDate": "2026-11-12T21:26:39.158Z"
   },
   "boxologies": [
     {
       "id": "41e6ffff-c9f8-40b1-872e-a1f97c997e4c",
-      "label": "41e6ffff-c9f8-40b1-872e-a1f97c997e4c",
+      "label": "152",
       "DesignPattern": [
         {
           "id": "group_17942424863802",
@@ -66,7 +66,7 @@
             },
             {
               "id": "node_17942424863805",
-              "name": "Classes",
+              "name": "KG",
               "label": "Initial Node Class Predictions"
             },
             {
@@ -78,7 +78,7 @@
           "output": [
             {
               "id": "node_17942424863806",
-              "name": "Classes",
+              "name": "KG",
               "label": "Refined Node Class Predictions"
             }
           ],

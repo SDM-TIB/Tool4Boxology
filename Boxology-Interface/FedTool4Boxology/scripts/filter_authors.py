@@ -36,9 +36,9 @@ for author in authors:
 	#print(author)
 	for id in author_ids:
 		#print(id)
-		if id != '' and id in author and author not in new_authors:
+		if id != '' and id == author.split(',')[0] and author not in new_authors:
 			new_authors.append(author.replace(';', ''))
-			print('match')
+			#print('match')
 
 with open("../data/authors.csv", 'w', encoding="utf-8") as f:
 	print(new_authors)

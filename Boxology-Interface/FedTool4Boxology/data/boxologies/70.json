@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "exportId": "b179ce64",
+    "exportId": "af9315bc",
     "userId": "user_6j7bc3lh",
-    "exportDate": "2026-11-06T12:19:27.407Z"
+    "exportDate": "2026-11-12T22:36:47.055Z"
   },
   "boxologies": [
     {
@@ -50,7 +50,7 @@
           "output": [
             {
               "id": "node_17938088160334",
-              "name": "Map",
+              "name": "Symbol",
               "label": "Extracted Relation Paths"
             }
           ],
@@ -71,14 +71,14 @@
             },
             {
               "id": "node_17938088160334",
-              "name": "Map",
+              "name": "Symbol",
               "label": "Extracted Relation Paths"
             }
           ],
           "output": [
             {
               "id": "node_17938088160336",
-              "name": "Ontology",
+              "name": "KG",
               "label": "Validated Semantic Relationship"
             }
           ],

@@ -1,13 +1,13 @@
 {
   "metadata": {
-    "exportId": "499ccc0f",
+    "exportId": "d4ae8748",
     "userId": "user_6j7bc3lh",
-    "exportDate": "2026-11-08T10:47:40.683Z"
+    "exportDate": "2026-11-15T13:43:05.579Z"
   },
   "boxologies": [
     {
       "id": "b397d6c0-3bde-468e-af55-76e508347a60",
-      "label": "b397d6c0-3bde-468e-af55-76e508347a60",
+      "label": "113",
       "DesignPattern": [
         {
           "id": "group_17941342558252",
@@ -60,7 +60,7 @@
           "output": [
             {
               "id": "node_17941342558256",
-              "name": "HybridModel",
+              "name": "Model",
               "label": "Markov Logic Network (pLogicNet)"
             }
           ],

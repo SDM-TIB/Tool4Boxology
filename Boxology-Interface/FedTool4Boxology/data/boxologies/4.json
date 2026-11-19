@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "exportId": "b3181ba4",
+    "exportId": "43e12f93",
     "userId": "user_6j7bc3lh",
-    "exportDate": "2026-11-06T12:21:00.514Z"
+    "exportDate": "2026-11-12T22:42:07.617Z"
   },
   "boxologies": [
     {
@@ -27,7 +27,7 @@
           "output": [
             {
               "id": "node_17938054873785",
-              "name": "Explanation",
+              "name": "Rules",
               "label": "Logical Deductions"
             }
           ],
@@ -71,7 +71,7 @@
             },
             {
               "id": "node_17938054873785",
-              "name": "Explanation",
+              "name": "Rules",
               "label": "Logical Deductions"
             },
             {
@@ -83,7 +83,7 @@
           "output": [
             {
               "id": "node_17938054873786",
-              "name": "Table",
+              "name": "Tensor",
               "label": "Biological Predictions"
             }
           ],
